@@ -1,0 +1,29 @@
+
+Tableau algorithms are important tools for description logic (DL) reasoning and have led to very efficient implementations. The presence of number restrictions [1,2], however, requires further optimizations like the use of dedicated numerical solvers as subroutines [3]. The novel DL ALCSCC [4] generalizes ALCQ by allowing to formulate restrictions on the number and type of role successors using more expressive arithmetical constraints. So far, algorithms for ALCSCC are based on the nondeterministic guessing of types of objects and solving the arithmetical constraints in a black-box fashion using external solvers.
+
+The goal of this thesis is to investigate tableau algorithms for ALCSCC, in particular a better integration of the goal-directed nature of tableau rules [1,2] with the black-box use of a numerical solver for restrictions on role successors [3,4]. The tableau algorithm should be able to call the solver with partial information, and the solver should be able to update its calculations once new information becomes available from the tableau rules. The developed algorithm should be proven to be correct and terminating.
+
+Particular research questions are:
+
+* Which kind of blocking conditions are necessary to guarantee termination of a tableau algorithm for ALCSCC?
+
+* Inhowfar can a numerical solver deal with partial information, induced by a (partial) object type that was constructed by tableau rules? How does this depend on the precise shape of the numerical constraints?
+
+* How much of an impact can the proposed techniques be expected to have in practical scenarios?
+
+* Can the tableau algorithm be extended to deal with nominals and cardinality restrictions [5], as it was done for ALCQ [6,7]?
+
+
+[1] Bernhard Hollunder and Franz Baader. Qualifying number restrictions in concept languages. In Proc. of the 2nd Int. Conf. on Principles of Knowledge Representation and Reasoning (KR'91), pages 335–346, 1991.
+
+[2] Ian Horrocks, Ulrike Sattler, and Stephan Tobies. Practical reasoning for expressive description logics. In Proc. of the 6th Int. Conf. on Logic for Programming and Automated Reasoning (LPAR'99), LNAI volume 1705, pages 161–180, Springer, 1999.
+
+[3] Volker Haarslev, Martina Timmann, and Ralf Möller. Combining Tableaux and Algebraic Methods for Reasoning with Qualified Number Restrictions. In Proc. of the 2001 Int. Description Logics Workshop (DL'01), 2001.
+
+[4] Franz Baader. A New Description Logic with Set Constraints and Cardinality Constraints on Role Successors. In Proc. of the 11th Int. Symp. on Frontiers of Combining Systems (FroCoS'17), LNAI volume 10483, 2017.
+
+[5] Franz Baader. Expressive cardinality constraints on ALCSCC concepts. In Proc. of the 34th ACM/SIGAPP Symp. on Applied Computing (SAC'19), ACM, 2019.
+
+[6] Chapter 5 in: Stephan Tobies. Complexity Results and Practical Algorithms for Logics in Knowledge Representation. PhD thesis, RWTH Aachen, Germany, 2001.
+
+[7] Ian Horrocks and Ulrike Sattler. Ontology reasoning in the SHOQ(D) description logic. In Proc. of the 17th Int. Joint Conf. on Artificial Intelligence (IJCAI'01), pages 199–204, Morgan Kaufmann, 2001.

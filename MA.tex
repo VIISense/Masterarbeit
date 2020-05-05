@@ -1,0 +1,183 @@
+
+\documentclass[a4paper,11pt]{scrartcl}
+\usepackage[english]{babel}  % falls der Artikel auf Deutsch verfasst ist
+% Verwenden Sie nur EINE der beiden folgenden Zeilen, je nachdem, ob Ihr
+% Betriebssystem LATIN1 (=ISO-8859-1) oder UTF8 als Zeichenkodierung
+% verwendet. Ob Sie die richtige verwenden, merken Sie daran, dass
+% die Umlaute richtig im Dokument dargestellt werden.
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm,algorithmic} 
+\usepackage{amsmath}
+\usepackage{ulem}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+\usepackage{dsfont}
+\theoremstyle{definition}
+\newtheorem{mydef}{Definition}
+\newtheorem{mylem}{Lemma}
+\newtheorem{mythe}{Theorem}
+\newtheorem{mycol}{Corollary}
+\newtheorem{mypro}{Proposition}
+\usepackage{color}
+\usepackage{paralist}
+\usepackage{tikz}
+\usetikzlibrary{shapes,snakes,arrows}
+\usepackage{verbatim}
+\usetikzlibrary{positioning}
+\usepackage{ulem}
+\newcommand{\RM}[1]{\MakeUppercase{\romannumeral #1{}}}
+\usepackage{url}
+\begin{document}
+\section{Preliminaries}
+Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ be a set of role names such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.\\
+$\mathcal{ALCQ}$ concepts are:
+\begin{itemize}
+\item all concept names
+\item if $C,D$ are concepts, $r$ a role and $n\in\mathbb{N}$ then:
+\begin{itemize}
+\item $\neg C$
+\item $C\sqcup D$
+\item $C\sqcap D$
+\item $\geq n\, r.C$
+\item $\leq n\, r.C$
+\end{itemize}
+\end{itemize}
+$\mathcal{ALC}$ is sublogic of $ALCQ$
+\begin{align*}
+\forall r.C =\, \leq 0\,r.\neg C\quad\quad \exists r.C = \, \geq 1\, r.C
+\end{align*}
+$QFBAPA$: Let $T$ be a set of symbols
+\begin{itemize}
+\item set terms over $T$ are:
+\begin{itemize}
+\item empty set $\emptyset$ and universal set $
+\mathcal{U}$
+\item every set symbol in $T$
+\item if $s,t$ are set terms then also $s\cap t$, $s\cup t$ and $s^{\neg}$
+\end{itemize}
+\item set constraints over $T$ are
+\begin{itemize}
+\item $s\subseteq t$ and $s\not\subseteq t$
+\item $s=t$ and $s\neq t$
+\end{itemize}
+where $s,t$ are set terms
+\item cardinality terms over $T$ are:
+\begin{itemize}
+\item every number $n\in \mathbb{N}$
+\item $|s|$ if $s$ is a set term
+\item if $k,l$ are cardinality terms then also $k+l$ and $n\cdot k$, $n\in \mathbb{N}$
+\end{itemize}
+\item cardinality constraints over $T$ are:
+\begin{itemize}
+\item $k=l$ and $k\neq l$
+\item $k<l$ and $k\nless l$
+\item $k\leq l$ and $k\not\leq l$
+\item $n$ $dvd$ $k$ and $n$ $\neg dvd$ $k$
+\end{itemize}
+where $k,l$ are cardinality terms and $n\in\mathbb{N}$
+\end{itemize}
+$\mathcal{ALCSCC}$ concepts are:
+\begin{itemize}
+\item all concept names
+\item if $C,D$ are concepts then:
+\begin{itemize}
+\item $\neg C$
+\item $C\sqcup D$
+\item $C\sqcap D$
+\end{itemize}
+\item $succ(c)$ if $c$ is a set or cardinality constraint over concept names and roles 
+\end{itemize}
+$\mathcal{ALCQ}$ is sublogic of $ALCSCC$:
+\begin{align*}
+\leq n\,r.\neg C = succ(|r\cap C|\leq n)\quad\quad \geq n\,r.\neg C = succ(|r\cap C|\geq n)
+\end{align*}
+The set $S$ is a set of constraints of the form:
+\begin{align*}
+x:C\quad\quad x.r.y\quad\quad (x,y):s
+\end{align*}
+where $C$ is a concept, $r$ a role name, $s$ a set term and $x,y$ variables. The constraint $(x,y):s$ denotes that $y$ is a successor of $x$, while $y$ must hold $s$\\
+\section{Tableau}
+\begin{mydef}[Merge]
+Let $(x,y_1):s$ and $(x,y_2:s)$ be in $S$. \textit{Merging} $y_1$ and $y_2$ results in one variable $y$ such that for each
+\begin{itemize}
+\item $x.r.y_i$, $i\in\{1,2\}$, we add $x.r.y$
+\item $y_i.r.z$, $i\in\{1,2\}$, we add $y.r.z$
+\item $(x,y_i):s$, $i\in\{1,2\}$, we add $(x,y):s$
+\item $y_i:C$, $i\in\{1,2\}$, we add $y:C$
+\end{itemize}
+Delete all constraints where $y_1$ and/or $y_2$ occur.
+\end{mydef}
+Note that by merging two successors other constraints might become violated:
+\begin{align*}
+S=\{x:succ(|r\cap A|=1)\sqcap succ(|r\cap B|=1)\sqcap succ(|r|>1), y_1:A, y_2:B, x.r.y_1, x.r.y_2\}
+\end{align*}
+If we merge $y_1$ and $y_2$ then the constraint $succ(|r|>1)$ which was satisfied becomes violated.\\
+\begin{mydef}[Tableau]
+Let $S$ be a set of constraints. Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$.
+\begin{enumerate}
+\item\label{cap} $\sqcap$-rule: In $S$ is $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
+$\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
+\item\label{cup} $\sqcup$-rule: In $S$ is $x:C_1\sqcup C_2$ but neither $x:C_1$ or $x:C_2$\\
+$\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
+\item\label{choose}$choose$-rule: In $S$ are $x:(k<n$), $n\in\mathbb{N}$, $y:C$, $C\in\mathbf{C}$, or $y:r$,$r\in\mathbf{R}$, and $C$ or $r$ occur in $k$ but $(x,y):k\not\in S$\\
+$\rightarrow$ $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):\neg k\}$
+\item\label{c}$cardinality$-rule: In $S$ are either \\$x:succ(k=l)$ and $k>l$, \\$x:succ(k\leq l)$ and $k>l$ or\\$x:succ(k<l)$ and $k\geq l$ or\\$x:succ(n\,dvd\,l)$ and $mod(l,n)\neq 0$ then
+\begin{enumerate}
+\item \label{simplesetterm}if $l$ is of the form $|s|$ then introduce new variable $y$ and $S:=S\cup\{(x,y):s\}$
+\item \label{addition}if $l=l_1+l_2$ then introduce new variable $y$ and either $S:=S\cup\{(x,y):l_1\}$ or $S:=S\cup\{(x,y):l_2\}$
+\item \label{multi}if $l=n\cdot l^\prime$ then $S:=S\cup\{(x,y):l^\prime\}$
+\item \label{exceeded} if $l\in \mathbb{N}$ is not a set term then merge two successor $y_1\neq y_2$ of $x$ for which $(x,y_1):k\in S$ and $(x,y_2):k\in S$ if no other constraints become violated
+\end{enumerate}
+\item\label{s}$set$-rule: In $S$ are $x:succ(c_1\subseteq c_2)$ and $(x,y):c_1$ but not $(x,y):c_2$\\
+$\rightarrow$ $S:=S\cup\{(x,y):c_2\}$
+\item\label{repeat} $set.term$-rule (Repeat until inapplicable): In $S$ is $(x,y):s$ and
+\begin{itemize}
+\item $s=s_1\cap s_2$ but $\{(x,y):s_1,\,(x,y):s_2\}\not\subseteq S$ then\\
+$\rightarrow$ $S:=S\cup \{(x,y):s_1,\,(x,y):s_2\}$ 
+\item $s=s_1\cup s_2$ and neither $\{(x,y):s_1\}\subseteq S$ nor $S\{(x,y):s_2\}\subset S$ then\\
+$\rightarrow$ either $S:=S\cup \{(x,y):s_1\}$ or $S:=S\cup \{(x,y):s_2\}$ 
+\item $s=r$ and $x.r.y\notin S$ then \\
+$\rightarrow$ $S:=S\cup\{x.r.y\}$
+\item $s=C$ and $y:C\notin S$ then \\
+$\rightarrow$ $S:=S\cup\{y:C\}$
+\end{itemize}
+\end{enumerate}
+\end{mydef}
+Note that:
+\begin{itemize}
+\item $\ref{exceeded}$ is never applicable for $n\, dvd\, l$
+\item $n_1\,dvd\,n_2\cdot l$ and $n_1\,\neg dvd\,n_2$ then $n_1\,dvd\,l$ eventually
+\end{itemize}
+Example for $\ref{exceeded}$:\\
+\begin{align*}
+S=\{x:succ(|1|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|\}
+\end{align*}
+After rule \ref{cap} (two times):
+\begin{align*}
+S=\{x:succ(|1|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|\\
+x:succ(|1|=1), x:succ(|r\cap s|=1), x:succ=(|r\cap C|=1|
+\}
+\end{align*}
+If we try to satisfy at least two of the new constraints by the Tableau-algorithm above we end up with at least one constraint being violated. Let say we use the rules on the three new constraints sequentially. Then we have 
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\node (0) at (0,0) {$x$};
+\node (1) at (-4,-2) {$y_1$};
+\node (2) at (0,-2) {$y_2$};
+\node (3) at (4,-2) {$y_3$};
+\node[below = 1mm of 3] {$C$};
+\path[->] (0) edge node[above]{$r$} (1);
+\path[->] (0) edge node[left]{$r\cap s$} (2);
+\path[->] (0) edge node[above]{$r$} (3);
+\end{tikzpicture}
+\end{figure}
+After using rule \ref{exceeded} two times we have the variable $x$ and its only $r\cap s$-successor $y$ which is of the concept $C$. We could use this rule because we do not violate any other constraints. 
+If we look again on the first example
+\begin{align*}
+S=\{x:succ(|r\cap A|=1)\sqcap succ(|r\cap B|=1)\sqcap succ(|r|>1), y_1:A, y_2:B, x.r.y_1, x.r.y_2\}
+\end{align*}
+we see that we can not use rule \ref{exceeded} here, because otherwise $succ(|r|>1)$ becomes violated.
+\end{document}
