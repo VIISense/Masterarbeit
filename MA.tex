@@ -87,7 +87,7 @@ $\mathcal{ALCSCC}$ concepts are:
 \item $C\sqcup D$
 \item $C\sqcap D$
 \end{itemize}
-\item $succ(c)$ if $c$ is a set or cardinality constraint over concept names and roles 
+\item $succ(c)$ if $c$ is a set or cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \end{itemize}
 $\mathcal{ALCQ}$ is sublogic of $ALCSCC$:
 \begin{align*}
@@ -100,20 +100,30 @@ x:C\quad\quad x.r.y\quad\quad (x,y):s
 where $C$ is a concept, $r$ a role name, $s$ a set term and $x,y$ variables. The constraint $(x,y):s$ denotes that $y$ is a successor of $x$, while $y$ must hold $s$\\
 \section{Tableau}
 \begin{mydef}[Merge]
-Let $(x,y_1):s$ and $(x,y_2:s)$ be in $S$. \textit{Merging} $y_1$ and $y_2$ results in one variable $y$ such that for each
+\textit{Merging} $y_1$ and $y_2$ results in one variable $y$ such that for each $i\in\{1,2\}$
 \begin{itemize}
-\item $x.r.y_i$, $i\in\{1,2\}$, we add $x.r.y$
-\item $y_i.r.z$, $i\in\{1,2\}$, we add $y.r.z$
-\item $(x,y_i):s$, $i\in\{1,2\}$, we add $(x,y):s$
-\item $y_i:C$, $i\in\{1,2\}$, we add $y:C$
+\item $x.r.y_i$, we add $x.r.y$
+\item $y_i.r.z$, we add $y.r.z$
+\item $(x,y_i):s$, we add $(x,y):s$
+\item $y_i:C$, we add $y:C$
 \end{itemize}
 Delete all constraints where $y_1$ and/or $y_2$ occur.
 \end{mydef}
 Note that by merging two successors other constraints might become violated:
-\begin{align*}
-S=\{x:succ(|r\cap A|=1)\sqcap succ(|r\cap B|=1)\sqcap succ(|r|>1), y_1:A, y_2:B, x.r.y_1, x.r.y_2\}
-\end{align*}
-If we merge $y_1$ and $y_2$ then the constraint $succ(|r|>1)$ which was satisfied becomes violated.\\
+\begin{align}
+S=\{&x:succ(|r\cap A|=1)\sqcap succ(|r\cap B|=1)\sqcap succ(|r|>1),\nonumber\\ &y_1:A, y_2:B, x.r.y_1, x.r.y_2\}
+\end{align}
+If we merge $y_1$ and $y_2$ then the constraint $x:succ(|r|>1)$ which was satisfied becomes violated. But not only constraints regarding $x$ might become violated after merging two successors of $x$: 
+\begin{align}
+S=\{&x:succ(|r|\leq 1), x.r.y_1, x.r.y_2,\nonumber
+\\&y_1:succ(|s|\leq 1), y_2:succ(|s|\leq 1), y_1.s.z_1, y_2.s.z_2\}
+\end{align}
+We see that the first constraint is violated and therefore merging $y_1$ and $y_2$ would solve the problem but on the other hand the constraints regarding $y_1$ and $y_2$ become violated: 
+\begin{align}
+S=\{x:succ(|r|\leq 1), x.r.y,
+y:succ(|s|\leq 1), y.s.z_1, y.s.z_2\}
+\end{align}
+To solve this problem we merge $z_1$ and $z_2$.
 \begin{mydef}[Tableau]
 Let $S$ be a set of constraints. Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$.
 \begin{enumerate}
@@ -121,28 +131,28 @@ Let $S$ be a set of constraints. Conjunction binds stronger than disjunction: $s
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: In $S$ is $x:C_1\sqcup C_2$ but neither $x:C_1$ or $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
-\item\label{choose}$choose$-rule: In $S$ are $x:(k<n$), $n\in\mathbb{N}$, $y:C$, $C\in\mathbf{C}$, or $y:r$,$r\in\mathbf{R}$, and $C$ or $r$ occur in $k$ but $(x,y):k\not\in S$\\
+\item\label{choose}$choose$-rule: In $S$ are
+$x:succ(k\leq l$), $y:C$ or $x.r.y$ and\\ $C$ or $r$ occur in $k$ but $(x,y):k\not\in S$\\
 $\rightarrow$ $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):\neg k\}$
 \item\label{c}$cardinality$-rule: In $S$ are either \\$x:succ(k=l)$ and $k>l$, \\$x:succ(k\leq l)$ and $k>l$ or\\$x:succ(k<l)$ and $k\geq l$ or\\$x:succ(n\,dvd\,l)$ and $mod(l,n)\neq 0$ then
 \begin{enumerate}
-\item \label{simplesetterm}if $l$ is of the form $|s|$ then introduce new variable $y$ and $S:=S\cup\{(x,y):s\}$
-\item \label{addition}if $l=l_1+l_2$ then introduce new variable $y$ and either $S:=S\cup\{(x,y):l_1\}$ or $S:=S\cup\{(x,y):l_2\}$
-\item \label{multi}if $l=n\cdot l^\prime$ then $S:=S\cup\{(x,y):l^\prime\}$
-\item \label{exceeded} if $l\in \mathbb{N}$ is not a set term then merge two successor $y_1\neq y_2$ of $x$ for which $(x,y_1):k\in S$ and $(x,y_2):k\in S$ if no other constraints become violated
+\item \label{setterm} if there is a set term $s$ in $l$\\
+$\rightarrow$ introduce new variable $y$ and $S:=S\cup\{(x,y):x\}$
+\item \label{exceeded} if $l\in \mathbb{N}$ does not contain a set term then merge two successor $y_1\neq y_2$ of $x$ for which $(x,y_1):k\in S$ and $(x,y_2):k\in S$ if no other constraints regarding $x$ become violated
 \end{enumerate}
 \item\label{s}$set$-rule: In $S$ are $x:succ(c_1\subseteq c_2)$ and $(x,y):c_1$ but not $(x,y):c_2$\\
 $\rightarrow$ $S:=S\cup\{(x,y):c_2\}$
 \item\label{repeat} $set.term$-rule (Repeat until inapplicable): In $S$ is $(x,y):s$ and
-\begin{itemize}
-\item $s=s_1\cap s_2$ but $\{(x,y):s_1,\,(x,y):s_2\}\not\subseteq S$ then\\
+\begin{enumerate}
+\item\label{setterm1} $s=s_1\cap s_2$ but $\{(x,y):s_1,\,(x,y):s_2\}\not\subseteq S$ then\\
 $\rightarrow$ $S:=S\cup \{(x,y):s_1,\,(x,y):s_2\}$ 
-\item $s=s_1\cup s_2$ and neither $\{(x,y):s_1\}\subseteq S$ nor $S\{(x,y):s_2\}\subset S$ then\\
+\item\label{setterm2} $s=s_1\cup s_2$ and neither $\{(x,y):s_1\}\subseteq S$ nor $S\{(x,y):s_2\}\subset S$ then\\
 $\rightarrow$ either $S:=S\cup \{(x,y):s_1\}$ or $S:=S\cup \{(x,y):s_2\}$ 
-\item $s=r$ and $x.r.y\notin S$ then \\
+\item\label{setterm3} $s=r$ and $x.r.y\notin S$ then \\
 $\rightarrow$ $S:=S\cup\{x.r.y\}$
-\item $s=C$ and $y:C\notin S$ then \\
+\item\label{setterm4} $s=C$ and $y:C\notin S$, where $C$ is a $\mathcal{ALCSCC}$ concepts then \\
 $\rightarrow$ $S:=S\cup\{y:C\}$
-\end{itemize}
+\end{enumerate}
 \end{enumerate}
 \end{mydef}
 Note that:
@@ -152,12 +162,12 @@ Note that:
 \end{itemize}
 Example for $\ref{exceeded}$:\\
 \begin{align*}
-S=\{x:succ(|1|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|\}
+S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|\}
 \end{align*}
 After rule \ref{cap} (two times):
 \begin{align*}
-S=\{x:succ(|1|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|\\
-x:succ(|1|=1), x:succ(|r\cap s|=1), x:succ=(|r\cap C|=1|
+S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|\\
+x:succ(|r|=1), x:succ(|r\cap s|=1), x:succ=(|r\cap C|=1|
 \}
 \end{align*}
 If we try to satisfy at least two of the new constraints by the Tableau-algorithm above we end up with at least one constraint being violated. Let say we use the rules on the three new constraints sequentially. Then we have 
@@ -179,5 +189,6 @@ If we look again on the first example
 \begin{align*}
 S=\{x:succ(|r\cap A|=1)\sqcap succ(|r\cap B|=1)\sqcap succ(|r|>1), y_1:A, y_2:B, x.r.y_1, x.r.y_2\}
 \end{align*}
-we see that we can not use rule \ref{exceeded} here, because otherwise $succ(|r|>1)$ becomes violated.
+we see that we can not use rule \ref{exceeded} here, because otherwise $succ(|r|>1)$ becomes violated.\\
+
 \end{document}
