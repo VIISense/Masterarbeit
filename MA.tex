@@ -31,24 +31,8 @@
 \usepackage{url}
 \begin{document}
 \section{Preliminaries}
-Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ be a set of role names such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.\\
-$\mathcal{ALCQ}$ concepts are:
-\begin{itemize}
-\item all concept names
-\item if $C,D$ are concepts, $r$ a role and $n\in\mathbb{N}$ then:
-\begin{itemize}
-\item $\neg C$
-\item $C\sqcup D$
-\item $C\sqcap D$
-\item $\geq n\, r.C$
-\item $\leq n\, r.C$
-\end{itemize}
-\end{itemize}
-$\mathcal{ALC}$ is sublogic of $ALCQ$
-\begin{align*}
-\forall r.C =\, \leq 0\,r.\neg C\quad\quad \exists r.C = \, \geq 1\, r.C
-\end{align*}
-$QFBAPA$: Let $T$ be a set of symbols
+\begin{mydef}[$QFBAPA$]
+Let $T$ be a set of symbols
 \begin{itemize}
 \item set terms over $T$ are:
 \begin{itemize}
@@ -78,7 +62,9 @@ where $s,t$ are set terms
 \end{itemize}
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
-$\mathcal{ALCSCC}$ concepts are:
+\end{mydef}
+\begin{mydef}[$\mathcal{ALCSCC}$]
+Concepts are:
 \begin{itemize}
 \item all concept names
 \item if $C,D$ are concepts then:
@@ -89,25 +75,26 @@ $\mathcal{ALCSCC}$ concepts are:
 \end{itemize}
 \item $succ(c)$ if $c$ is a set or cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \end{itemize}
-$\mathcal{ALCQ}$ is sublogic of $ALCSCC$:
+\end{mydef}
+The set $S$ is a set of constraints of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The constraint $(x,y):s$ denotes that $y$ is a successor of $x$, while $y$ must hold $s$.\\
+For the next definition we denote with $s\in k$ that the set term $s$ occurs in the cardinality constraint $k$.
+\begin{mydef}[Number of successors]
+Let $S$ be a set of constraints, $x$ be a variable and $s$ be a set term. Then $\#s(x)$ is the number of successors of $x$ in $S$ which satisfy $s$:
 \begin{align*}
-\leq n\,r.\neg C = succ(|r\cap C|\leq n)\quad\quad \geq n\,r.\neg C = succ(|r\cap C|\geq n)
+\#s(x)=|\{s|(x,y):s\in S\}|
 \end{align*}
-The set $S$ is a set of constraints of the form:
-\begin{align*}
-x:C\quad\quad x.r.y\quad\quad (x,y):s
-\end{align*}
-where $C$ is a concept, $r$ a role name, $s$ a set term and $x,y$ variables. The constraint $(x,y):s$ denotes that $y$ is a successor of $x$, while $y$ must hold $s$\\
+A constraint regarding a variable $x$ is \textit{violated} if
+\begin{itemize}
+\item $x:succ(k\leq n)$ and $n<\sum_{s\in k}\#s(x)$
+\item $x:succ(k\geq n)$ and $n>\sum_{s\in k}\#s(x)$
+\item $x:succ(k\leq l)$ and $\sum_{t\in l}\#t(x)<\sum_{s\in k}\#s(x)$
+\item $x:succ(k\geq l)$ and $\sum_{t\in l}\#t(x)>\sum_{s\in k}\#s(x)$
+\end{itemize} 
+where $n\in\mathbb{N}$ a integer.
+\end{mydef}
 \section{Tableau}
 \begin{mydef}[Merge]
-\textit{Merging} $y_1$ and $y_2$ results in one variable $y$ such that for each $i\in\{1,2\}$
-\begin{itemize}
-\item $x.r.y_i$, we add $x.r.y$
-\item $y_i.r.z$, we add $y.r.z$
-\item $(x,y_i):s$, we add $(x,y):s$
-\item $y_i:C$, we add $y:C$
-\end{itemize}
-Delete all constraints where $y_1$ and/or $y_2$ occur.
+\textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
 \end{mydef}
 Note that by merging two successors other constraints might become violated:
 \begin{align}
@@ -119,22 +106,40 @@ S=\{&x:succ(|r|\leq 1), x.r.y_1, x.r.y_2,\nonumber
 \\&y_1:succ(|s|\leq 1), y_2:succ(|s|\leq 1), y_1.s.z_1, y_2.s.z_2\}
 \end{align}
 We see that the first constraint is violated and therefore merging $y_1$ and $y_2$ would solve the problem but on the other hand the constraints regarding $y_1$ and $y_2$ become violated: 
-\begin{align}
+\begin{align*}
 S=\{x:succ(|r|\leq 1), x.r.y,
 y:succ(|s|\leq 1), y.s.z_1, y.s.z_2\}
-\end{align}
+\end{align*}
 To solve this problem we merge $z_1$ and $z_2$.
+\begin{mydef}[Clash]
+A constraint set $S$ contains a \textit{clash} if
+\begin{itemize}
+\item $\{x:\perp\}\subseteq S$ or
+\item $\{x:A,\,x:\neg A\}\subseteq S$ or
+\item $\{x:succ(k\leq l)\}$ and $\#k(x)>\#l(x)$
+\item $\{x:succ(k\leq n)\}$ and $\#k(x)>n$
+\item $\{x:succ(k\geq l)\}$ and $\#k(x)<\#l(x)$
+\item $\{x:succ(k\geq n)\}$ and $\#k(x)<n$
+\item $\{x:succ(n\, dvd\, k)\}$ and $mod(\#k(x),n)\neq 0$
+\end{itemize}
+\end{mydef}
+For the next definition we define first properties of the following notations:
+\begin{itemize}
+\item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
+\item $k\leq l$ and $k\geq l$ iff $k=l$
+\item $s\subseteq t$ and $s\supset t$ iff $s=t$
+\end{itemize}
 \begin{mydef}[Tableau]
-Let $S$ be a set of constraints. Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$.
+Let $S$ be a set of constraints. 
 \begin{enumerate}
 \item\label{cap} $\sqcap$-rule: In $S$ is $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: In $S$ is $x:C_1\sqcup C_2$ but neither $x:C_1$ or $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: In $S$ are
-$x:succ(k\leq l$), $y:C$ or $x.r.y$ and\\ $C$ or $r$ occur in $k$ but $(x,y):k\not\in S$\\
-$\rightarrow$ $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):\neg k\}$
-\item\label{c}$cardinality$-rule: In $S$ are either \\$x:succ(k=l)$ and $k>l$, \\$x:succ(k\leq l)$ and $k>l$ or\\$x:succ(k<l)$ and $k\geq l$ or\\$x:succ(n\,dvd\,l)$ and $mod(l,n)\neq 0$ then
+$x:succ(k\leq l$), $y:C$ or $x.r.y$ and\\ $C$ or $r$ occur in $k$ but $(x,y):s\not\in S$ for every set term $s$ in $k$\\
+$\rightarrow$ choose one set term $s$ in $k$ and either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):\neg s\}$
+\item\label{c}$cardinality$-rule: In $S$ is $x:succ(c)$, with $c\in\{k=l,\,k\leq l,\,k<l,\, n\, dvd l\}$, which is violated 
 \begin{enumerate}
 \item \label{setterm} if there is a set term $s$ in $l$\\
 $\rightarrow$ introduce new variable $y$ and $S:=S\cup\{(x,y):x\}$
@@ -160,10 +165,10 @@ Note that:
 \item $\ref{exceeded}$ is never applicable for $n\, dvd\, l$
 \item $n_1\,dvd\,n_2\cdot l$ and $n_1\,\neg dvd\,n_2$ then $n_1\,dvd\,l$ eventually
 \end{itemize}
-Example for $\ref{exceeded}$:\\
-\begin{align*}
+Example for $\ref{exceeded}$:
+\begin{align}
 S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|\}
-\end{align*}
+\end{align}
 After rule \ref{cap} (two times):
 \begin{align*}
 S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|\\
@@ -184,11 +189,9 @@ If we try to satisfy at least two of the new constraints by the Tableau-algorith
 \path[->] (0) edge node[above]{$r$} (3);
 \end{tikzpicture}
 \end{figure}
-After using rule \ref{exceeded} two times we have the variable $x$ and its only $r\cap s$-successor $y$ which is of the concept $C$. We could use this rule because we do not violate any other constraints. 
-If we look again on the first example
-\begin{align*}
-S=\{x:succ(|r\cap A|=1)\sqcap succ(|r\cap B|=1)\sqcap succ(|r|>1), y_1:A, y_2:B, x.r.y_1, x.r.y_2\}
-\end{align*}
-we see that we can not use rule \ref{exceeded} here, because otherwise $succ(|r|>1)$ becomes violated.\\
-
+After using rule \ref{exceeded} two times we have the variable $x$ and its only $r\cap s$-successor $y$ which is of the concept $C$. We could use this rule because we do not violate any other constraints. This condition helps to prevent an infinite chain of rule application:
+\begin{align}
+S=\{x:succ(|r|<2)\sqcap succ(|r|\geq 2)\}	
+\end{align}
+First we apply the rules \ref{setterm} and \ref{setterm3} two times to add two $r$-successors for $x$ hence $x:succ(|r|<2)$ is not satisfied any more. If we ignore the condition in rule \ref{exceeded} and apply it then we merge the two successors leading to $x:succ(|r|<2)$ being satisfied but $x:succ(|r|\geq 2)$ being violated. Then we apply the rules \ref{setterm} and \ref{setterm3} again leading to $x:succ(|r|<2)$ being violated again and so on. By the condition in \ref{exceeded} we can not use rule \ref{exceeded} from the beginning which means the algorithm terminates with a clash stating that the constraint set is unsatisfiable.
 \end{document}
