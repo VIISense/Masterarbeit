@@ -14,7 +14,12 @@
 \usepackage{amsthm}
 \usepackage{stmaryrd}
 \usepackage{dsfont}
-\theoremstyle{definition}
+\newtheoremstyle{break}
+  {\topsep}{\topsep}%
+  {\itshape}{}%
+  {\bfseries}{}%
+  {\newline}{}%
+\theoremstyle{break}
 \newtheorem{mydef}{Definition}
 \newtheorem{mylem}{Lemma}
 \newtheorem{mythe}{Theorem}
@@ -29,8 +34,15 @@
 \usepackage{ulem}
 \newcommand{\RM}[1]{\MakeUppercase{\romannumeral #1{}}}
 \usepackage{url}
+\makeatletter
+\newcommand{\oset}[3][0ex]{%
+  \mathrel{\mathop{#3}\limits^{
+    \vbox to#1{\kern-2\ex@
+    \hbox{$\scriptstyle#2$}\vss}}}}
+\makeatother
 \begin{document}
 \section{Preliminaries}
+Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names such that they are disjoint.
 \begin{mydef}[$QFBAPA$]
 Let $T$ be a set of symbols
 \begin{itemize}
@@ -76,22 +88,24 @@ Concepts are:
 \item $succ(c)$ if $c$ is a set or cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \end{itemize}
 \end{mydef}
-The set $S$ is a set of constraints of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The constraint $(x,y):s$ denotes that $y$ is a successor of $x$, while $y$ must hold $s$.\\
+The set $S$ is a set of constraints of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The constraint $(x,y):s$ denotes that $y$ is a successor of $x$, while $y$ must satisfies $s$ which means that for every role $r$ occurring in $s$ it must hold that $x.r.y$ and for every concept $C$ occurring in $s$ it must hold that $y:C)$.\\
 For the next definition we denote with $s\in k$ that the set term $s$ occurs in the cardinality constraint $k$.
 \begin{mydef}[Number of successors]
-Let $S$ be a set of constraints, $x$ be a variable and $s$ be a set term. Then $\#s(x)$ is the number of successors of $x$ in $S$ which satisfy $s$:
+Let $S$ be a set of constraints, $x$ be a variable and $s$ be a set term. The number of successors of $x$ which satisfy a cardinality term $k$ is define as
 \begin{align*}
-\#s(x)=|\{s|(x,y):s\in S\}|
+n_k(x_S) = |\{y\mid (x,y):s\in S\text{ and }|s|\text{ occurs in }k\}|
 \end{align*}
 A constraint regarding a variable $x$ is \textit{violated} if
 \begin{itemize}
-\item $x:succ(k\leq n)$ and $n<\sum_{s\in k}\#s(x)$
-\item $x:succ(k\geq n)$ and $n>\sum_{s\in k}\#s(x)$
-\item $x:succ(k\leq l)$ and $\sum_{t\in l}\#t(x)<\sum_{s\in k}\#s(x)$
-\item $x:succ(k\geq l)$ and $\sum_{t\in l}\#t(x)>\sum_{s\in k}\#s(x)$
+\item $x:succ(k\leq n)$ and $n<n_k(x_S)$
+\item $x:succ(k\geq n)$ and $n>n_k(x_S)$
+\item $x:succ(k\leq l)$ and $n_l(x_S)<n_k(x_S)$
+\item $x:succ(k\geq l)$ and $n_l(x_S)>n_k(x_S)$
+\item $x:succ(n\,dvd\,k)$ and $mod(n_k(x_S),n)\neq 0$
 \end{itemize} 
-where $n\in\mathbb{N}$ a integer.
+where $n\in\mathbb{N}$.
 \end{mydef}
+Note that we must consider only the set terms $s$ which occur as $|s|$ in $S$ because otherwise we count in variables which are successors of $x$ but might not satisfy the whole constraint. As example we look at $S:=\{x:succ(c=1), x.s.y\}$ with $c=|r\cap B\cap C|$. The variable $y$ should be counted in $n_c(x)$ because $y:B$ and $y:C$ are not in $S$.
 \section{Tableau}
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
@@ -100,34 +114,31 @@ Note that by merging two successors other constraints might become violated:
 \begin{align}
 S=\{&x:succ(|r\cap A|=1)\sqcap succ(|r\cap B|=1)\sqcap succ(|r|>1),\nonumber\\ &y_1:A, y_2:B, x.r.y_1, x.r.y_2\}
 \end{align}
-If we merge $y_1$ and $y_2$ then the constraint $x:succ(|r|>1)$ which was satisfied becomes violated. But not only constraints regarding $x$ might become violated after merging two successors of $x$: 
+If we merge $y_1$ and $y_2$ then the constraint $x:succ(|r|>1)$ which was satisfied becomes violated.\\
+But not only constraints regarding $x$ might become violated after merging two successors of $x$: 
 \begin{align}
 S=\{&x:succ(|r|\leq 1), x.r.y_1, x.r.y_2,\nonumber
 \\&y_1:succ(|s|\leq 1), y_2:succ(|s|\leq 1), y_1.s.z_1, y_2.s.z_2\}
 \end{align}
-We see that the first constraint is violated and therefore merging $y_1$ and $y_2$ would solve the problem but on the other hand the constraints regarding $y_1$ and $y_2$ become violated: 
+We see that the first constraint is violated and therefore merging $y_1$ and $y_2$ to $y$ would solve the problem but on the other hand the constraints regarding $y$ become violated: 
 \begin{align*}
 S=\{x:succ(|r|\leq 1), x.r.y,
 y:succ(|s|\leq 1), y.s.z_1, y.s.z_2\}
 \end{align*}
-To solve this problem we merge $z_1$ and $z_2$.
+To solve this problem we have to merge $z_1$ and $z_2$.
 \begin{mydef}[Clash]
 A constraint set $S$ contains a \textit{clash} if
 \begin{itemize}
 \item $\{x:\perp\}\subseteq S$ or
 \item $\{x:A,\,x:\neg A\}\subseteq S$ or
-\item $\{x:succ(k\leq l)\}$ and $\#k(x)>\#l(x)$
-\item $\{x:succ(k\leq n)\}$ and $\#k(x)>n$
-\item $\{x:succ(k\geq l)\}$ and $\#k(x)<\#l(x)$
-\item $\{x:succ(k\geq n)\}$ and $\#k(x)<n$
-\item $\{x:succ(n\, dvd\, k)\}$ and $mod(\#k(x),n)\neq 0$
+\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$
 \end{itemize}
 \end{mydef}
 For the next definition we define first properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
-\item $k\leq l$ and $k\geq l$ iff $k=l$
-\item $s\subseteq t$ and $s\supset t$ iff $s=t$
+\item $k\leq l$ and $k\geq l$ iff $k=l$, where $k,l$ are cardinality terms
+\item $s\subseteq t$ and $s\supset t$ iff $s=t$, where $s,t$ are set terms
 \end{itemize}
 \begin{mydef}[Tableau]
 Let $S$ be a set of constraints. 
@@ -137,12 +148,12 @@ $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: In $S$ is $x:C_1\sqcup C_2$ but neither $x:C_1$ or $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: In $S$ are
-$x:succ(k\leq l$), $y:C$ or $x.r.y$ and\\ $C$ or $r$ occur in $k$ but $(x,y):s\not\in S$ for every set term $s$ in $k$\\
-$\rightarrow$ choose one set term $s$ in $k$ and either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):\neg s\}$
-\item\label{c}$cardinality$-rule: In $S$ is $x:succ(c)$, with $c\in\{k=l,\,k\leq l,\,k<l,\, n\, dvd l\}$, which is violated 
+$x:succ(k\leq l$), $y:C$ or $x.r.y$ and\\ $C$ or $r$ occur in $k$ but $(x,y):s\not\in S$ for every $|s|$ occurring in $k$\\
+$\rightarrow$ choose one $|s|$, in which $C$ or $r$ occurs, and either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):\neg s\}$
+\item\label{c}$cardinality$-rule: In $S$ is $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, which is violated regarding $x$
 \begin{enumerate}
 \item \label{setterm} if there is a set term $s$ in $l$\\
-$\rightarrow$ introduce new variable $y$ and $S:=S\cup\{(x,y):x\}$
+$\rightarrow$ introduce new variable $y$ and $S:=S\cup\{(x,y):s\}$
 \item \label{exceeded} if $l\in \mathbb{N}$ does not contain a set term then merge two successor $y_1\neq y_2$ of $x$ for which $(x,y_1):k\in S$ and $(x,y_2):k\in S$ if no other constraints regarding $x$ become violated
 \end{enumerate}
 \item\label{s}$set$-rule: In $S$ are $x:succ(c_1\subseteq c_2)$ and $(x,y):c_1$ but not $(x,y):c_2$\\
@@ -159,6 +170,7 @@ $\rightarrow$ $S:=S\cup\{x.r.y\}$
 $\rightarrow$ $S:=S\cup\{y:C\}$
 \end{enumerate}
 \end{enumerate}
+Any constraint set $S^\prime$ which is obtained from applying a finite number of rules on $S$ is called \textit{derived set}.
 \end{mydef}
 Note that:
 \begin{itemize}
@@ -193,5 +205,48 @@ After using rule \ref{exceeded} two times we have the variable $x$ and its only 
 \begin{align}
 S=\{x:succ(|r|<2)\sqcap succ(|r|\geq 2)\}	
 \end{align}
-First we apply the rules \ref{setterm} and \ref{setterm3} two times to add two $r$-successors for $x$ hence $x:succ(|r|<2)$ is not satisfied any more. If we ignore the condition in rule \ref{exceeded} and apply it then we merge the two successors leading to $x:succ(|r|<2)$ being satisfied but $x:succ(|r|\geq 2)$ being violated. Then we apply the rules \ref{setterm} and \ref{setterm3} again leading to $x:succ(|r|<2)$ being violated again and so on. By the condition in \ref{exceeded} we can not use rule \ref{exceeded} from the beginning which means the algorithm terminates with a clash stating that the constraint set is unsatisfiable.
+First we apply the rules \ref{setterm} and \ref{setterm3} two times to add two $r$-successors for $x$ hence $x:succ(|r|<2)$ is not satisfied any more. If we ignore the condition in rule \ref{exceeded} and apply it then we merge the two successors leading to $x:succ(|r|<2)$ being satisfied but $x:succ(|r|\geq 2)$ being violated. Then we apply the rules \ref{setterm} and \ref{setterm3} again leading to $x:succ(|r|<2)$ being violated again and so on. By the condition in \ref{exceeded} we can not use rule \ref{exceeded} from the beginning which means the algorithm terminates with a clash stating that the constraint set is unsatisfiable.\\
+First we prove that the tableau algorithm terminates. 
+\begin{mypro}
+Let $C$ be a concept in negation normal form. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
+\end{mypro}
+To prove this we mapped any derived sets $S$ to an element $\Psi(S)$ from a set $Q$. The elements from $Q$ can be ordered by a strict partial order $\prec$. A strict partial order is well-founded which means that there exists no infinite decreasing chains. If we can show that by obtaining $S^\prime$ by applying a rule on $S$ results in $\Psi(S^\prime)\prec\Psi(S)$ then by the property of $\prec$ the tableau algorithm terminates.\\
+The elements in $Q$ are quintuples, whose elements  are multisets of integers ($\mathbb{Z}$). A quintuple $q=(q_1,\dots,q_5)$ is larger than another $q^\prime=(q^\prime_1,\dots,q^\prime_5)$ if for the first $i,\, 1\leq i\leq 5$ for which $q_i$ and $q_i^\prime$ differs $q_i$ is larger than $q_i^\prime$ (also called lexicographical ordering). A mutliset $q_i$ is larger than $q_i^\prime$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i$ by a finite number of integers which are all smaller than $c$. Note that the finite number can also be $0$.\\
+Two more definition are needed: Two non-negative integer $n,m$ have the asymmetrical difference $n-m$ if $n\geq m$ and $0$ if $n<m$. It is denoted as $n\oset[-1ex]{.}{-}m$. For a concept $C$ its size $|C|$ is inductively defined as
+\begin{itemize}
+\item $1$, if $C$ is a primitive concept of $\mathbf{C}$
+\item $|\neg C|=|C|$
+\item $|succ(c)|= 1 + \sum_{C\in\mathbf{C}\text{ occurs in c}} |C|$
+\item $|C\sqcap D|=|C\sqcup D|=|C|+|D|$
+\end{itemize}
+The quintuples in $Q$ are defined as follows
+\begin{mydef}
+Let $S$ be a constraint set. Then $\Psi(S)$ is a multiset containing for each variable $x$ occurring in $S$ a quintuple $\psi_S(x)$ where
+\begin{itemize}
+\item the first component is a non-negative integer $max\{|C|\mid x:C\in S\}$
+\item the second component is a multiset of integers containing for each $x:C\sqcap D$ on which the $\sqcap$-rule is applicable the non-negative integer $|C\sqcap D|$ (respectively for $C\sqcup D$)
+\item the third component is a multiset of integers containing for each $x:succ(k\geq n)\in S$ the non-negative integer $n\oset[-1ex]{.}{-}n_k(x_S)$ and for each $x:succ(k\geq l)\in S$ the non-negative integer $n_l(x_S)\oset[-1ex]{.}{-}n_k(x_S)$
+\item the fourth component denotes the number of all successors of $x$ in $S$
+\item the fifth component is a multiset of integers containing for each $x:succ(k\leq n)\in S$ the number of all successors $y$ of $x$ such that for a role $r$ we have $x.r.y$, $r$ occurs in $k$ but for a $|s|$ in $k$ we have neither  $(x,y):s\in S$ or $(x,y):\neg s\in S$
+\end{itemize}
+\end{mydef}
+\begin{mylem}
+The following properties hold
+\begin{enumerate}
+\item For any concept $C$ we have $|C|\geq|NNF(\neg C)|$
+\item Any variable $y$ in a derived set $S$ has at most one predecessor $x$ in $S$
+\item If $x.r.y\in S$ then 
+\begin{align*}
+max\{|C|\mid x:C\in S\}>max\{|D|\mid y:D \in S\}
+\end{align*}
+\end{enumerate}
+\end{mylem}
+\begin{proof}$ $\\
+\vspace*{-5mm}
+\begin{enumerate}
+\item By induction over the number of applications to compute the negation normal form we have $|C|=|NNF(\neg C)|$. Because $\neg succ(k>0)$ can be replace by $\perp$ which is $smaller$ than $\neg succ(k>0)$, we have $|C|\geq|NNF(\neg C)|$
+\item If $y$ is a newly introduced variable then it can only be introduced by one exactly one variable $x$ which it is $y$'s only predecessor. If two variable are merged together by rule \ref{exceeded} then both variable must have the same predecessor $x$ by the condition of the rule
+\item By the second fact we know that $x$ is the only predecessor of $y$. When $y$ is introduced by \ref{setterm} then we have $y:C$ for every concept $C$ occurring in $l$. But by the definition of the concept size $max\{|C|\mid x:C\in S\}$ is greater by at least $1$. A new constraint $y:D$ can occur either because rule \ref{cap} or \ref{cup} are applicable on $y:C$, which neither raise $max\{|D|\mid y:D \in S\}$, or because rule \ref{choose} is applicable on $x:C$. If $y$ get merged together with another variable $z$ then $y$ and $z$ must have the same predecessor which means that all concept size regarding $z$ are also smaller then $max\{|C|\mid x:C\in S\}$.
+\end{enumerate}
+\end{proof}
 \end{document}
