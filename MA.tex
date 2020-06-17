@@ -69,8 +69,8 @@ where $s,t$ are set terms
 \item cardinality constraints over $T$ are:
 \begin{itemize}
 \item $k=l$ and $k\neq l$
-\item $k<l$ and $k\nless l$
-\item $k\leq l$ and $k\not\leq l$
+\item $k<l$ and $k\geq l$
+\item $k\leq l$ and $k>l$
 \item $n$ $dvd$ $k$ and $n$ $\neg dvd$ $k$
 \end{itemize}
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
@@ -101,35 +101,64 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \item $\neg(C\sqcap D)$ $\rightarrow$ $\neg C \sqcup \neg D$
 \item $\neg(C\sqcup D)$ $\rightarrow$ $\neg C \sqcap \neg D$
 \item $\neg succ(c)$ $\rightarrow$ $succ(\neg c)$
+\item $\neg (c_1\subseteq c_2)$ $\rightarrow$ $c_1\subseteq \neg c_2$
+\item $\neg (s^\neg)$ $\rightarrow$ $s$
 \end{itemize}
 \end{minipage}% <---------------- Note the use of "%"
 \begin{minipage}[t]{.5\textwidth}
 \raggedleft
 \begin{itemize}
+\item $\neg (k=l)$ $\rightarrow$ $k\neq l$
 \item $\neg (k<l)$ $\rightarrow$ $k\geq l$
+\item $\neg (k\leq l)$ $\shortrightarrow$ $k>l$
 \item $\neg (k\not<l)$ $\rightarrow$ $k<l$
 \item $\neg (n\text{ } dvd \text{ } k)$ $\rightarrow$ $n\text{ } \neg dvd \text{ } k$
 \item $\neg (n\text{ } \neg dvd \text{ } k)$ $\rightarrow$ $n\text{ } dvd \text{ } k$
+\item $\neg (s\cap t)$ $\rightarrow$ $\neg s \cup \neg t$
+\item $\neg (s\cup t)$ $\rightarrow$ $\neg s \cap \neg t$
 \end{itemize}
 \end{minipage}
 \end{figure}
 \end{mydef}
 With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more.\\
-The set $S$ is a set of constraints of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is a set of variables occurring in $S$.
+The set $S$ is a set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I})}$ over $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
+\item $\emptyset$ to $\emptyset^\mathcal{I}$
+\item $\mathcal{U}$ to $\mathcal{U}^\mathcal{I}\subseteq \Delta^\mathcal{I}$
 \item every concept names $A\in\mathbf{C}$ to $A^\mathcal{I}\subseteq \Delta^\mathcal{I}$
-\item every role name $r\in\mathbf{R}$ to $r^\mathcal{I}\subseteq\Delta^\mathcal{I}\times\Delta^\mathcal{I}$
+\item every role name $r\in\mathbf{R}$ to $r^\mathcal{I}\subseteq\Delta^\mathcal{I}\times\Delta^\mathcal{I}$, such that every element in $\Delta^\mathcal{I}$ has a finite number of successors.
+\end{itemize}
+The set $r^\mathcal{I}(x)$ contains all elements $y$ such that $(x,y)\in r^\mathcal{I}$ e.g. it contains all $r$-successors of $x$.\\
+For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as follows
+\begin{itemize}
+\item $(C\sqcap D)^\mathcal{I}:=C^\mathcal{I}\sqcap D^\mathcal{I}$, $(C\sqcup D)^\mathcal{I}:=C^\mathcal{I}\sqcup D^\mathcal{I}$
+\item $(\neg C)^\mathcal{I}:=\Delta^\mathcal{I}\backslash C^\mathcal{I}$
+\item $(s\cap t)^\mathcal{I}:= s^\mathcal{I}\cap t^\mathcal{I}$, $(s\cup t)^\mathcal{I}:= s^\mathcal{I}\cup t^\mathcal{I}$
+\item $(s^\neg)^\mathcal{I}:=\mathcal{U}^\mathcal{I}\backslash s^\mathcal{I}$
+\item $|s|^\mathcal{I}:=|s^\mathcal{I}|$
+\item $(k+l)^\mathcal{I}:=(k^\mathcal{I}+l^\mathcal{I})$, $(n\cdot k)^\mathcal{I}:= n\cdot k^\mathcal{I}$
+\item $succ(c)^\mathcal{I}=\{x\in \Delta^\mathcal{I}|$the mapping $\cdot^{\mathcal{I}_x}$ satisfies $c\}$
+\end{itemize}
+The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{C}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}$.\\
+The mappings satisfies for the set terms $s,t$ and the cardinality terms $k,l$
+\begin{itemize}
+\item $s=t$ iff $s^\mathcal{I}=t^\mathcal{I}$
+\item $s\subseteq t$ iff $s\mathcal{I}\subseteq t^\mathcal{I}$
+\item $k=l$ iff $k^\mathcal{I}=l^\mathcal{I}$
+\item $k<l$ iff $k^\mathcal{I}<l^\mathcal{I}$
+\item $k\leq l$ iff $k^\mathcal{I}\leq l^\mathcal{I}$
+\item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = l^\mathcal{I}$
 \end{itemize}
 An \textit{assignment} $\pi_\mathcal{I}: Var(S)\shortrightarrow \Delta^\mathcal{I}$ satisfies 
 \begin{itemize}
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
-\item $(x,y):s$ iff for every role name $r$ in $s$ $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in r^\mathcal{I}$ and for every concept $C$ in $s$ $\pi_\mathcal{I}(y)\in C^\mathcal{I}$
+\item $(x,y):s$ iff for every positive role name $r$ in $s$ $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in r^\mathcal{I}$ and for every positive concept $C$ in $s$ $\pi_\mathcal{I}(y)\in C^\mathcal{I}$
 \end{itemize} 
 A constraint $c$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $c$. $\pi_\mathcal{I}$ satisfies a constraint set $S$ if $\pi_\mathcal{I}$ satisfies every constraint in $S$. $S$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $S$.
 \end{mydef}
-For the sake of readability we say "$x$ satisfies $C$" instead of "\textit{there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that }$\pi_\mathcal{I}$ \textit{satisfies} $x:C$". Analogue with "$(x,y)$ satisfies $s$".
+
 \begin{mydef}[Number of successors]
 Let $S$ be a set of constraints, $x$ be a variable and $k$ be a cardinality term. The number of successors counting in $k$ is counted recursively:
 \begin{align*}
@@ -271,23 +300,25 @@ First we prove that the tableau algorithm terminates.
 Let $C$ be a concept in negation normal form. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
 \end{mypro}
 To prove this we map any derived set $S$ to an element $\Psi(S)$ from a set $Q$. The elements from $Q$ can be ordered by a strict partial order $\prec$. One property of a strict partial order is that it is well-founded e.g. there is no infinite decreasing chain. We can show that the algorithm terminates if for any derived set $S^\prime$ obtained from a derived set $S$ we have $S^\prime\prec S$.\\
-The elements in $Q$ are finite multisets of quintuples and the elements of the quintuples are either integers or mutlisets of integers. For two quintuples $q=(q_1,\dots,q_5)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_5)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 5$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i\prec q_i^\prime$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i$ by a finite number of integers which are all smaller than $c$.\\
-Two more definition are needed: Two non-negative integer $n,m$ have the asymmetrical difference $n-m$ if $n\geq m$ and $0$ if $n<m$. It is denoted as $n\oset[-1ex]{.}{-}m$. For a concept $C$ its size $|C|$ is inductively defined as
+The elements in $Q$ are finite multisets of sextuples and the elements of the sextuples are either integers or mutlisets of integers. For two sextuples $q=(q_1,\dots,q_6)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_6)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 6$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i\prec q_i^\prime$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i$ by a finite number of integers which are all smaller than $c$.\\
+Two non-negative integer $n,m$ have the asymmetrical difference $n-m$ if $n\geq m$ and $0$ if $n<m$. It is denoted as $n\oset[-1ex]{.}{-}m$. For a concept $C$ its size $|C|$ is inductively defined as
 \begin{itemize}
 \item $1$, if $C$ is a primitive concept of $\mathbf{C}$
 \item $|\neg C|=|C|$
 \item $|succ(c)|= 1 + \sum_{C\in\mathbf{C}\text{ occurs in c}} |C|$
 \item $|C\sqcap D|=|C\sqcup D|=|C|+|D|$
 \end{itemize}
-The quintuples in $Q$ are defined as follows
+The number $n_{sc}(x)$ denotes the number of set constraints such that $x:succ(c_1\subseteq c_2)$. Let $y$ be a successor of $x$. The number $n_{sc}(x,y)$ denotes the number of set constraints such that $x:succ(c_1\subseteq c_2)$ and it holds $(x,y):c_1\in S$ and $(x,y):c_2\in S$.\\
+Finally we can define the sextuple. The sextuples in $Q$ are defined as follows
 \begin{mydef}
-Let $S$ be a constraint set. The multiset $\Psi(S)$ consist of quintuples $\psi_S(x)$ for each variable $x$. The component of the quintuples are structured as follows
+Let $S$ be a constraint set. The multiset $\Psi(S)$ consist of sextuples $\psi_S(x)$ for each variable $x$. The component of the sextuples are structured as follows
 \begin{itemize}
 \item the first component is a non-negative integer $max\{|C|\mid x:C\in S\}$
 \item the second component is a multiset of integers containing for each $x:C\sqcap D$, on which the $\sqcap$-rule is applicable, the non-negative integer $|C\sqcap D|$ (respectively for $C\sqcup D$)
 \item the third component is a multiset of integers containing for each $x:succ(n\leq l)\in S$ the non-negative integer $n\oset[-1ex]{.}{-}n_l(x_S)$ and for each $x:succ(k\leq l)\in S$ the non-negative integer $n_k(x_S)\oset[-1ex]{.}{-}n_l(x_S)$
 \item the fourth component denotes the number of all successors of $x$ in $S$
 \item the fifth component is a multiset of integers containing for each $x:succ(k\leq n)\in S$ the number of all successors $y$ of $x$ such that for a role $r$ we have $(x,y):r$, $r$ occurs in $k$ but for at least one $|s|$ in $k$ we have neither $(x,y):s\in S$ nor $(x,y):\neg s\in S$
+\item the sixth component is a multiset of integers in which for each successor $y$ of $x$ we have $n_{sc}(x)-n_{sc}(x,y)$
 \end{itemize}
 \end{mydef}
 \begin{mylem}
@@ -311,9 +342,9 @@ max\{|C|\mid x:C\in S\}>max\{|D|\mid y:D \in S\}
 \end{proof}
 From the next Lemma we can conclude that the Tableau-algorithm terminates.
 \begin{mylem}
-If $S^\prime$ is a derived system obtained from the derived system $S$, then $\Psi(S^\prime)\prec\Psi(S)$
+If $S^\prime$ is a derived set obtained from the derived set $S$, then $\Psi(S^\prime)\prec\Psi(S)$
 \end{mylem}
-The following proof is sectioned by the definition of obtaining a derived system.
+The following proof is sectioned by the definition of obtaining a derived set.
 \begin{proof}$ $\\
 \vspace*{-5mm}
 \begin{enumerate}
@@ -325,15 +356,20 @@ This means, we can obtain $\Psi(S^\prime)$ from $\Psi(S)$ by at least replacing 
 similar to above
 \item $S^\prime$ is obtained by the application of rule \ref{exceeded} on $x:succ(k<l)$ or $x:succ(k\leq l)$:\\
 The first and second component of $\psi_S(x)$ remain unchanged. Because it holds that $n_k(x_S)>l$ we have $l\oset[-1ex]{.}{-}n_k(x_S)=0$. By merging two successor of $x$ to derive $S^\prime$ we have $n_k(x_S)\leq n_k(x_{S^\prime})$ and therefore $l\oset[-1ex]{.}{-}n_k(x_{S^\prime})=0$ which means the third component remains unchanged. The fourth component however decreases because we have one successor less and therefore $\psi_{S^\prime}(x)$ is smaller than $\psi_S(x)$. The new tuple $\psi_{S^\prime}(y)$ is also smaller than $\psi_S(x)$ because $y$ has the same constraints of the two merged successors which means the first component is smaller than the first one if $\psi_S(x)$.\\
-No other tuples $\psi_S(z)$ are affected because otherwise $z$ must be a predecessor of $y$ and by Lemma 1 $z=x$.
+No other tuples $\psi_S(z)$ are affected because otherwise $z$ must be a predecessor of $y$ and by Lemma 1 $z=x$. therefore $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by deleting the tuples of the two merged successors and by replacing $\psi(x)$ with the smaller tuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \item $S^\prime$ is obtained by the application of rule \ref{choose} on $x:succ(k<l)$ for a successor $y$ and of rule \ref{s}\\
-After rule \ref{choose} we have either $(x,y):s$ or $(x,y):s^\neg$ for all $|s|$ in $k$. If all added constraints are negated the first four component of $\psi_S(x)$ remains unchanged but the fifth component decreases. We look now at an arbitrary positive constraint $(x,y):s$: We have to apply the rule \ref{repeat} until it is inapplicable. We know that at some point no more rules are inapplicable because $\mathbf{C}$ and $\mathbf{R}$ are finite and the constraints are in $NNF$. After rule \ref{repeat} we can have multiple $(x,y):r$, $r\in\mathbf{R}$, and/or $y:C$. For any $(x,y):r$ the third component of $\psi_S(x)$ might be decreased but never increased. For any $y:C$ $\psi_S(x)$ remains unchanged but we know that the first component of $\psi_S^\prime(y)$ is smaller then the first component of $\psi_S(x)$. In both cases the fifth component of $\psi_S(x)$ decreases by 1 because for each $|s|$ in $k$ we have either $(x,y):s$ or $(x,y):s^\neg$. So we can obtained $\Psi(S^\prime)$ from $\Psi(S)$ by deleting $\psi_S(y)$ and replacing $\psi_S(x)$ by the two smaller quintuples $\psi_{S^\prime}(x)$ and $\psi_(S^\prime)(y)$.
+After rule \ref{choose} we have either $(x,y):s$ or $(x,y):s^\neg$ for all $|s|$ in $k$. If all added constraints are negated the first four component of $\psi_S(x)$ remains unchanged but the fifth component decreases. We look now at an arbitrary positive constraint $(x,y):s$: We have to apply the rule \ref{repeat} until it is inapplicable. We know that at some point no more rules are inapplicable because $\mathbf{C}$ and $\mathbf{R}$ are finite and the constraints are in $NNF$. After rule \ref{repeat} we can have multiple $(x,y):r$, $r\in\mathbf{R}$, and/or $y:C$. For any $(x,y):r$ the third component of $\psi_S(x)$ might be decreased but never increased. For any $y:C$ $\psi_S(x)$ remains unchanged but we know that the first component of $\psi_S^\prime(y)$ is smaller then the first component of $\psi_S(x)$. In both cases the fifth component of $\psi_S(x)$ decreases by 1 because for each $|s|$ in $k$ we have either $(x,y):s$ or $(x,y):s^\neg$. \\ 
+For any variable $z$ such that $z\neq y$. The tuple $\psi_S(z)$ is unaffected. It can only be affected by the rules if $z$ is a predecessor of $y$. But by lemma 1 that would mean that $z=x$.\\
+We can obtained $\Psi(S^\prime)$ from $\Psi(S)$ by deleting $\psi_S(y)$ and replacing $\psi_S(x)$ by the two smaller sextuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \item $S^\prime$ is obtained by the application of rule \ref{setterm} on $x:succ(k<l)$, $x:succ(k\leq l)$ or $x:succ(n\,dvd\,l)$ and rule \ref{repeat}:\\ 
 For a positive $s$ which occurs as $|s|$ in $l$ we introduce a new variable $y$ and add $(x,y):s$. The first two component of $\psi_S(x)$ remains unchanged. The third component of $\psi_S(x)$ must become smaller. It can not remain unchanged because this would mean that $n_l(x_S)\oset[-1ex]{.}{-}n_l(x_S)=0$ which denotes that we have already at least as many successor in $k$ as in $l$ and therefore would not have been able to apply this rule.\\
 In $S^\prime$ exists now a new tuple $\psi_{S^\prime}(y)$. But since it was introduced by the constraint $x:succ(c)$, $c\in\{k<l,k\leq l,n\,dvd\,l\}$, the first component of it is always smaller then the first component of $\psi_S(x)$.\\
+For any variable $z$ such that $z\neq y$. The tuple $\psi_S(z)$ is unaffected. It can only be affected by the rules if $z$ is a predecessor of $y$. But by lemma 1 that would mean that $z=x$.\\
 Altogether $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by replacing $\psi_S(x)$ with the two smaller tuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \item $S^\prime$ is obtained by the application of rule \ref{s} on $x:succ(c_1\subseteq c_2)$ and rule \ref{repeat}:\\ 
-After rule \ref{s} $S$ contains $(x,y):c_2$. \textcolor{red}{maybe add more component?}
+After rule \ref{s} $S$ contains $(x,y):c_2$. Then rule \ref{repeat} is applied until inapplicable. Again this chain terminated eventually. After rule \ref{repeat} we can have multiple $(x,y):r$, $r\in\mathbf{R}$, and/or $y:C$. For any $(x,y):r$ the third component of $\psi_S(x)$ might be decreased but never increased. For any $y:C$ $\psi_S(x)$ remains unchanged but we know that the first component of $\psi_S^\prime(y)$ is smaller then the first component of $\psi_S(x)$. In the end the sixth component always decreases. We also know that the first component of $\psi_{S^\prime}(y)$ is always smaller than the first component of $\psi_S(x)$ by the definition of $|succ(c)|$.\\
+For any variable $z$ such that $z\neq y$. The tuple $\psi_S(z)$ is unaffected. It can only be affected by the rules if $z$ is a predecessor of $y$. But by lemma 1 that would mean that $z=x$.\\
+Therefore $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by deleting $\psi_S(y)$ and by replacing $\psi_S(x)$ with the two smaller tuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \end{enumerate}
 \end{proof}
 \end{document}
