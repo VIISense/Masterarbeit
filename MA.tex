@@ -75,6 +75,7 @@ where $s,t$ are set terms
 \end{itemize}
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
+For readability we use $\lesseqgtr$ to address the comparison symbols $=,\,\leq,\,\geq,\,<,\,>$. The negation $\not\lesseqgtr$ address the symbols $\neq,\,>,\,<,\,\geq,\,\leq$ respectively.
 \end{mydef}
 \begin{mydef}[$\mathcal{ALCSCC}$]
 Concepts are:
@@ -91,7 +92,7 @@ Concepts are:
 \end{mydef}
 \begin{mydef}[Negation Normal Form]
 A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name. Let $C$ be a arbitrary concept. Its $NNF$ is obtained by applying the following rules
-\begin{figure}
+\begin{figure}[H]
 \begin{minipage}[t]{.5\textwidth}
 \raggedright
 \begin{itemize}
@@ -101,17 +102,14 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \item $\neg(C\sqcap D)$ $\rightarrow$ $\neg C \sqcup \neg D$
 \item $\neg(C\sqcup D)$ $\rightarrow$ $\neg C \sqcap \neg D$
 \item $\neg succ(c)$ $\rightarrow$ $succ(\neg c)$
-\item $\neg (c_1\subseteq c_2)$ $\rightarrow$ $c_1\subseteq \neg c_2$
 \item $\neg (s^\neg)$ $\rightarrow$ $s$
 \end{itemize}
 \end{minipage}% <---------------- Note the use of "%"
 \begin{minipage}[t]{.5\textwidth}
 \raggedleft
 \begin{itemize}
-\item $\neg (k=l)$ $\rightarrow$ $k\neq l$
-\item $\neg (k<l)$ $\rightarrow$ $k\geq l$
-\item $\neg (k\leq l)$ $\shortrightarrow$ $k>l$
-\item $\neg (k\not<l)$ $\rightarrow$ $k<l$
+\item $\neg (c_1\subseteq c_2)$ $\rightarrow$ $c_1\subseteq \neg c_2$
+\item $\neg (k\lesseqgtr l)$ $\rightarrow$ $k\not\lesseqgtr l$
 \item $\neg (n\text{ } dvd \text{ } k)$ $\rightarrow$ $n\text{ } \neg dvd \text{ } k$
 \item $\neg (n\text{ } \neg dvd \text{ } k)$ $\rightarrow$ $n\text{ } dvd \text{ } k$
 \item $\neg (s\cap t)$ $\rightarrow$ $\neg s \cup \neg t$
@@ -141,14 +139,12 @@ For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as
 \item $(k+l)^\mathcal{I}:=(k^\mathcal{I}+l^\mathcal{I})$, $(n\cdot k)^\mathcal{I}:= n\cdot k^\mathcal{I}$
 \item $succ(c)^\mathcal{I}=\{x\in \Delta^\mathcal{I}|$the mapping $\cdot^{\mathcal{I}_x}$ satisfies $c\}$
 \end{itemize}
-The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{C}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}$.\\
+The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{I}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}$.\\
 The mappings satisfies for the set terms $s,t$ and the cardinality terms $k,l$
 \begin{itemize}
 \item $s=t$ iff $s^\mathcal{I}=t^\mathcal{I}$
 \item $s\subseteq t$ iff $s\mathcal{I}\subseteq t^\mathcal{I}$
-\item $k=l$ iff $k^\mathcal{I}=l^\mathcal{I}$
-\item $k<l$ iff $k^\mathcal{I}<l^\mathcal{I}$
-\item $k\leq l$ iff $k^\mathcal{I}\leq l^\mathcal{I}$
+\item $k\lesseqgtr l$ iff $k^\mathcal{I}\lesseqgtr l^\mathcal{I}$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = l^\mathcal{I}$
 \end{itemize}
 An \textit{assignment} $\pi_\mathcal{I}: Var(S)\shortrightarrow \Delta^\mathcal{I}$ satisfies 
@@ -158,24 +154,14 @@ An \textit{assignment} $\pi_\mathcal{I}: Var(S)\shortrightarrow \Delta^\mathcal{
 \end{itemize} 
 A constraint $c$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $c$. $\pi_\mathcal{I}$ satisfies a constraint set $S$ if $\pi_\mathcal{I}$ satisfies every constraint in $S$. $S$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $S$.
 \end{mydef}
-
 \begin{mydef}[Number of successors]
-Let $S$ be a set of constraints, $x$ be a variable and $k$ be a cardinality term. The number of successors counting in $k$ is counted recursively:
-\begin{align*}
-n_k(x_S)=&\quad\quad\quad\quad&\\
-&\text{if } k=n&n\\
-&\text{if } k=|s|&|\{y|(x,y):s\in S\}|\\
-&\text{if } k=i+j&n_i(x_S)+n_j(x_S)\\
-&\text{if } k=n\cdot l&n\cdot n_l(x_S)
-\end{align*}
-where $n$ is an integer, $s$ a set term and $i,j,l$ cardinality terms. \\
-A constraint regarding a variable $x$ is \textit{violated} if
+Let $S$ be a set of constraints, $\mathcal{I}$ be an interpretation, $\pi_\mathcal{I}:Var(S)\shortrightarrow \Delta^\mathcal{I}$ be an assignment and $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x_{S_k}):=|k^\mathcal{I}\cap r_\mathcal{I}(x)|$
+where $n$ is an integer, $s$ a set term and $i,j,l$ cardinality terms.\\
+A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
 \begin{itemize}
-\item $x:succ(k\leq n)$ and $n<n_k(x_S)$
-\item $x:succ(k\geq n)$ and $n>n_k(x_S)$
-\item $x:succ(k\leq l)$ and $n_l(x_S)<n_k(x_S)$
-\item $x:succ(k\geq l)$ and $n_l(x_S)>n_k(x_S)$
-\item $x:succ(n\,dvd\,k)$ and $mod(n_k(x_S),n)\neq 0$
+\item $x:succ(k\lesseqgtr n)$ and $n\not\lesseqgtr n_\mathcal{I}(x_{S_k})$
+\item $x:succ(k\lesseqgtr l)$ and $n_\mathcal{I}(x_{S_l})\not\lesseqgtr n_\mathcal{I}(x_{S_k})$
+\item $x:succ(n\,dvd\,k)$ and $mod(n_\mathcal{I}(x_{S_k}),n)\neq 0$
 \end{itemize} 
 where $n\in\mathbb{N}$.
 \end{mydef}
