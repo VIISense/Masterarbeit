@@ -150,12 +150,17 @@ The mappings satisfies for the set terms $s,t$ and the cardinality terms $k,l$
 An \textit{assignment} $\pi_\mathcal{I}: Var(S)\shortrightarrow \Delta^\mathcal{I}$ satisfies 
 \begin{itemize}
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
-\item $(x,y):s$ iff for every positive role name $r$ in $s$ $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in r^\mathcal{I}$ and for every positive concept $C$ in $s$ $\pi_\mathcal{I}(y)\in C^\mathcal{I}$
+\item $(x,y):s$ iff 
+\begin{itemize}
+\item for every positive role name $r$ in $s$ $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in r^\mathcal{I}$
+\item for every positive concept name $C$ in $s$ $\pi_\mathcal{I}(y)\in C^\mathcal{I}$
+\item for every negated set term $s^\prime$ in $s$ we have at least one role name $r$ such that $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\not\in r^\mathcal{I}$ or at least one concept name $C$ such that $\pi_\mathcal{I}(y)\not\in C^\mathcal{I}$
+\end{itemize}
 \end{itemize} 
 A constraint $c$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $c$. $\pi_\mathcal{I}$ satisfies a constraint set $S$ if $\pi_\mathcal{I}$ satisfies every constraint in $S$. $S$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $S$.
 \end{mydef}
 \begin{mydef}[Number of successors]
-Let $S$ be a set of constraints, $\mathcal{I}$ be an interpretation, $\pi_\mathcal{I}:Var(S)\shortrightarrow \Delta^\mathcal{I}$ be an assignment and $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x_{S_k}):=|k^\mathcal{I}\cap r_\mathcal{I}(x)|$
+Let $S$ be a set of constraints, $\mathcal{I}$ be an interpretation, $\pi_\mathcal{I}:Var(S)\shortrightarrow \Delta^\mathcal{I}$ be an assignment and $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x_{S_k}):=|k^\mathcal{I}\cap r^\mathcal{I}(x)|$
 where $n$ is an integer, $s$ a set term and $i,j,l$ cardinality terms.\\
 A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
 \begin{itemize}
@@ -166,7 +171,7 @@ A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \tex
 where $n\in\mathbb{N}$.
 \end{mydef}
 \section{Tableau}
-For the algorithm we assume that the constraint in the constraint set are in $NNF$.
+For the algorithm we assume that the constraints in the constraint set are in $NNF$.
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
 \end{mydef}
@@ -197,11 +202,19 @@ A constraint set $S$ contains a \textit{clash} if
 For the next definition we define first properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
-\item $k\leq l$ and $k\geq l$ iff $k=l$, where $k,l$ are cardinality terms
-\item $s\subseteq t$ and $s\supseteq t$ iff $s=t$, where $s,t$ are set terms
+\item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
+\item if $s,t$ are set terms then $s=t$ replaces $s\subseteq t$ and $s\supseteq t$
 \end{itemize}
+\begin{mydef}[Induced Interpretation $\mathcal{I}_I$]
+An interpretation $\mathcal{I}_I$ can be induced from a constraint set $S$ by the following steps:
+\begin{itemize}
+\item for each variable $x\in Var(S)$ we introduce $x^{\mathcal{I}_I}$ and add it to $\Delta^{\mathcal{I}_I}$
+\item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}_I}$ to $C^{\mathcal{I}_I}$
+\item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}_I},y^{\mathcal{I}_I})$ to $r^{\mathcal{I}_I}$
+\end{itemize}
+\end{mydef}
 \begin{mydef}[Tableau]
-Let $S$ be a set of constraints. 
+Let $S$ be a set of constraints and $\mathcal{I}_I$ be the induced interpretation from $S$
 \begin{enumerate}
 \item\label{cap} $\sqcap$-rule: $S$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
@@ -209,15 +222,15 @@ $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains
 $x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for every $|s|$ occurring in $k$\\
-$\rightarrow$ for all $|s|$, in which $r$ occurs, either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):s^\neg\}$ and then jump to rule \ref{setterm}
-\item\label{c}$cardinality$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, which is violated regarding $x$
+$\rightarrow$ for all $|s|$, in which $r$ occurs, either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):s^\neg\}$ and then jump to rule \ref{repeat}
+\item\label{c}$cardinality$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, such that $c$ is violated in $\mathcal{I}_I$ regarding $x$
 \begin{enumerate}
 \item \label{setterm} if there is a positive set term $s$ in $l$\\
-$\rightarrow$ introduce new variable $y$ and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{setterm}
+$\rightarrow$ introduce new variable $y$ and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
 \item \label{exceeded} if $l\in \mathbb{N}$ does not contain a set term then merge two successor $y_1\neq y_2$ of $x$ such that for a $|s|$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$ if no other constraints regarding $x$ become violated
 \end{enumerate}
-\item\label{s}$set$-rule: $S$ contains $x:succ(c_1\subseteq c_2)$ and $(x,y):c_1$ but not $(x,y):c_2$\\
-$\rightarrow$ $S:=S\cup\{(x,y):c_2\}$ and then jump to rule \ref{setterm}
+\item\label{s}$set$-rule: $S$ contains $x:succ(s_1\subseteq s_2)$ and $(x,y):s_1$ but not $(x,y):s_2$\\
+$\rightarrow$ $S:=S\cup\{(x,y):s_2\}$ and then jump to rule \ref{repeat}
 \item\label{repeat} $set.term$-rule (Repeat until inapplicable): In $S$ is $(x,y):s$ and
 \begin{enumerate}
 \item\label{setterm1} $s=s_1\cap s_2$ but $\{(x,y):s_1,\,(x,y):s_2\}\not\subseteq S$, then\\
@@ -232,17 +245,10 @@ $\rightarrow$ $S:=S\cup\{y:C\}$
 Note that:
 \begin{itemize}
 \item $\ref{exceeded}$ is never applicable for $n\, dvd\, l$
-\item $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually
+\item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually
 \end{itemize}
 \begin{mydef}[Derived Set]
-A \textit{derived set} is a constraint set $S^\prime$ if it was obtained by applying either
-\begin{itemize}
-\item rule \ref{cap}, \ref{cup} or \ref{exceeded}
-\item rule \ref{choose} and \ref{repeat} until inapplicable 
-\item rule \ref{setterm} and \ref{repeat} until inapplicable
-\item rule \ref{s} and \ref{repeat} until inapplicable
-\end{itemize}
-on a derived set $S$. Any untouched constraint set is a derived set, too.
+A \textit{derived set} is a constraint set $S^\prime$ where rule \ref{repeat} is not applicable.
 \end{mydef}
 The first rule decompose the conjunction and the second rule adds non-deterministically the right constraint. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_k(x_S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of constraints. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_k(x_S)$ does not count $y$. However there might be an interpretation $\mathcal{I}$ and the assignment $\pi_\mathcal{I}$ where $(x,y)$ satisfies a set term $s$ which occurs as $|s|$ in $k$. This means we have
 \begin{align*}
@@ -281,6 +287,10 @@ S=\{x:succ(|r|<2)\sqcap succ(|r|\geq 2)\}
 First we apply the rules \ref{setterm} and \ref{setterm3} two times to add two $r$-successors for $x$ hence $x:succ(|r|<2)$ is not satisfied any more. If we ignore the condition in rule \ref{exceeded} and apply it then we merge the two successors leading to $x:succ(|r|<2)$ being satisfied but $x:succ(|r|\geq 2)$ being violated. Then we apply the rules \ref{setterm} and \ref{setterm3} again leading to $x:succ(|r|<2)$ being violated again and so on. By the condition in \ref{exceeded} we can not use the rule which means the algorithm terminates with a clash stating that the constraint set is unsatisfiable.
 \end{ex}
 We also know that the application of rule \ref{repeat} eventually terminates because $\mathbf{C}$ and $\mathbf{R}$ are finite and therefore also our constraints.\\
+
+
+
+
 First we prove that the tableau algorithm terminates. 
 \begin{mypro}
 Let $C$ be a concept in negation normal form. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
