@@ -81,13 +81,13 @@ For readability we use $\lesseqgtr$ to address the comparison symbols $=,\,\leq,
 Concepts are:
 \begin{itemize}
 \item all concept names
+\item $succ(c)$ if $c$ is a set or cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \item if $C,D$ are concepts then:
 \begin{itemize}
 \item $\neg C$
 \item $C\sqcup D$
 \item $C\sqcap D$
 \end{itemize}
-\item $succ(c)$ if $c$ is a set or cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \end{itemize}
 \end{mydef}
 \begin{mydef}[Negation Normal Form]
@@ -119,7 +119,7 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \end{figure}
 \end{mydef}
 With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more.\\
-The set $S$ is a set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
+The set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I})}$ over $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
@@ -143,29 +143,23 @@ The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$,
 The mappings satisfies for the set terms $s,t$ and the cardinality terms $k,l$
 \begin{itemize}
 \item $s=t$ iff $s^\mathcal{I}=t^\mathcal{I}$
-\item $s\subseteq t$ iff $s\mathcal{I}\subseteq t^\mathcal{I}$
+\item $s\subseteq t$ iff $s^\mathcal{I}\subseteq t^\mathcal{I}$
 \item $k\lesseqgtr l$ iff $k^\mathcal{I}\lesseqgtr l^\mathcal{I}$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = l^\mathcal{I}$
 \end{itemize}
 An \textit{assignment} $\pi_\mathcal{I}: Var(S)\shortrightarrow \Delta^\mathcal{I}$ satisfies 
 \begin{itemize}
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
-\item $(x,y):s$ iff 
-\begin{itemize}
-\item for every positive role name $r$ in $s$ $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in r^\mathcal{I}$
-\item for every positive concept name $C$ in $s$ $\pi_\mathcal{I}(y)\in C^\mathcal{I}$
-\item for every negated set term $s^\prime$ in $s$ we have at least one role name $r$ such that $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\not\in r^\mathcal{I}$ or at least one concept name $C$ such that $\pi_\mathcal{I}(y)\not\in C^\mathcal{I}$
-\end{itemize}
+\item $(x,y):s$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in s^\mathcal{I}$
 \end{itemize} 
 A constraint $c$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $c$. $\pi_\mathcal{I}$ satisfies a constraint set $S$ if $\pi_\mathcal{I}$ satisfies every constraint in $S$. $S$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $S$.
 \end{mydef}
 \begin{mydef}[Number of successors]
-Let $S$ be a set of constraints, $\mathcal{I}$ be an interpretation, $\pi_\mathcal{I}:Var(S)\shortrightarrow \Delta^\mathcal{I}$ be an assignment and $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x_{S_k}):=|k^\mathcal{I}\cap r^\mathcal{I}(x)|$
-where $n$ is an integer, $s$ a set term and $i,j,l$ cardinality terms.\\
+Let $S$ be a set of constraints, $\mathcal{I}$ be an interpretation, $\pi_\mathcal{I}:Var(S)\shortrightarrow \Delta^\mathcal{I}$ be an assignment, $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x_{S_k}):=|k^\mathcal{I}\cap r^\mathcal{I}(x)|$.\\
 A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
 \begin{itemize}
-\item $x:succ(k\lesseqgtr n)$ and $n\not\lesseqgtr n_\mathcal{I}(x_{S_k})$
-\item $x:succ(k\lesseqgtr l)$ and $n_\mathcal{I}(x_{S_l})\not\lesseqgtr n_\mathcal{I}(x_{S_k})$
+\item $x:succ(k\lesseqgtr n)$ and $n_\mathcal{I}(x_{S_k})\not\lesseqgtr n$
+\item $x:succ(k\lesseqgtr l)$ and $n_\mathcal{I}(x_{S_k})\not\lesseqgtr n_\mathcal{I}(x_{S_l})$
 \item $x:succ(n\,dvd\,k)$ and $mod(n_\mathcal{I}(x_{S_k}),n)\neq 0$
 \end{itemize} 
 where $n\in\mathbb{N}$.
@@ -190,15 +184,7 @@ We see that the first constraint is violated and therefore merging $y_1$ and $y_
 S=\{x:succ(|r|\leq 1), x.r.y,
 y:succ(|s|\leq 1), y.s.z_1, y.s.z_2\}
 \end{align*}
-To solve this problem we have to merge $z_1$ and $z_2$.
-\begin{mydef}[Clash]
-A constraint set $S$ contains a \textit{clash} if
-\begin{itemize}
-\item $\{x:\perp\}\subseteq S$ or
-\item $\{x:A,\,x:\neg A\}\subseteq S$ or
-\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$
-\end{itemize}
-\end{mydef}
+To solve this problem we have to merge $z_1$ and $z_2$.\\
 For the next definition we define first properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
@@ -221,7 +207,7 @@ $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains
-$x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for every $|s|$ occurring in $k$\\
+$x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for some $|s|$ occurring in $k$\\
 $\rightarrow$ for all $|s|$, in which $r$ occurs, either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):s^\neg\}$ and then jump to rule \ref{repeat}
 \item\label{c}$cardinality$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, such that $c$ is violated in $\mathcal{I}_I$ regarding $x$
 \begin{enumerate}
@@ -247,8 +233,17 @@ Note that:
 \item $\ref{exceeded}$ is never applicable for $n\, dvd\, l$
 \item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually
 \end{itemize}
+\begin{mydef}[Clash]
+A constraint set $S$ contains a \textit{clash} if
+\begin{itemize}
+\item $\{x:\perp\}\subseteq S$ or
+\item $\{x:A,\,x:\neg A\}\subseteq S$ or
+\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$
+\end{itemize}
+and no more rules are applicable.
+\end{mydef}
 \begin{mydef}[Derived Set]
-A \textit{derived set} is a constraint set $S^\prime$ where rule \ref{repeat} is not applicable.
+A \textit{derived set} is a constraint set $S^\prime$ without clashes where only rule \ref{repeat} is not applicable.
 \end{mydef}
 The first rule decompose the conjunction and the second rule adds non-deterministically the right constraint. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_k(x_S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of constraints. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_k(x_S)$ does not count $y$. However there might be an interpretation $\mathcal{I}$ and the assignment $\pi_\mathcal{I}$ where $(x,y)$ satisfies a set term $s$ which occurs as $|s|$ in $k$. This means we have
 \begin{align*}
@@ -263,7 +258,7 @@ S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|)\\
 x:succ(|r|=1), x:succ(|r\cap s|=1), x:succ=(|r\cap C|=1|)
 \}
 \end{align*}
-If we try to satisfy at least two of the new constraints by the Tableau-algorithm above we end up with at least one constraint being violated. Let say we use the rules on the three new constraints sequentially. Then we have 
+If we try to satisfy at least two of the new constraints by the Tableau-algorithm above we end up with at least one constraint being violated. We use the rules on the three new constraints sequentially. Then we have 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -286,17 +281,13 @@ S=\{x:succ(|r|<2)\sqcap succ(|r|\geq 2)\}
 \end{align*}
 First we apply the rules \ref{setterm} and \ref{setterm3} two times to add two $r$-successors for $x$ hence $x:succ(|r|<2)$ is not satisfied any more. If we ignore the condition in rule \ref{exceeded} and apply it then we merge the two successors leading to $x:succ(|r|<2)$ being satisfied but $x:succ(|r|\geq 2)$ being violated. Then we apply the rules \ref{setterm} and \ref{setterm3} again leading to $x:succ(|r|<2)$ being violated again and so on. By the condition in \ref{exceeded} we can not use the rule which means the algorithm terminates with a clash stating that the constraint set is unsatisfiable.
 \end{ex}
-We also know that the application of rule \ref{repeat} eventually terminates because $\mathbf{C}$ and $\mathbf{R}$ are finite and therefore also our constraints.\\
-
-
-
-
+We also know that the application of rule \ref{repeat} eventually terminates because the number of concept names and role names are finite in $S$ (since $S$ is finite).\\ 
 First we prove that the tableau algorithm terminates. 
 \begin{mypro}
 Let $C$ be a concept in negation normal form. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
 \end{mypro}
-To prove this we map any derived set $S$ to an element $\Psi(S)$ from a set $Q$. The elements from $Q$ can be ordered by a strict partial order $\prec$. One property of a strict partial order is that it is well-founded e.g. there is no infinite decreasing chain. We can show that the algorithm terminates if for any derived set $S^\prime$ obtained from a derived set $S$ we have $S^\prime\prec S$.\\
-The elements in $Q$ are finite multisets of sextuples and the elements of the sextuples are either integers or mutlisets of integers. For two sextuples $q=(q_1,\dots,q_6)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_6)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 6$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i\prec q_i^\prime$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i$ by a finite number of integers which are all smaller than $c$.\\
+To prove this we map any derived set $S$ to an element $\Psi(S)$ from a set $Q$. We then show that the elements in $Q$ can be ordered by a well-founded relation $\prec$. A well-founded relation says that there is no infinite decreasing chain. If we can show that by obtaining a derived set $S^\prime$ from another set $S$ we have $\Psi(S^\prime)\prec\Psi(S)$ then the algorithm terminates.\\
+The elements in $Q$ are finite multisets of sextuples and the elements of the sextuples are either integers or mutlisets of integers. For two sextuples $q=(q_1,\dots,q_6)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_6)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 6$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i^\prime\prec q_i$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i^\prime$ by a finite number of integers which are all smaller than $c$. The relation $\prec$ for those multisets is also well-founded because we work with integers. That means from a multiset $\{0,\,\dots\,,0\}$ we can not obtain a smaller multiset because we would have to replace at least one $0$ with integers which are smaller.\\
 Two non-negative integer $n,m$ have the asymmetrical difference $n-m$ if $n\geq m$ and $0$ if $n<m$. It is denoted as $n\oset[-1ex]{.}{-}m$. For a concept $C$ its size $|C|$ is inductively defined as
 \begin{itemize}
 \item $1$, if $C$ is a primitive concept of $\mathbf{C}$
@@ -307,7 +298,7 @@ Two non-negative integer $n,m$ have the asymmetrical difference $n-m$ if $n\geq 
 The number $n_{sc}(x)$ denotes the number of set constraints such that $x:succ(c_1\subseteq c_2)$. Let $y$ be a successor of $x$. The number $n_{sc}(x,y)$ denotes the number of set constraints such that $x:succ(c_1\subseteq c_2)$ and it holds $(x,y):c_1\in S$ and $(x,y):c_2\in S$.\\
 Finally we can define the sextuple. The sextuples in $Q$ are defined as follows
 \begin{mydef}
-Let $S$ be a constraint set. The multiset $\Psi(S)$ consist of sextuples $\psi_S(x)$ for each variable $x$. The component of the sextuples are structured as follows
+Let $S$ be a constraint set and $\mathcal{I}_I$ be the induced Interpretation of $S$. The multiset $\Psi(S)$ consist of sextuples $\psi_S(x)$ for each variable $x$. The component of the sextuples are structured as follows
 \begin{itemize}
 \item the first component is a non-negative integer $max\{|C|\mid x:C\in S\}$
 \item the second component is a multiset of integers containing for each $x:C\sqcap D$, on which the $\sqcap$-rule is applicable, the non-negative integer $|C\sqcap D|$ (respectively for $C\sqcup D$)
