@@ -287,32 +287,31 @@ First we prove that the tableau algorithm terminates.
 Let $C$ be a concept in negation normal form. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
 \end{mypro}
 To prove this we map any derived set $S$ to an element $\Psi(S)$ from a set $Q$. We then show that the elements in $Q$ can be ordered by a well-founded relation $\prec$. A well-founded relation says that there is no infinite decreasing chain. If we can show that by obtaining a derived set $S^\prime$ from another set $S$ we have $\Psi(S^\prime)\prec\Psi(S)$ then the algorithm terminates.\\
-The elements in $Q$ are finite multisets of sextuples and the elements of the sextuples are either integers or mutlisets of integers. For two sextuples $q=(q_1,\dots,q_6)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_6)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 6$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i^\prime\prec q_i$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i^\prime$ by a finite number of integers which are all smaller than $c$. The relation $\prec$ for those multisets is also well-founded because we work with integers. That means from a multiset $\{0,\,\dots\,,0\}$ we can not obtain a smaller multiset because we would have to replace at least one $0$ with integers which are smaller.\\
-Two non-negative integer $n,m$ have the asymmetrical difference $n-m$ if $n\geq m$ and $0$ if $n<m$. It is denoted as $n\oset[-1ex]{.}{-}m$. For a concept $C$ its size $|C|$ is inductively defined as
+The elements in $Q$ are finite multisets of quintuples and the elements of the quintuples are either integers or mutlisets of integers. For two quintuples $q=(q_1,\dots,q_6)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_6)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 6$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i^\prime\prec q_i$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i^\prime$ by a finite number of integers which are all smaller than $c$. The relation $\prec$ for those multisets is also well-founded because we work with integers. That means from a multiset $\{0,\,\dots\,,0\}$ we can not obtain a smaller multiset because we would have to replace at least one $0$ with integers which are smaller.\\
+For a concept $C$ its size $size(C)$ is inductively defined as
 \begin{itemize}
 \item $1$, if $C$ is a primitive concept of $\mathbf{C}$
-\item $|\neg C|=|C|$
-\item $|succ(c)|= 1 + \sum_{C\in\mathbf{C}\text{ occurs in c}} |C|$
-\item $|C\sqcap D|=|C\sqcup D|=|C|+|D|$
+\item $size(\neg C)=size(C)$
+\item $size(succ(c))= 1 + \sum_{C\in\mathbf{C}\text{ occurs in c}} size(C)$
+\item $size(C\sqcap D)=size(C\sqcup D)=size(C)+size(D)$
 \end{itemize}
-The number $n_{sc}(x)$ denotes the number of set constraints such that $x:succ(c_1\subseteq c_2)$. Let $y$ be a successor of $x$. The number $n_{sc}(x,y)$ denotes the number of set constraints such that $x:succ(c_1\subseteq c_2)$ and it holds $(x,y):c_1\in S$ and $(x,y):c_2\in S$.\\
+The number $n_{sc}(x)$ denotes the number of constraints of the form $x:succ(c_1\subseteq c_2)$ for a variable $x$. Let $y$ be a successor of $x$. The number $n_{sc}(x,y)$ denotes the number of set constraints of the form $x:succ(c_1\subseteq c_2)$ where $(x,y):c_1\in S$ and $(x,y):c_2\in S$ hold.\\
 Finally we can define the sextuple. The sextuples in $Q$ are defined as follows
 \begin{mydef}
 Let $S$ be a constraint set and $\mathcal{I}_I$ be the induced Interpretation of $S$. The multiset $\Psi(S)$ consist of sextuples $\psi_S(x)$ for each variable $x$. The component of the sextuples are structured as follows
 \begin{itemize}
-\item the first component is a non-negative integer $max\{|C|\mid x:C\in S\}$
-\item the second component is a multiset of integers containing for each $x:C\sqcap D$, on which the $\sqcap$-rule is applicable, the non-negative integer $|C\sqcap D|$ (respectively for $C\sqcup D$)
-\item the third component is a multiset of integers containing for each $x:succ(n\leq l)\in S$ the non-negative integer $n\oset[-1ex]{.}{-}n_l(x_S)$ and for each $x:succ(k\leq l)\in S$ the non-negative integer $n_k(x_S)\oset[-1ex]{.}{-}n_l(x_S)$
-\item the fourth component denotes the number of all successors of $x$ in $S$
-\item the fifth component is a multiset of integers containing for each $x:succ(k\leq n)\in S$ the number of all successors $y$ of $x$ such that for a role $r$ we have $(x,y):r$, $r$ occurs in $k$ but for at least one $|s|$ in $k$ we have neither $(x,y):s\in S$ nor $(x,y):\neg s\in S$
-\item the sixth component is a multiset of integers in which for each successor $y$ of $x$ we have $n_{sc}(x)-n_{sc}(x,y)$
+\item the first component is a non-negative integer $max\{size(C)\mid x:C\in S\}$
+\item the second component is a multiset of integers containing for each $x:C\sqcap D$, on which the $\sqcap$-rule is applicable, the non-negative integer $size(C\sqcap D)$ (respectively for $C\sqcup D$)
+\item the third component denotes the number of all successors of $x$ in $S$
+\item the fourth component is a multiset of integers containing for each $x:succ(k\leq n)\in S$ the number of all successors $y$ of $x$ such that for a role $r$ we have $(x,y):r$, $r$ occurs in $k$ but for at least one $|s|$ in $k$ we have neither $(x,y):s\in S$ nor $(x,y):\neg s\in S$
+\item the fifth component is a multiset of integers in which for each successor $y$ of $x$ we have $n_{sc}(x)-n_{sc}(x,y)$
 \end{itemize}
 \end{mydef}
 \begin{mylem}
 The following properties hold
 \begin{enumerate}
 \item For any concept $C$ we have $|C|\geq|NNF(\neg C)|$
-\item Any variable $y$ in a derived set $S$ has at most one predecessor $x$ in $S$
+ \item Any variable $y$ in a derived set $S$ has at most one predecessor $x$ in $S$
 \item If $(x,y):r\in S$ for a $r\in\mathbf{R}$ then 
 \begin{align*}
 max\{|C|\mid x:C\in S\}>max\{|D|\mid y:D \in S\}
