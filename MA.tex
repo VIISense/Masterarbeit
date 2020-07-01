@@ -215,6 +215,8 @@ $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains
 $x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for some $|s|$ occurring in $k$\\
 $\rightarrow$ for all $|s|$ in $k$, in which $k^\prime$ occurs, either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):s^\neg\}$ and then jump to rule \ref{repeat}
+\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for no rule name $r$ we have $(x,y):r\notin S$\\
+$\rightarrow$ choose one rule name $r\in\mathbf{R}$ which does not occur negated in $s$ and add $(x,y):r$ to $S$
 \item\label{c}$cardinality$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, such that $c$ is violated in $\mathcal{I}_I$ regarding $x$
 \begin{enumerate}
 \item \label{setterm} if there is a set term $|s|$ in $l$ such that it is safe to add variables regarding $c$\\
@@ -253,7 +255,15 @@ and no more rules are applicable.
 \begin{mydef}[Derived Set]
 A \textit{derived set} is a constraint set $S^\prime$ without clashes where only rule \ref{repeat} is not applicable.
 \end{mydef}
-The first rule decompose the conjunction and the second rule adds non-deterministically the right constraint. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x_{S_k})$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of constraints. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x_{S_k})$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ and the assignment $\pi_\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x_{S_k})$ $(x,y)$ counts $y$.\textcolor{red}{todo....}\\
+The first rule decompose the conjunction and the second rule adds non-deterministically the right constraint. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x_{S_k})$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of constraints. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x_{S_k})$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ and the assignment $\pi_\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x_{S_k})$ counts $y$ and hence $n_{\mathcal{I}}(x_{S_k})\neq n_{\mathcal{I}^\prime}(x_{S_k})$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\ 
+The $choose$-$a$-$role$-rule is necessary because for a constraint $x:succ(c)$ we might have no positive role name in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
+\begin{ex}
+\begin{align*}
+&\mathbf{R}=\{r,s\}\\
+&S=\{x:succ(|r^\neg|\geq 1)\}
+\end{align*}
+It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. With that rule we would pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the constraint. Therefore we have to pick $s$.
+\end{ex}
 We consider now two examples to explain the rule. \ref{exceeded}
 \begin{ex}
 Consider the following example 
@@ -287,6 +297,12 @@ First we apply the rules \ref{setterm} and \ref{setterm3} two times to add two $
 \end{ex}
 We also know that the application of rule \ref{repeat} eventually terminates because the number of concept names and role names are finite in $S$ (since $S$ is finite).
 \section{Correctness}
+For the correctness proof of the Tableau-algorithm we have to show that
+\begin{itemize}
+\item for every input the Tableau-algorithm terminates
+\item If no more rules are applicable on a clash-free constraint set $S$ then $S$ is satisfiable
+\item For every interpretation $\mathcal{I}$ of a satisfiable constraint set $S$ we can find a chain of rule application such that the induced interpretation $\mathcal{I}_I$ is equal to $\mathcal{I}$
+\end{itemize}
 First we prove that the tableau algorithm terminates. 
 \begin{mypro}
 Let $C$ be a concept in negation normal form. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
@@ -368,9 +384,15 @@ Therefore $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by deleting $\psi_S(y)
 \end{enumerate}
 \end{proof}
 \begin{mylem}
-Let $S$ be a constraint set in $NNF$ and let $\mathcal{I}_I$ be the induced interpretation of $S^\ast$, a constraint set which is obtained from $S$ by applying the Tableau-Algorithm without any clashes. Then $\mathcal{I}_I$ is a model of $S$.
+If the Tableau-algorithm terminates without a clash then $S$ is satisfiable
 \end{mylem}
 \begin{proof}
-???
+Let $\mathcal{I}_I$ be the induced interpretation of the constraint set $S^\prime$ created by the Tableau-algorithm from $S$. We construct an assignment $\pi_{\mathcal{I}_I}$ as follows: For every variable $x$ let $\pi_{\mathcal{I}_I}(x)=x^\mathcal{I}$. By the definition of induced interpretation $\pi_{\mathcal{I}_I}$ satisfies $S^\prime$.
+\end{proof}
+\begin{mylem}
+For every interpretation $\mathcal{I}$ of a satisfiable constraint set $S$ we can find a chain of rule application such that the induced interpretation $\mathcal{I}_I$ is equal to $\mathcal{I}$
+\end{mylem}
+\begin{proof}
+blub?
 \end{proof}
 \end{document}
