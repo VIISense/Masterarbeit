@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6930 64-bit) (preloaded format=pdflatex 2019.1.11)  1 JUL 2020 12:16
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6930 64-bit) (preloaded format=pdflatex 2019.1.11)  1 JUL 2020 19:08
 entering extended mode
 **./MA.tex
 (MA.tex
@@ -957,7 +957,7 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
 
 {C:/Users/korom/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
 [2] [3] [4] [5] [6] [7] [8]
-Overfull \hbox (5.54468pt too wide) in paragraph at lines 374--378
+Overfull \hbox (5.54468pt too wide) in paragraph at lines 375--379
 \OT1/cmr/m/n/10.95 The first com-po-nent re-mains the same be-cause $\OML/cmm/m
 /it/10.95 size\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 C\OT1/cmr/m/n/10.95 ) \OM
 L/cmm/m/it/10.95 < size\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 C \OMS/cmsy/m/n/
@@ -970,7 +970,7 @@ e\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 D\OT1/cmr/m/n/10.95 ) \OML/cmm/m/it/10
 Here is how much of TeX's memory you used:
  19637 strings out of 492946
  420447 string characters out of 3126266
- 585903 words of memory out of 3000000
+ 586903 words of memory out of 3000000
  23113 multiletter control sequences out of 15000+200000
  11174 words of font info for 43 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -995,7 +995,7 @@ pe1/public/amsfonts/cm/cmti10.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX
 al/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users
 /korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/hoekwater/stmary10.
 pfb>
-Output written on MA.pdf (12 pages, 205443 bytes).
+Output written on MA.pdf (12 pages, 206059 bytes).
 PDF statistics:
  108 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
