@@ -91,7 +91,7 @@ Concepts are:
 \end{itemize}
 \end{mydef}
 \begin{mydef}[Negation Normal Form]
-A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name. Let $C$ be a arbitrary concept. Its $NNF$ is obtained by applying the following rules
+A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary concept. Its $NNF$ is obtained by applying the following rules
 \begin{figure}[H]
 \begin{minipage}[t]{.5\textwidth}
 \raggedright
@@ -101,6 +101,7 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \item $\neg\neg C$ $\rightarrow$ $C$
 \item $\neg(C\sqcap D)$ $\rightarrow$ $\neg C \sqcup \neg D$
 \item $\neg(C\sqcup D)$ $\rightarrow$ $\neg C \sqcap \neg D$
+\item $(C)^\neg$ $\rightarrow$ $\neg C$
 \item $\neg succ(c)$ $\rightarrow$ $succ(\neg c)$
 \end{itemize}
 \end{minipage}% <---------------- Note the use of "%"
@@ -118,7 +119,10 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \end{minipage}
 \end{figure}
 \end{mydef}
-With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more.\\
+With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more.
+\begin{mydef}[Positive and Negative Sign]
+A concept name $C$ or a role name $r$ has a \textit{positive sign} if there is no negation sign in front or above it. It has a \textit{negative sign} otherwise.
+\end{mydef}
 The set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I})}$ over $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
@@ -201,7 +205,7 @@ An interpretation $\mathcal{I}_I$ can be induced from a constraint set $S$ by th
 \end{itemize}
 With $\mathcal{I}_I$ we can count how many successors a variable has during the Tableau-algorithm. Regarding the cardinality constraints $k\leq l$ and $k<l$ we have to be \textit{safe} before adding or merging variables:
 \begin{itemize}
-\item It is safe to add a new variable if there is no set term $s$ which occurs in $k$ and $l$ with the same sign
+\item It is safe to introduce a new variable $y$ if there is no set term $s$ which occurs in $k$ and $l$ with the same sign
 \item It is safe to merge two variable if by merging them we do not violate any constraint regarding the predecessor in the induced interpretation of the resulting constraint set
 \end{itemize}
 \end{mydef}
@@ -215,8 +219,8 @@ $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains
 $x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for some $|s|$ occurring in $k$\\
 $\rightarrow$ for all $|s|$ in $k$, in which $k^\prime$ occurs, either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):s^\neg\}$ and then jump to rule \ref{repeat}
-\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for no rule name $r$ we have $(x,y):r\notin S$\\
-$\rightarrow$ choose one rule name $r\in\mathbf{R}$ which does not occur negated in $s$ and add $(x,y):r$ to $S$
+\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for no role name $r$ we have $(x,y):r\notin S$\\
+$\rightarrow$ choose one rule name $r\in\mathbf{R}$ which does not occur with a negative sign in $s$ and add $(x,y):r$ to $S$
 \item\label{c}$cardinality$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, such that $c$ is violated in $\mathcal{I}_I$ regarding $x$
 \begin{enumerate}
 \item \label{setterm} if there is a set term $|s|$ in $l$ such that it is safe to add variables regarding $c$\\
