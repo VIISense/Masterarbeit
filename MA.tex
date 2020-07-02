@@ -166,7 +166,7 @@ n_\mathcal{I}(x_{S_k}):=
 n_\mathcal{I}(x_{S_i})+n_\mathcal{I}(x_{S_j})&\,\, \text{if } k=i+j\\
 n_\mathcal{I}(x_{S_i})\cdot n_\mathcal{I}(x_{S_j})&\,\, \text{if } k=i\cdot j\\
 n_\mathcal{I}(x_{S_l})\cdot n& \text{ if } k=l\cdot n\\
-|s^\mathcal{I}\cup\bigcap_{r\in\mathbf{R}}r^\mathcal{I}(x)| & \text{ if } k=|s|
+|s^\mathcal{I}\cap\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)| & \text{ if } k=|s|
 \end{dcases}
 \end{align*}
 where $i,j,l$ are cardinality terms, $n\in\mathbb{N}$ and $s$ is a set term.\\
@@ -235,8 +235,8 @@ $\rightarrow$ choose one rule name $r\in\mathbf{R}$ which does not occur with a 
 \begin{enumerate}
 \item \label{setterm} if there is a set term $|s|$ in $l$ such that it is safe to add variables regarding $c$\\
 $\rightarrow$ introduce new variable $y$ and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
-\item \label{exceeded} if $l\in \mathbb{N}$ does not contain a set term\\
-$\rightarrow$ if it is safe to merge two successor $y_1\neq y_2$ of $x$ such that for a $|s|$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$ then merge them
+\item \label{exceeded} if $l\in \mathbb{N}$ does not contain a set term and we have two successor $y_1\neq y_2$ of $x$ such that for a $|s|$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$:\\
+$\rightarrow$ if it is safe to merge the two variables then merge them
 \end{enumerate}
 \item\label{s}$set$-rule: $S$ contains $x:succ(s_1\subseteq s_2)$ and $(x,y):s_1$ but not $(x,y):s_2$\\
 $\rightarrow$ $S:=S\cup\{(x,y):s_2\}$ and then jump to rule \ref{repeat}
@@ -270,7 +270,7 @@ and no more rules are applicable.
 A \textit{derived set} is a constraint set $S^\prime$ without clashes where only rule \ref{repeat} is not applicable.
 \end{mydef}
 The first rule decompose the conjunction and the second rule adds non-deterministically the right constraint. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x_{S_k})$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of constraints. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x_{S_k})$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ and the assignment $\pi_\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x_{S_k})$ counts $y$ and hence $n_{\mathcal{I}}(x_{S_k})\neq n_{\mathcal{I}^\prime}(x_{S_k})$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\ 
-The $choose$-$a$-$role$-rule is necessary because for a constraint $x:succ(c)$ we might have no positive role name in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
+The $choose$-$a$-$role$-rule is necessary because for a constraint $x:succ(c)$ we might have no role name with a positive sign in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
 \begin{ex}
 \begin{align*}
 &\mathbf{R}=\{r,s\}\\
@@ -322,7 +322,7 @@ First we prove that the tableau algorithm terminates.
 Let $C$ be a concept in negation normal form. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
 \end{mypro}
 To prove this we map any derived set $S$ to an element $\Psi(S)$ from a set $Q$. We then show that the elements in $Q$ can be ordered by a well-founded relation $\prec$. A well-founded relation says that there is no infinite decreasing chain. If we can show that by obtaining a derived set $S^\prime$ from another set $S$ we have $\Psi(S^\prime)\prec\Psi(S)$ then the algorithm terminates.\\
-The elements in $Q$ are finite multisets of sextuples and the elements of the sextuples are either integers or mutlisets of integers. For two sextuples $q=(q_1,\dots,q_6)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_6)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 6$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i^\prime\prec q_i$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i^\prime$ by a finite number of integers which are all smaller than $c$. The relation $\prec$ for those multisets is also well-founded because we work with integers. That means from a multiset $\{0,\,\dots\,,0\}$ we can not obtain a smaller multiset because we would have to replace at least one $0$ with integers which are smaller.\\
+The elements in $Q$ are finite multisets of septuples and the elements of the septuples are either integers or mutlisets of integers. For two septuples $q=(q_1,\dots,q_7)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_7)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 7$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i^\prime\prec q_i$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i^\prime$ by a finite number of integers which are all smaller than $c$. The relation $\prec$ for those multisets is also well-founded because we work with integers. That means from a multiset $\{0,\,\dots\,,0\}$ we can not obtain a smaller multiset because we would have to replace at least one $0$ with integers which are smaller.\\
 For a concept $C$ its size $size(C)$ is inductively defined as
 \begin{itemize}
 \item $0$, if $C$ is $\perp$
@@ -332,9 +332,9 @@ For a concept $C$ its size $size(C)$ is inductively defined as
 \item $size(C\sqcap D)=size(C\sqcup D)=size(C)+size(D)$
 \end{itemize}
 The number $n_{sc}(x)$ denotes the number of constraints of the form $x:succ(s_1\subseteq s_2)$ for a variable $x$. Let $y$ be a successor of $x$. The number $n_{sc}(x,y)$ denotes the number of set constraints of the form $x:succ(c_1\subseteq c_2)$ where $(x,y):s_1\in S$ and $(x,y):s_2\in S$ hold.\\
-The sextuples in $Q$ are defined as follows
+The septuples in $Q$ are defined as follows
 \begin{mydef}
-Let $S$ be a constraint set. The multiset $\Psi(S)$ consist of sextuples $\psi_S(x)$ for each variable $x$. The component of the sextuples are structured as follows
+Let $S$ be a constraint set. The multiset $\Psi(S)$ consist of septuples $\psi_S(x)$ for each variable $x$. The component of the septuples are structured as follows
 \begin{itemize}
 \item the first component is a non-negative integer $max\{size(C)\mid x:C\in S\}$
 \item the second component is a multiset of integers containing for each $x:C\sqcap D$, on which the $\sqcap$-rule is applicable, the non-negative integer $size(C\sqcap D)$ (respectively for $C\sqcup D$)
@@ -390,7 +390,7 @@ Therefore $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by deleting the tuples
 After rule \ref{choose} we have either $(x,y):s$ or $(x,y):s^\neg$ for all $|s|$ in $k$. Whether it is $(x,y):s$ or $(x,y):s^\neg$ the first two component do not change because we do not add any new constraint regarding $x$. The third and fifth component also does not change because we do not add any new successors for $x$. The fourth component might decreases but never increases: By adding constraints we can only increase the number $n_{sc}(x,y)$ which means that $n_{sc}(x)-n_{sc}(x,y)$ decreases. The sixth component of $\psi_S(x)$ decreases because $y$ does not hold the condition of the fifth component any more.  Hence $\psi_{S^\prime}\prec\psi_S(x)$.\\ 
 For any variable $z$ such that $z\neq y$. The tuple $\psi_S(z)$ is unaffected. It can only be affected by the rules if $z$ is a predecessor of $y$. But by Lemma 1.2 that would mean that $z=x$.\\
 Because $y$ is a successor of $x$ we know by Lemma 1.3 that the first component of $\psi_{S^\prime}(y)$ is smaller than the first component of $\psi_{S^\prime}(x)$ and therefore $\psi_{S^\prime}(y)\prec\psi_{S^\prime}(x)$. Since the first component of $\psi_{S^\prime}(x)$ does not change we also have $\psi_{S^\prime}(y)\prec\psi_{S}(x)$.\\
-We can obtained $\Psi(S^\prime)$ from $\Psi(S)$ by deleting $\psi_S(y)$ and replacing $\psi_S(x)$ by the two smaller sextuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
+We can obtained $\Psi(S^\prime)$ from $\Psi(S)$ by deleting $\psi_S(y)$ and replacing $\psi_S(x)$ by the two smaller septuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \item $S^\prime$ is obtained by the application of rule \ref{setterm} on $x:succ(k<l)$, $x:succ(k\leq l)$ or $x:succ(n\,dvd\,l)$ and rule \ref{repeat}:\\ 
 For a set term $s$ which occurs as $|s|$ in $l$ we introduce a new variable $y$ and add $(x,y):s$. The first two component of $\psi_S(x)$ remains unchanged. Because we can apply this rule we have $n_{\mathcal{I}_I}(x_{S_k})>n_{\mathcal{I}_I}(x_{S_l})$ and we have no set term $s$ which occurs in $k$ and in $l$ with the same sign. That means that by adding a new successor to $l$ it can never be a successor to $k$, too. Therefore only $n_{\mathcal{I}_I}(x_{S_l})$ increases which means $n_{\mathcal{I}_I}(x_{S_k})\unlhd n_{\mathcal{I}_I}(x_{S_l})$ decreases and hence also the third component.\\
 In $S^\prime$ exists now a new tuple $\psi_{S^\prime}(y)$. But since it was introduced by the constraint $x:succ(c)$, $c\in\{k<l,k\leq l,n\,dvd\,l\}$, the first component of it is always smaller then the first component of $\psi_S(x)$.\\
@@ -399,7 +399,7 @@ Altogether $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by replacing $\psi_S(
 \item $S^\prime$ is obtained by the application of rule \ref{s} on $x:succ(s_1\subseteq s_2)$ and rule \ref{repeat}:\\ 
 After rule \ref{s} $S$ contains $(x,y):s_2$. Then rule \ref{repeat} is applied until inapplicable. After rule \ref{repeat} we can have multiple $(x,y):r$, $r\in\mathbf{R}$, and/or $y:C$. The first and second component do not change. The third component also does not change because we do not add more successors. The fourth component always decreases because the number $n_{sc}(x,y)$ increases. For any $y:C$ $\psi_S(x)$ remains unchanged but we know that the first component of $\psi_S^\prime(y)$ is smaller then the first component of $\psi_S(x)$ by Lemma 1.3.\\
 For any variable $z$ such that $z\neq y$ the tuple $\psi_S(z)$ is unaffected. It can only be affected by the rules if $z$ is a predecessor of $y$. But by Lemma 1.2 that would mean that $z=x$.\\
-Therefore $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by deleting $\psi_S(y)$ and by replacing $\psi_S(x)$ with the two smaller sextuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
+Therefore $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by deleting $\psi_S(y)$ and by replacing $\psi_S(x)$ with the two smaller septuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \end{enumerate}
 \end{proof}
 \begin{mylem}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6930 64-bit) (preloaded format=pdflatex 2019.1.11)  1 JUL 2020 19:08
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6930 64-bit) (preloaded format=pdflatex 2019.1.11)  2 JUL 2020 07:23
 entering extended mode
 **./MA.tex
 (MA.tex
@@ -956,7 +956,80 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
  [1
 
 {C:/Users/korom/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-[2] [3] [4] [5] [6] [7] [8]
+[2] [3] [4]
+
+LaTeX Warning: Reference `repeat' on page 5 undefined on input line 231.
+
+
+LaTeX Warning: Reference `repeat' on page 5 undefined on input line 237.
+
+
+LaTeX Warning: Reference `repeat' on page 5 undefined on input line 242.
+
+
+LaTeX Warning: Reference `setterm' on page 5 undefined on input line 256.
+
+
+LaTeX Warning: Reference `exceeded' on page 5 undefined on input line 257.
+
+[5]
+
+LaTeX Warning: Reference `repeat' on page 6 undefined on input line 270.
+
+
+LaTeX Warning: Reference `exceeded' on page 6 undefined on input line 281.
+
+[6]
+
+LaTeX Warning: Reference `exceeded' on page 7 undefined on input line 303.
+
+
+LaTeX Warning: Reference `setterm' on page 7 undefined on input line 310.
+
+
+LaTeX Warning: Reference `setterm3' on page 7 undefined on input line 310.
+
+
+LaTeX Warning: Reference `exceeded' on page 7 undefined on input line 310.
+
+
+LaTeX Warning: Reference `setterm' on page 7 undefined on input line 310.
+
+
+LaTeX Warning: Reference `setterm3' on page 7 undefined on input line 310.
+
+
+LaTeX Warning: Reference `exceeded' on page 7 undefined on input line 310.
+
+
+LaTeX Warning: Reference `repeat' on page 7 undefined on input line 312.
+
+[7] [8]
+
+LaTeX Warning: Reference `exceeded' on page 9 undefined on input line 363.
+
+
+LaTeX Warning: Reference `setterm' on page 9 undefined on input line 364.
+
+
+LaTeX Warning: Reference `cap' on page 9 undefined on input line 364.
+
+
+LaTeX Warning: Reference `cup' on page 9 undefined on input line 364.
+
+
+LaTeX Warning: Reference `choose' on page 9 undefined on input line 364.
+
+
+LaTeX Warning: Reference `choose' on page 9 undefined on input line 364.
+
+
+LaTeX Warning: Reference `cap' on page 9 undefined on input line 375.
+
+
+LaTeX Warning: Reference `cap' on page 9 undefined on input line 376.
+
+
 Overfull \hbox (5.54468pt too wide) in paragraph at lines 375--379
 \OT1/cmr/m/n/10.95 The first com-po-nent re-mains the same be-cause $\OML/cmm/m
 /it/10.95 size\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 C\OT1/cmr/m/n/10.95 ) \OM
@@ -966,36 +1039,87 @@ e\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 D\OT1/cmr/m/n/10.95 ) \OML/cmm/m/it/10
 .95 <
  []
 
-[9] [10] [11] [12] (MA.aux) ) 
+[9]
+
+LaTeX Warning: Reference `cup' on page 10 undefined on input line 379.
+
+
+LaTeX Warning: Reference `chooserole' on page 10 undefined on input line 381.
+
+
+LaTeX Warning: Reference `exceeded' on page 10 undefined on input line 385.
+
+
+LaTeX Warning: Reference `exceeded' on page 10 undefined on input line 386.
+
+[10]
+
+LaTeX Warning: Reference `choose' on page 11 undefined on input line 389.
+
+
+LaTeX Warning: Reference `s' on page 11 undefined on input line 389.
+
+
+LaTeX Warning: Reference `choose' on page 11 undefined on input line 390.
+
+
+LaTeX Warning: Reference `setterm' on page 11 undefined on input line 394.
+
+
+LaTeX Warning: Reference `repeat' on page 11 undefined on input line 394.
+
+[11]
+
+LaTeX Warning: Reference `s' on page 12 undefined on input line 399.
+
+
+LaTeX Warning: Reference `repeat' on page 12 undefined on input line 399.
+
+
+LaTeX Warning: Reference `s' on page 12 undefined on input line 400.
+
+
+LaTeX Warning: Reference `repeat' on page 12 undefined on input line 400.
+
+
+LaTeX Warning: Reference `repeat' on page 12 undefined on input line 400.
+
+[12] (MA.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
 Here is how much of TeX's memory you used:
  19637 strings out of 492946
  420447 string characters out of 3126266
- 586903 words of memory out of 3000000
+ 586801 words of memory out of 3000000
  23113 multiletter control sequences out of 15000+200000
  11174 words of font info for 43 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  64i,17n,76p,9156b,920s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/
-fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/korom/AppData/Local/Program
-s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx8.pfb><C:/Users/korom/AppData/L
-ocal/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/ko
-rom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb
-><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmmi6.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/publ
-ic/amsfonts/cm/cmmi8.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/font
-s/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/korom/AppData/Local/Programs/MiK
-TeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/korom/AppData/Local/P
-rograms/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><C:/Users/korom/
-AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:
-/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
-msy6.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/a
-msfonts/cm/cmsy8.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/ty
-pe1/public/amsfonts/cm/cmti10.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX
- 2.9/fonts/type1/public/amsfonts/symbols/msam10.pfb><C:/Users/korom/AppData/Loc
-al/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users
-/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/hoekwater/stmary10.
-pfb>
-Output written on MA.pdf (12 pages, 206059 bytes).
+<C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts
+/cm/cmbx10.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/pu
+blic/amsfonts/cm/cmbx8.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fo
+nts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/korom/AppData/Local/Programs/
+MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/korom/AppData/Lo
+cal/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/koro
+m/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C
+:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
+cmr10.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/
+amsfonts/cm/cmr8.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/ty
+pe1/public/amsfonts/cm/cmssbx10.pfb><C:/Users/korom/AppData/Local/Programs/MiKT
+eX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/korom/AppData/Local/
+Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/korom/Ap
+pData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Us
+ers/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti
+10.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/ams
+fonts/symbols/msam10.pfb><C:/Users/korom/AppData/Local/Programs/MiKTeX 2.9/font
+s/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users/korom/AppData/Local/Progra
+ms/MiKTeX 2.9/fonts/type1/public/hoekwater/stmary10.pfb>
+Output written on MA.pdf (12 pages, 206526 bytes).
 PDF statistics:
  108 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
