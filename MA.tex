@@ -226,22 +226,22 @@ $x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\i
 $\rightarrow$ for all $|s|$ in $k$, in which $k^\prime$ occurs, either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):s^\neg\}$ and then jump to rule \ref{repeat} 
 \item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but there is no $(x,y):r\notin S$, $r\in\mathbf{R}$, where $r$ has a positive sign\\
 $\rightarrow$ choose one rule name $r\in\mathbf{R}$, which does not occur with a negative sign in $s$, and add $(x,y):r$ to $S$
-\item\label{c}$cardinality$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, such that $c$ is violated in $\mathcal{I}_I$ regarding $x$
+\item\label{c}$cardinality$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$
 \begin{enumerate}
 \item \label{setterm} if there is a set term $|s|$ in $l$ such that it is safe to add variables regarding $c$\\
 $\rightarrow$ introduce new variable $y$ and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
-\item \label{exceeded} if $l\in \mathbb{N}$ does not contain a set term and we have two successor $y_1\neq y_2$ of $x$ such that for a $|s|$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$:\\
-$\rightarrow$ if it is safe to merge the two variables then merge them
+\item \label{exceeded} if $l\in \mathbb{N}$ does not contain a set term and we have two successor $y_1\neq y_2$ of $x$ such that for a $|s|$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$ and it is safe to merge them:\\
+$\rightarrow$ merge $y_1$ and $y_2$ 
 \end{enumerate}
 \item\label{s}$set$-rule: $S$ contains $x:succ(s_1\subseteq s_2)$ and $(x,y):s_1$ but not $(x,y):s_2$\\
 $\rightarrow$ $S:=S\cup\{(x,y):s_2\}$ and then jump to rule \ref{repeat}
 \item\label{repeat} $set.term$-rule (Repeat until inapplicable): In $S$ is $(x,y):s$ and
 \begin{enumerate}
-\item\label{setterm1} $s=s_1\cap s_2$ but $\{(x,y):s_1,\,(x,y):s_2\}\not\subseteq S$, then\\
+\item\label{setterm1} $s=s_1\cap s_2$ but $\{(x,y):s_1,\,(x,y):s_2\}\not\subseteq S$\\
 $\rightarrow$ $S:=S\cup \{(x,y):s_1,\,(x,y):s_2\}$ 
-\item\label{setterm2} $s=s_1\cup s_2$ and neither $\{(x,y):s_1\}\subseteq S$ nor $S\{(x,y):s_2\}\subset S$, then\\
+\item\label{setterm2} $s=s_1\cup s_2$ and neither $\{(x,y):s_1\}\subseteq S$ nor $S\{(x,y):s_2\}\subset S$\\
 $\rightarrow$ either $S:=S\cup \{(x,y):s_1\}$ or $S:=S\cup \{(x,y):s_2\}$ 
-\item\label{setterm3} $s=C$ and $y:C\notin S$, where $C$ is an $\mathcal{ALCSCC}$ concepts, then \\
+\item\label{setterm3} $s=C$ and $y:C\notin S$, where $C$ is an $\mathcal{ALCSCC}$ concepts\\
 $\rightarrow$ $S:=S\cup\{y:C\}$
 \end{enumerate}
 \end{enumerate}
@@ -262,7 +262,7 @@ A constraint set $S$ contains a \textit{clash} if
 and no more rules are applicable.
 \end{mydef}
 \begin{mydef}[Derived Set]
-A \textit{derived set} is a constraint set $S^\prime$ without clashes where only rule \ref{repeat} is not applicable.
+A \textit{derived set} is a constraint set $S^\prime$ without clashes where rule \ref{repeat} is not applicable.
 \end{mydef}
 The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x,k,S)$ counts $y$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\ 
 The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we might have no role name with a positive sign in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
