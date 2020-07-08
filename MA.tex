@@ -121,20 +121,22 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \end{mydef}
 With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more.
 \begin{mydef}[Positive and Negative Sign]
-A concept name $C$ or a role name $r$ has a \textit{positive sign} if there is no negation sign in front or above it. It has a \textit{negative sign} otherwise.
+Let be $(x,y):s$ an assertion. A concept name $C$ or a role name $r$ has a \textit{positive sign} in $s$ if it occurs with no negation sign in front or above it in $s$. It has a \textit{negative sign} otherwise.
 \end{mydef}
 The set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
 \begin{mydef}[Interpretation]
-An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I})}$ over $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
+An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I}},\pi_\mathcal{I})$ over a constraint set $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
 \item $\emptyset$ to $\emptyset^\mathcal{I}$
 \item $\mathcal{U}$ to $\mathcal{U}^\mathcal{I}\subseteq \Delta^\mathcal{I}$
+\item each variable $x\in Var(S)$ to $x^\mathcal{I}\in \Delta^\mathcal{I}$
 \item every concept names $A\in\mathbf{C}$ to $A^\mathcal{I}\subseteq \Delta^\mathcal{I}$
 \item every role name $r\in\mathbf{R}$ to $r^\mathcal{I}\subseteq\Delta^\mathcal{I}\times\Delta^\mathcal{I}$, such that every element in $\Delta^\mathcal{I}$ has a finite number of successors.
 \end{itemize}
 The set $r^\mathcal{I}(x)$ contains all elements $y$ such that $(x,y)\in r^\mathcal{I}$ e.g. it contains all $r$-successors of $x$.\\
 For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as follows
 \begin{itemize}
+\item $\top^\mathcal{I}=\Delta^\mathcal{I}$ and $\perp^\mathcal{I}=\emptyset^\mathcal{I}$
 \item $(C\sqcap D)^\mathcal{I}:=C^\mathcal{I}\cap D^\mathcal{I}$, $(C\sqcup D)^\mathcal{I}:=C^\mathcal{I}\cup D^\mathcal{I}$
 \item $(\neg C)^\mathcal{I}:=\Delta^\mathcal{I}\backslash C^\mathcal{I}$
 \item $(s\cap t)^\mathcal{I}:= s^\mathcal{I}\cap t^\mathcal{I}$, $(s\cup t)^\mathcal{I}:= s^\mathcal{I}\cup t^\mathcal{I}$
@@ -151,15 +153,15 @@ The mappings satisfies for the set terms $s,t$ and the cardinality terms $k,l$
 \item $k\lesseqgtr l$ iff $k^\mathcal{I}\lesseqgtr l^\mathcal{I}$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = l^\mathcal{I}$
 \end{itemize}
-An \textit{assignment} $\pi_\mathcal{I}: Var(S)\shortrightarrow \Delta^\mathcal{I}$ satisfies 
+The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ satisfies
 \begin{itemize}
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
 \item $(x,y):s$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in s^\mathcal{I}$
 \end{itemize} 
-A constraint $c$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $c$. $\pi_\mathcal{I}$ satisfies a constraint set $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. $S$ is satisfiable if there exists an interpretation $\mathcal{I}$ and an assignment $\pi_\mathcal{I}$ such that $\pi_\mathcal{I}$ satisfies $S$.
+$\pi_\mathcal{I}$ satisfies a constraint set $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
 \begin{mydef}[Number of successors]
-Let $S$ be a set of assertion, $\mathcal{I}$ be an interpretation, $\pi_\mathcal{I}:Var(S)\shortrightarrow \Delta^\mathcal{I}$ be an assignment, $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x,k,S):=k^{\mathcal{I}_x}$
+Let $S$ be a set of assertion, $\mathcal{I}$ be an interpretation, $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x,k,S):=k^{\mathcal{I}_x}$
 where $i,j,l$ are cardinality terms, $n\in\mathbb{N}$ and $s$ is a set term.\\
 A assertion regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
 \begin{itemize}
@@ -170,7 +172,7 @@ A assertion regarding a variable $x$ in an interpretation $\mathcal{I}$ is \text
 where $n\in\mathbb{N}$.
 \end{mydef}
 \section{Tableau}
-For the algorithm we assume that the assertions in the constraint set are in $NNF$.
+For the algorithm we assume that the assertions in the constraint set are in $NNF$. Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
 \end{mydef}
@@ -189,24 +191,26 @@ We see that the first assertion is violated and therefore merging $y_1$ and $y_2
 S=\{x:succ(|r|\leq 1), x.r.y,
 y:succ(|s|\leq 1), y.s.z_1, y.s.z_2\}
 \end{align*}
-To solve this problem we have to merge $z_1$ and $z_2$.\\
+To solve this problem we have to merge $z_1$ and $z_2$.
+\begin{mydef}[Induced Interpretation $\mathcal{I}(S)$]
+An interpretation $\mathcal{I}(S)$ can be induced from a constraint set $S$ by the following steps:
+\begin{itemize}
+\item for each variable $x\in Var(S)$ we introduce $x^{\mathcal{I}(S)}$ and add it to $\Delta^{\mathcal{I}(S)}$
+\item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}_I}$ to $C^{\mathcal{I}_I}$
+\item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}_I},y^{\mathcal{I}_I})$ to $r^{\mathcal{I}_I}$
+\end{itemize}
+With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm. Regarding the cardinality constraints $k\leq l$ and $k<l$ we have to be \textit{safe} before adding or merging variables. Let $S^\prime$ be the obtained constraint set from $S$:
+\begin{itemize}
+\item It is safe to introduce a new variable $y$ if\begin{align*}
+n_{\mathcal{I}(S)}(x,k,S)-n_{\mathcal{I}(S)}(x,l,S)\neq n_{\mathcal{I}(S^\prime)}(x,k,S^\prime)-n_{\mathcal{I}(S^\prime)}(x,l,S^\prime)
+\end{align*} 
+\item It is safe to merge two variable if by merging them we do not violate any assertion regarding the predecessor in the induced interpretation of the resulting constraint set
+\end{itemize}
 For the next definition we define first properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
 \item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
 \item if $s,t$ are set terms then $s=t$ replaces $s\subseteq t$ and $s\supseteq t$
-\end{itemize}
-\begin{mydef}[Induced Interpretation $\mathcal{I}_I$]
-An interpretation $\mathcal{I}_I$ can be induced from a constraint set $S$ by the following steps:
-\begin{itemize}
-\item for each variable $x\in Var(S)$ we introduce $x^{\mathcal{I}_I}$ and add it to $\Delta^{\mathcal{I}_I}$
-\item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}_I}$ to $C^{\mathcal{I}_I}$
-\item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}_I},y^{\mathcal{I}_I})$ to $r^{\mathcal{I}_I}$
-\end{itemize}
-With $\mathcal{I}_I$ we can count how many successors a variable has during the Tableau-algorithm. Regarding the cardinality constraints $k\leq l$ and $k<l$ we have to be \textit{safe} before adding or merging variables:
-\begin{itemize}
-\item It is safe to introduce a new variable $y$ if there is no set term $s$ which occurs in $k$ and $l$ with the same sign
-\item It is safe to merge two variable if by merging them we do not violate any assertion regarding the predecessor in the induced interpretation of the resulting constraint set
 \end{itemize}
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$.
 \end{mydef}
@@ -218,10 +222,10 @@ $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains
-$x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for some $|s|$ occurring in $k$\\
+$x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for some $|s|$ in $k$\\
 $\rightarrow$ for all $|s|$ in $k$, in which $k^\prime$ occurs, either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):s^\neg\}$ and then jump to rule \ref{repeat} 
-\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for no role name $r$ with a positive sign we have $(x,y):r\notin S$\\
-$\rightarrow$ choose one rule name $r\in\mathbf{R}$ which does not occur with a negative sign in $s$ and add $(x,y):r$ to $S$
+\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but there is no $(x,y):r\notin S$, $r\in\mathbf{R}$, where $r$ has a positive sign\\
+$\rightarrow$ choose one rule name $r\in\mathbf{R}$, which does not occur with a negative sign in $s$, and add $(x,y):r$ to $S$
 \item\label{c}$cardinality$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\, n\, dvd\,l\}$, such that $c$ is violated in $\mathcal{I}_I$ regarding $x$
 \begin{enumerate}
 \item \label{setterm} if there is a set term $|s|$ in $l$ such that it is safe to add variables regarding $c$\\
@@ -260,7 +264,7 @@ and no more rules are applicable.
 \begin{mydef}[Derived Set]
 A \textit{derived set} is a constraint set $S^\prime$ without clashes where only rule \ref{repeat} is not applicable.
 \end{mydef}
-The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ and the assignment $\pi_\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x,k,S)$ counts $y$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\ 
+The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x,k,S)$ counts $y$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\ 
 The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we might have no role name with a positive sign in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
 \begin{ex}
 \begin{align*}
@@ -396,10 +400,10 @@ Therefore $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by deleting $\psi_S(y)
 \begin{mylem}
 If the Tableau-algorithm terminates without a clash then $S$ is satisfiable
 \end{mylem}
-\begin{proof}
-Let $\mathcal{I}_{S^\prime}$ be the induced interpretation of the constraint set $S^\prime$ created by the Tableau-algorithm from $S$. We show that there exists an interpretation $\pi_{\mathcal{I}_{S^\prime}}:Var(S^\prime)\shortrightarrow \Delta^{\mathcal{I}_{S^\prime}}$ which satisfies $S^\prime$.\\
-We start with the simple assertions $x:C$ and $(x,y):r$ for $C\in\mathbf{C}$ and $r\in\mathbf{R}$ (induction base): By the definition of induced interpretation we assign $\pi_{\mathcal{I}_{S^\prime}}(x):=x^{\mathcal{I}_{S^\prime}}\in C^{\mathcal{I}_{S^\prime}}$. Also by the definition of induced interpretation for every $(x,y):r\in S^\prime$ we have $(\pi_{\mathcal{I}_{S^\prime}}(x),\pi_{\mathcal{I}_{S^\prime}}(y)):=(x^{\mathcal{I}_{S^\prime}},y^{\mathcal{I}_{S^\prime}})\in r^{\mathcal{I}_{S^\prime}}$.\\
-Let $S$ be a constraint set and $\pi_{\mathcal{I}_S}$ be an assignment which satisfies $S$ (induction hypothesis).\par
+\begin{proof}$ $\\
+Let $\mathcal{I}(S^\prime)$ be the induced interpretation of the constraint set $S^\prime$ created by the Tableau-algorithm from $S$. We show that $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.\\
+We start with the simple assertions $x:C$ and $(x,y):r$ for $C\in\mathbf{C}$ and $r\in\mathbf{R}$ (induction base): By the definition of induced interpretation we assign $\pi_{\mathcal{I}_{S^\prime}}(x):=x^{\mathcal{I}_{S^\prime}}\in C^{\mathcal{I}_{S^\prime}}$. Also by the definition of induced interpretation for every $(x,y):r\in S^\prime$ we have $(\pi_{\mathcal{I}_{S^\prime}}(x),\pi_{\mathcal{I}(S^\prime)}(y)):=(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})\in r^{\mathcal{I}(S^\prime)}$.\\
+Let $S$ be a constraint set and $\pi_{\mathcal{I}(S)}$ be an assignment which satisfies $S$ (induction hypothesis).\par
 If we can apply rule \ref{cap} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcap C_2\in S$. By the definition of induced interpretation and by the hypothesis we already have $\pi_{\mathcal{I}_{S^\prime}}(x)\in C_1^{\mathcal{I}_{S^\prime}}$ and $\pi_{\mathcal{I}_{S^\prime}}(x)\in C_2^{\mathcal{I}_{S^\prime}}$. By adding $x:C_1$ and $x:C_2$ we do not change $\mathcal{I}_S$. Hence $\mathcal{I}_{S^\prime}:=\mathcal{I}_S$ and $\pi_{\mathcal{I}_{S^\prime}}:=\pi_{\mathcal{I}_S}$ satisfies $S^\prime$.\par
 If we can apply rule \ref{cup} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcup C_2\in S$. Like above by the definition of the induced interpretation we have $\pi_{\mathcal{I}_{S^\prime}}(x):=x^{\mathcal{I}_{S^\prime}}$. We also know that $x^{\mathcal{I}_{S^\prime}}$ is in $C_1^{\mathcal{I}_{S^\prime}}\cup C_2^{\mathcal{I}_{S^\prime}}$. By adding either $x:C_1$ or $x:C_2$ we do not change $\mathcal{I}_S$. Hence $\mathcal{I}_{S^\prime}:=\mathcal{I}_S$ and $\pi_{\mathcal{I}_{S^\prime}}:=\pi_{\mathcal{I}_S}$ satisfies $S^\prime$.\par
 If we can apply rule \ref{choose} and obtain $S^\prime$ then we have a constraint $x:succ(k\leq l)$ and a successor $y$ such that $(x,y):k^\prime\in S$, $k^\prime$ occurs in $k$. We then choose between $(x,y):s$ and $(x,y):s^\neg$ for all $|s|$ in $k$ then apply rule \ref{repeat} until this rule is inapplicable. That means at the end we might add several assertions of the form $x:C$ and $(x,y):r$. In case we add $x:C$ we also add $x^{\mathcal{I}_{S^\prime}}$ to $C^{\mathcal{I}_{S^\prime}}$. Therefore in this case $\pi_{\mathcal{I}_{S^\prime}}$ satisfies $S^\prime$. In case we add $(x,y):r$ we also add $(x^{\mathcal{I}_{S^\prime}},y^{\mathcal{I}_{S^\prime}})$ to $r^{\mathcal{I}_{S^\prime}}$. Hence $\pi_{\mathcal{I}_{S^\prime}}$ satisfies $S^\prime$.\par
@@ -414,4 +418,7 @@ If $S$ is satisfiable then the Tableau-algorithm terminates without a clash.
 \begin{proof}
 blub?
 \end{proof}
+\normalem
+\bibliographystyle{abbrv}
+\bibliography{ref}
 \end{document}
