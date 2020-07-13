@@ -201,12 +201,14 @@ An interpretation $\mathcal{I}(S)$ can be induced from a constraint set $S$ by t
 \item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}(S)}$ to $C^{\mathcal{I}(S)}$
 \item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ to $r^{\mathcal{I}(S)}$
 \end{itemize}
-With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm. Regarding the cardinality constraints $k\leq l$ and $k<l$ we have to be \textit{safe} before adding or merging variables. Let $S^\prime$ be the obtained constraint set from $S$:
+With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm. Regarding the cardinality constraints $k\leq l$ and $k<l$ in the assertion $x:succ(k\leq l)$ we have to be \textit{safe} before adding or merging variables. Let $S^\prime$ be the obtained constraint set from $S$:
 \begin{itemize}
-\item It is safe to introduce a new variable $y$ if\begin{align*}
-n_{\mathcal{I}(S)}(x,k,S)-n_{\mathcal{I}(S)}(x,l,S)\neq n_{\mathcal{I}(S^\prime)}(x,k,S^\prime)-n_{\mathcal{I}(S^\prime)}(x,l,S^\prime)
-\end{align*} 
-\item It is safe to merge two variable $y_1,y_2$ if by merging them we do not violate any assertions regarding $x$, for which we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$, in $\mathcal{I}(S)$
+\item It is safe to introduce a new variable $y$ and add $(x,y):l$ if either
+\begin{itemize}
+\item $x$ has no successor or
+\item $n_{\mathcal{I}(S^\prime)}(x,k,S^\prime)-n_{\mathcal{I}(S^\prime)}(x,k,S)<n_{\mathcal{I}(S^\prime)}(x,l,S^\prime)-n_{\mathcal{I}(S)}(x,l,S)$
+\end{itemize}
+\item It is safe to merge two variable $y_1,y_2$, for which we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$, in $\mathcal{I}(S)$, if by merging them no assertions regarding $x$ in $S^\prime$ is violated, which was satisfied in $S$
 \end{itemize}
 For the next definition we define first properties of the following notations:
 \begin{itemize}
@@ -225,7 +227,7 @@ $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains
-$x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for some $|s|$ in $k$\\
+$x:succ(k\leq l$) or $x:succ(k\leq l$) and $(x,y):k^\prime$ with $k^\prime$ in $k$ but $(x,y):s\not\in S$ for some $|s|$ in $k$\\
 $\rightarrow$ for all $|s|$ in $k$, in which $k^\prime$ occurs, either $S:=S\cup\{(x,y):s\}$ or $S:=S\cup\{(x,y):s^\neg\}$ and then jump to rule \ref{repeat} 
 \item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but there is no $(x,y):r\notin S$, $r\in\mathbf{R}$, where $r$ has a positive sign in this assertion\\
 $\rightarrow$ choose one rule name $r\in\mathbf{R}$, which does not has a negative sign in $s$, and add $(x,y):r$ to $S$
@@ -267,7 +269,14 @@ and no more rules are applicable.
 \begin{mydef}[Derived Set]
 A \textit{derived set} is a constraint set $S^\prime$ where rule \ref{repeat} is not applicable.
 \end{mydef}
-The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x,k,S)$ counts $y$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\ 
+The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x,k,S)$ counts $y$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
+Another reason shows the next example:
+\begin{ex}
+\begin{align*}
+S=\{x:(succ(|r\cup s| < |r| + |s|)\}
+\end{align*}
+We first apply rule \ref{setterm} on it and add either $x:r$ or $x:s$. In both cases we have $|r\cup s|=1$. We can apply this rule, because $x$ has no successors yet. Now we can not apply rule \ref{setterm} any more because we already have a successor and by adding either an $r$-successor or $s$-successor the number $|r| + |s|$ does not grow faster than $|r\cup s|$. Hence we need to apply another rule or else the algorithm says that $S$ is not satisfiable. \textcolor{red}{todo}
+\end{ex} 
 The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we might have no role name with a positive sign in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
 \begin{ex}
 \begin{align*}
