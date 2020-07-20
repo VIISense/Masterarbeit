@@ -229,7 +229,7 @@ Let $k$ be a cardinality term. Each $|s_1\cup s_2\cup\dots \cup s_n|$ in $k$ is 
 &|s_1\cap s_2^\neg\cap\dots \cap s_n^\neg|+|s_1^\neg\cap s_2\cap\dots \cap s_n^\neg|+\dots +|s_1^\neg\cap s_2^\neg\cap\dots \cap s_n|
 \end{align*}
 \end{mydef}
-We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate the properties of certain successors. Another positive affect is, that we can omit the $choose$-rule, which are used in \cite{1} and \cite{6}. We still maintain the idea and purpose of this rule because we are force to \textit{choose} a specific property setting for successors.\\
+We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate the properties of certain successors.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
 Let $x:succ(k\leq l)$ or $x:succ(k<l)$ be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and add $(x,y):l$ to $S^\prime:=S\cup\{(x,y):l\}$ if 
 \begin{align*}
@@ -243,10 +243,12 @@ Let $S$ be a set of assertions in $NNF$.
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
+\item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $x$ has a successor $y$ such that for some for some concept $C$ in $k$ we have $(x,y):C\in S$ but $(x,y):k\notin S$\\
+$\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$
 \item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but there is no $(x,y):r\notin S$, $r\in\mathbf{R}$, where $r$ has a positive sign in this assertion\\
 $\rightarrow$ choose one rule name $r\in\mathbf{R}$, which does not has a negative sign in $s$, and add $(x,y):r$ to $S$
 \item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$. If it is safe to add a variable $y$ in $i$ then\\
-$\rightarrow$ $S:=S\cup\{(x,y):i\}$, then jump to rule \ref{repeat}
+$\rightarrow$ choose a set term $s$, such that $|s|$ is in $i$, and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
 \item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(n\,dvd\,l)$, which is violated in $\mathcal{I}(S)$ regarding $x$. If we have two successor $y_1\neq y_2$ of $x$ such that for a $|s|$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$ and by merging them no satisfied constraint regarding $x$ becomes violated, then:\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(s_1\subseteq s_2)$ and $(x,y):s_1$ but not $(x,y):s_2$\\
@@ -280,14 +282,13 @@ and no more rules are applicable.
 \begin{mydef}[Derived Set]
 A \textit{derived set} is a constraint set $S^\prime$ where rule \ref{repeat} is not applicable.
 \end{mydef}
-The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The third rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$. However there might be an interpretation $\mathcal{I^\prime}$ such that $n_{\mathcal{I}^\prime}(x,k,S)$ counts $y$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
-Another reason shows the next example:
+The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$:
 \begin{ex}
 \begin{align*}
-S=\{x:(succ(|r\cup s| < |r| + |s|)\}
+S=\{x:succ(|r\cup s|=1), (x,y):r\}
 \end{align*}
-We first apply rule \ref{setterm} on it and add either $x:r$ or $x:s$. In both cases we have $|r\cup s|=1$. We can apply this rule, because $x$ has no successors yet. Now we can not apply rule \ref{setterm} any more because we already have a successor and by adding either an $r$-successor or $s$-successor the number $|r| + |s|$ does not grow faster than $|r\cup s|$. Hence we need to apply another rule or else the algorithm says that $S$ is not satisfiable. \textcolor{red}{todo}
-\end{ex} 
+\end{ex}
+However there might be an interpretation $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
 The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we might have no role name with a positive sign in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
 \begin{ex}
 \begin{align*}
