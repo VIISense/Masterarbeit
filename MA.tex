@@ -201,15 +201,7 @@ An interpretation $\mathcal{I}(S)$ can be induced from a constraint set $S$ by t
 \item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}(S)}$ to $C^{\mathcal{I}(S)}$
 \item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ to $r^{\mathcal{I}(S)}$
 \end{itemize}
-With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm. Regarding the cardinality constraints $k\leq l$ and $k<l$ in the assertion $x:succ(k\leq l)$ we have to be \textit{safe} before adding or merging variables. Let $S^\prime$ be the obtained constraint set from $S$:
-\begin{itemize}
-\item It is safe to introduce a new variable $y$ and add $(x,y):l$ if either
-\begin{itemize}
-\item $x$ has no successor or
-\item $n_{\mathcal{I}(S^\prime)}(x,k,S^\prime)-n_{\mathcal{I}(S^\prime)}(x,k,S)<n_{\mathcal{I}(S^\prime)}(x,l,S^\prime)-n_{\mathcal{I}(S)}(x,l,S)$
-\end{itemize}
-\item It is safe to merge two variable $y_1,y_2$, for which we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$, in $\mathcal{I}(S)$, if by merging them no assertions regarding $x$ in $S^\prime$ is violated, which was satisfied in $S$
-\end{itemize}
+With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm.\\
 For the Tableau-algorithm we define the properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
@@ -229,15 +221,15 @@ Let $k$ be a cardinality term. Each $|s_1\cup s_2\cup\dots \cup s_n|$ in $k$ is 
 &|s_1\cap s_2^\neg\cap\dots \cap s_n^\neg|+|s_1^\neg\cap s_2\cap\dots \cap s_n^\neg|+\dots +|s_1^\neg\cap s_2^\neg\cap\dots \cap s_n|
 \end{align*}
 \end{mydef}
-We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate the properties of certain successors.\\
+We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate the all properties of successors in $k$.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
-Let $x:succ(k\leq l)$ or $x:succ(k<l)$ be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and add $(x,y):l$ to $S^\prime:=S\cup\{(x,y):l\}$ if 
+Let $x:succ(k\leq l)$ or $x:succ(k<l)$, where $l$ has at least one cardinality term $|s|$, be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and add $(x,y):l$ to $S^\prime:=S\cup\{(x,y):l\}$ if 
 \begin{align*}
 n_\mathcal{I}(x,k,S)-n_\mathcal{I}(x,k,S^\prime)<n_\mathcal{I}(x,l,S)-n_\mathcal{I}(x,l,S^\prime)
 \end{align*}
 Same goes for $(x,y):k$. This says that it is only safe to add a variable if the number of successor in $l$ increases faster then the number of successors in $k$.
 \begin{mydef}[Tableau]
-Let $S$ be a set of assertions in $NNF$.
+Let $S$ be a set of assertions in $CNNF$.
 \begin{enumerate}
 \item\label{cap} $\sqcap$-rule: $S$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
@@ -247,7 +239,7 @@ $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 $\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$
 \item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but there is no $(x,y):r\notin S$, $r\in\mathbf{R}$, where $r$ has a positive sign in this assertion\\
 $\rightarrow$ choose one rule name $r\in\mathbf{R}$, which does not has a negative sign in $s$, and add $(x,y):r$ to $S$
-\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$. If it is safe to add a variable $y$ in $i$ then\\
+\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$ then\\
 $\rightarrow$ choose a set term $s$, such that $|s|$ is in $i$, and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
 \item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(n\,dvd\,l)$, which is violated in $\mathcal{I}(S)$ regarding $x$. If we have two successor $y_1\neq y_2$ of $x$ such that for a $|s|$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$ and by merging them no satisfied constraint regarding $x$ becomes violated, then:\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
@@ -267,7 +259,6 @@ $\rightarrow$ $S:=S\cup\{y:C\}$
 Note that:
 \begin{itemize}
 \item $s$ in \ref{setterm} can also be of the form $t^\neg$.
-\item \ref{exceeded} is never applicable for $n\, dvd\, l$
 \item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually
 \end{itemize}
 \begin{mydef}[Clash]
