@@ -174,7 +174,7 @@ A assertion regarding a variable $x$ in an interpretation $\mathcal{I}$ is \text
 where $n\in\mathbb{N}$.
 \end{mydef}
 \section{Tableau}
-For the algorithm we assume that the assertions in the constraint set are in $NNF$. Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
+Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we will have to merge two variables during the Tableau-algorithm.
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
 \end{mydef}
@@ -208,8 +208,9 @@ For the Tableau-algorithm we define the properties of the following notations:
 \item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
 \item if $s,t$ are set terms then $s=t$ replaces $s\subseteq t$ and $s\supseteq t$
 \end{itemize}
-To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$.
 \end{mydef}
+\subsection{Restrictions}
+Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially cardinality constraints. Therefore we restrict cardinality constraint to a more simple form.
 \begin{mydef}[$CNNF$]
 A constraint is in conjunctive negated normal form $(CNNF)$ if no disjunction appears in a cardinality term.\\
 Let $k$ be a cardinality term. Each $|s_1\cup s_2\cup\dots \cup s_n|$ in $k$ is split into
@@ -221,7 +222,9 @@ Let $k$ be a cardinality term. Each $|s_1\cup s_2\cup\dots \cup s_n|$ in $k$ is 
 &|s_1\cap s_2^\neg\cap\dots \cap s_n^\neg|+|s_1^\neg\cap s_2\cap\dots \cap s_n^\neg|+\dots +|s_1^\neg\cap s_2^\neg\cap\dots \cap s_n|
 \end{align*}
 \end{mydef}
-We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate the all properties of successors in $k$.\\
+We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate all properties of successors in $k$.
+\subsection{Algorithm}
+To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
 Let $x:succ(k\leq l)$ or $x:succ(k<l)$, where $l$ has at least one cardinality term $|s|$, be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and add $(x,y):l$ to $S^\prime:=S\cup\{(x,y):l\}$ if 
 \begin{align*}
@@ -276,7 +279,7 @@ A \textit{derived set} is a constraint set $S^\prime$ where rule \ref{repeat} is
 The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$:
 \begin{ex}
 \begin{align*}
-S=\{x:succ(|r\cup s|=1), (x,y):r\}
+S=\{x:succ(|r\cup s|>1), (x,y):r\}
 \end{align*}
 \end{ex}
 However there might be an interpretation $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
@@ -285,10 +288,18 @@ The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we
 \begin{align*}
 &\mathbf{R}=\{r,s\}\\
 &S=\{x:succ(|r^\neg|\geq 1)\}
-\end{align*}
-It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. With that rule we would pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$.
+\end{align*} 
+It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. First we apply rule \ref{setterm} to actually add a successor. Therefore $y$ is introduced (it is safe because $n_{\mathcal{I}(S)}(x,r^\neg,S)$ increases) and $(x,y):r^\neg$ is added to $S$. Now no more rules are applicable except for rule \ref{chooserole}. With that rule we can pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$.
 \end{ex}
-We consider now two examples to explain the rule. \ref{exceeded}
+In rule \ref{setterm} we first make a choice whether we take $k$ or $l$ from a cardinality constraints $k\lesseqgtr l$, where the chosen cardinality term has at least a term of the form $|s|$ with $s$ being a set term. Intuitively it would be better to only want to increase $l$ but there are cases, where we have to add a successor in $k$ instead.
+\begin{ex}
+\begin{align*}
+&\mathbf{R=\{r,s\}}\\
+&S=\{x:succ(|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|<|s|+|r|)\}
+\end{align*}
+\end{ex}
+Note that $|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|=|s\cup r|$. No matter how often we add a successor in $|r|$ or $|s|$, the left hand side always increases and therefore this assertion stays violated. However if we add a successor in $|s\cap r|$ the assertion becomes satisfied. Hence for this example we can choose rule \ref{setterm} and then choose $i=|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|$. We then introduce $y$ and add $(x,y): s\cap r$ to $S$. Also note that we can not choose $i=|s|+|r|$ because it is not safe: By adding $(x,y):s$ or $(x,y):r$ to $S$ the number on the right hand side of the cardinality term does not increases faster then the left hand side.\\
+We consider now two examples to explain rule \ref{exceeded}
 \begin{ex}
 Consider the following example 
 \begin{align*}
@@ -296,7 +307,7 @@ S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|)\\
 x:succ(|r|=1), x:succ(|r\cap s|=1), x:succ=(|r\cap C|=1|)
 \}
 \end{align*}
-If we try to satisfy all the assertions in the second line with rule \ref{setterm} we end up with at least one assertion being violated: The problem is that by applying rule \ref{setterm} we add one successor $y$ which always raise $|r|$. If we apply \ref{setterm} one time nothing the amount of violated assertions decreases. If we apply it a second time then $x:succ(|r|=1)$ is violated. In case we decided to apply \ref{setterm} on $x:succ(|r|=1)$ and $x:succ(|r\cap s|=1)$ we have the option of either applying rule \ref{setterm} on $x:succ(|r\cap C|=1)$ or applying rule \ref{exceeded} on the two new variables. We decide for the first choice:
+By applying rule \ref{setterm} and add a new variable $y$ we satisfies at least one assertion from the second line but still at least one assertion remains violated. If we apply it a second time to satisfy the remaining assertion(s) then $x:succ(|r|=1)$, which was satisfied before, becomes violated. In case we decided to apply \ref{setterm} on $x:succ(|r|=1)$ and $x:succ(|r\cap s|=1)$ we have the option of either applying rule \ref{setterm} on $x:succ(|r\cap C|=1)$ or applying rule \ref{exceeded} on the two new variables. We decide for the first choice:
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
