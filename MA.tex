@@ -174,6 +174,15 @@ A assertion regarding a variable $x$ in an interpretation $\mathcal{I}$ is \text
 where $n\in\mathbb{N}$.
 \end{mydef}
 \section{Tableau}
+A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the constraint sets is unsatisfiable, otherwise it is satisfiable.
+\begin{mydef}[Clash]
+A constraint set $S$ contains a \textit{clash} if
+\begin{itemize}
+\item $\{x:\perp\}\subseteq S$ or
+\item $\{x:A,\,x:\neg A\}\subseteq S$ or
+\item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$
+\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$
+\end{itemize}
 Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we will have to merge two variables during the Tableau-algorithm.
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
@@ -215,14 +224,23 @@ Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially cardinality c
 A constraint is in conjunctive negated normal form $(CNNF)$ if no disjunction appears in a cardinality term.\\
 Let $k$ be a cardinality term. Each $|s_1\cup s_2\cup\dots \cup s_n|$ in $k$ is split into
 \begin{align*}
-&|s_1\cap s_2\cap\dots \cap s_n|+\\
-&|s_1^\neg\cap s_2\cap\dots \cap s_n|+|s_1\cap s_2^\neg\cap\dots \cap s_n|+\dots +|s_1\cap s_2\cap\dots \cap s_n^\neg|\\
-&|s_1^\neg\cap s_2^\neg\cap\dots \cap s_n|+|s_1^\neg\cap s_2\cap s_3^\neg\dots \cap s_n|+\dots +|s_1\cap s_2\cap\dots s_{n-1}^\neg\cap s_n^\neg|\\
+&0.\,|s_1\cap s_2\cap\dots \cap s_n|+\\
+&1.\,|s_1^\neg\cap s_2\cap\dots \cap s_n|+|s_1\cap s_2^\neg\cap\dots \cap s_n|+\dots +|s_1\cap s_2\cap\dots \cap s_n^\neg|\\
+&2.\,|s_1^\neg\cap s_2^\neg\cap\dots \cap s_n|+|s_1^\neg\cap s_2\cap s_3^\neg\dots \cap s_n|+\dots +|s_1\cap s_2\cap\dots s_{n-1}^\neg\cap s_n^\neg|\\
 &\dots\\
-&|s_1\cap s_2^\neg\cap\dots \cap s_n^\neg|+|s_1^\neg\cap s_2\cap\dots \cap s_n^\neg|+\dots +|s_1^\neg\cap s_2^\neg\cap\dots \cap s_n|
+&n-1.\,|s_1\cap s_2^\neg\cap s_3^\neg\cap\dots \cap s_n^\neg|+|s_1^\neg\cap s_2\cap s_3^\neg\cap\dots \cap s_n^\neg|+\dots +|s_1^\neg\cap s_2^\neg\cap s_3^\neg\cap\dots \cap s_n|
 \end{align*}
+where in the $1.$-line we have one set term with the negation sign above, in the $2.$-line two set term with the negation sign above and so on.
 \end{mydef}
-We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate all properties of successors in $k$.
+We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate all properties of successors in $k$.\\
+We can easily see that the splitting creates exponential new set terms. To simplify them we omit \textit{unnecessary} set terms. To explain what set terms are unnecessary we look at the following example:
+\begin{align*}
+S:=\{x:succ(|r\cap s\cap t\cap B|<|r|+|s|)\sqcap succ(|r\cap C|=1)\}
+\end{align*}
+The first cardinality term $|r\cap s\cap t|$ in $CNNF$ is split into seven cardinality terms. However $t$ is not mentioned in any other assertions of $x$. That means that whether $x$'s successor is a $t$-successor or not it does not bring any further information regarding $x$ and the successor. Also no assertions can become violated solely by this information. (Note that this algorithm works without a TBox in which axioms regarding $t$-successor may occur and therefore $t$ would be not unnecessary.) For the same reason the concept name $B$ is also unnecessary. On the other hand $r$ is necessary because on the right hand side of the cardinality constraint it appears again. For the same reason $s$ is necessary, too. Also the $r$-successor can be in $C$ which is important for the second concept. 
+\begin{mydef}(Simplified $CNNF$)
+Let $x:succ(c)$ be in $S$ and $c$ be a cardinality constraint. A set term $s$ in $c$ is \textit{unnecessary} and can be omitted if each role name $r$ and each concept name $C$ in $s$ does not appear in any IDK
+\end{mydef}
 \subsection{Algorithm}
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
@@ -238,13 +256,13 @@ Let $S$ be a set of assertions in $CNNF$.
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
-\item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $x$ has a successor $y$ such that for some for some concept $C$ in $k$ we have $(x,y):C\in S$ but $(x,y):k\notin S$\\
+\item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $x$ has a successor $y$ such that for some for some $k^\prime$ in $k$ we have $(x,y):k^\prime\in S$ but $(x,y):k\notin S$\\
 $\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$
 \item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but there is no $(x,y):r\notin S$, $r\in\mathbf{R}$, where $r$ has a positive sign in this assertion\\
 $\rightarrow$ choose one rule name $r\in\mathbf{R}$, which does not has a negative sign in $s$, and add $(x,y):r$ to $S$
-\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$ then\\
+\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\,n\,dvd\,l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$ then\\
 $\rightarrow$ choose a set term $s$, such that $|s|$ is in $i$, and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
-\item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(n\,dvd\,l)$, which is violated in $\mathcal{I}(S)$ regarding $x$. If we have two successor $y_1\neq y_2$ of $x$ such that for a $|s|$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$ and by merging them no satisfied constraint regarding $x$ becomes violated, then:\\
+\item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated in $\mathcal{I}(S)$ regarding $x$, and $l$ does not contain a set term. If we have two successor $y_1\neq y_2$ of $x$ such that for a set term $s$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$ and by merging them no satisfied constraint regarding $x$ becomes violated, then:\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(s_1\subseteq s_2)$ and $(x,y):s_1$ but not $(x,y):s_2$\\
 $\rightarrow$ $S:=S\cup\{(x,y):s_2\}$ and then jump to rule \ref{repeat}
@@ -264,13 +282,7 @@ Note that:
 \item $s$ in \ref{setterm} can also be of the form $t^\neg$.
 \item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually
 \end{itemize}
-\begin{mydef}[Clash]
-A constraint set $S$ contains a \textit{clash} if
-\begin{itemize}
-\item $\{x:\perp\}\subseteq S$ or
-\item $\{x:A,\,x:\neg A\}\subseteq S$ or
-\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$
-\end{itemize}
+
 and no more rules are applicable.
 \end{mydef}
 \begin{mydef}[Derived Set]
