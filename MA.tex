@@ -183,7 +183,7 @@ A constraint set $S$ contains a \textit{clash} if
 \item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$
 \item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$
 \end{itemize}
-Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we will have to merge two variables during the Tableau-algorithm.
+Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
 \end{mydef}
@@ -219,7 +219,7 @@ For the Tableau-algorithm we define the properties of the following notations:
 \end{itemize}
 \end{mydef}
 \subsection{Restrictions}
-Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially cardinality constraints. Therefore we restrict cardinality constraint to a more simple form.
+Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with cardinality constraints. Therefore we restrict cardinality constraint to a more simple form.
 \begin{mydef}[$CNNF$]
 A constraint is in conjunctive negated normal form $(CNNF)$ if no disjunction appears in a cardinality term.\\
 Let $k$ be a cardinality term. Each $|s_1\cup s_2\cup\dots \cup s_n|$ in $k$ is split into
@@ -232,19 +232,17 @@ Let $k$ be a cardinality term. Each $|s_1\cup s_2\cup\dots \cup s_n|$ in $k$ is 
 \end{align*}
 where in the $1.$-line we have one set term with the negation sign above, in the $2.$-line two set term with the negation sign above and so on.
 \end{mydef}
-We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms such that they are disjoint to each other. This helps to determinate all properties of successors in $k$.\\
+We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms which are disjoint to each other. This helps to determinate all properties of successors in $k$.\\
 We can easily see that the splitting creates exponential new set terms. To simplify them we omit \textit{unnecessary} set terms. To explain what set terms are unnecessary we look at the following example:
 \begin{align*}
 S:=\{x:succ(|r\cap s\cap t\cap B|<|r|+|s|)\sqcap succ(|r\cap C|=1)\}
 \end{align*}
-The first cardinality term $|r\cap s\cap t|$ in $CNNF$ is split into seven cardinality terms. However $t$ is not mentioned in any other assertions of $x$. That means that whether $x$'s successor is a $t$-successor or not it does not bring any further information regarding $x$ and the successor. Also no assertions can become violated solely by this information. (Note that this algorithm works without a TBox in which axioms regarding $t$-successor may occur and therefore $t$ would be not unnecessary.) For the same reason the concept name $B$ is also unnecessary. On the other hand $r$ is necessary because on the right hand side of the cardinality constraint it appears again. For the same reason $s$ is necessary, too. Also the $r$-successor can be in $C$ which is important for the second concept. 
-\begin{mydef}(Simplified $CNNF$)
-Let $x:succ(c)$ be in $S$ and $c$ be a cardinality constraint. A set term $s$ in $c$ is \textit{unnecessary} and can be omitted if each role name $r$ and each concept name $C$ in $s$ does not appear in any IDK
-\end{mydef}
+The first cardinality term $|r\cap s\cap t|$ in $CNNF$ is split into seven cardinality terms. The set term $t$ is not mentioned in any other cardinality terms regarding $x$. That means that whether $x$'s successor is a $t$-successor or not it does not bring any further information regarding $x$ and the successor. Also no assertions can become violated solely by this information. (Note that this algorithm works without a TBox in which axioms regarding $t$-successor may occur and therefore $t$ would be not unnecessary.) For the same reason the concept names $B$ and $C$ is also unnecessary. On the other hand $r$ is necessary because it appears again in the cardinality term $|r|+|s|$, which describe successors of $x$. For the same reason $s$ is necessary, too.\\
+\textcolor{red}{still not sure about that...}
 \subsection{Algorithm}
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
-Let $x:succ(k\leq l)$ or $x:succ(k<l)$, where $l$ has at least one cardinality term $|s|$, be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and add $(x,y):l$ to $S^\prime:=S\cup\{(x,y):l\}$ if 
+Let $x:succ(k\leq l)$ or $x:succ(k<l)$, where $l$ has at least one cardinality term $|s|$, be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):l\}$ if 
 \begin{align*}
 n_\mathcal{I}(x,k,S)-n_\mathcal{I}(x,k,S^\prime)<n_\mathcal{I}(x,l,S)-n_\mathcal{I}(x,l,S^\prime)
 \end{align*}
@@ -259,10 +257,10 @@ $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $x$ has a successor $y$ such that for some for some $k^\prime$ in $k$ we have $(x,y):k^\prime\in S$ but $(x,y):k\notin S$\\
 $\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$
 \item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but there is no $(x,y):r\notin S$, $r\in\mathbf{R}$, where $r$ has a positive sign in this assertion\\
-$\rightarrow$ choose one rule name $r\in\mathbf{R}$, which does not has a negative sign in $s$, and add $(x,y):r$ to $S$
-\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\,n\,dvd\,l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$ then\\
+$\rightarrow$ choose one rule name $r\in\mathbf{R}$, which appears with a negative sign in $s$, and add $(x,y):r$ to $S$
+\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\,n\,dvd\,l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$:\\
 $\rightarrow$ choose a set term $s$, such that $|s|$ is in $i$, and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
-\item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated in $\mathcal{I}(S)$ regarding $x$, and $l$ does not contain a set term. If we have two successor $y_1\neq y_2$ of $x$ such that for a set term $s$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$ and by merging them no satisfied constraint regarding $x$ becomes violated, then:\\
+\item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated in $\mathcal{I}(S)$ regarding $x$, and $l$ does not contain a set term. If we have two successor $y_1\neq y_2$ of $x$, such that for a set term $s$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$, and by merging them no satisfied constraint regarding $x$ becomes violated:\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(s_1\subseteq s_2)$ and $(x,y):s_1$ but not $(x,y):s_2$\\
 $\rightarrow$ $S:=S\cup\{(x,y):s_2\}$ and then jump to rule \ref{repeat}
@@ -282,8 +280,6 @@ Note that:
 \item $s$ in \ref{setterm} can also be of the form $t^\neg$.
 \item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually
 \end{itemize}
-
-and no more rules are applicable.
 \end{mydef}
 \begin{mydef}[Derived Set]
 A \textit{derived set} is a constraint set $S^\prime$ where rule \ref{repeat} is not applicable.
@@ -291,35 +287,33 @@ A \textit{derived set} is a constraint set $S^\prime$ where rule \ref{repeat} is
 The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$:
 \begin{ex}
 \begin{align*}
-S=\{x:succ(|r\cup s|>1), (x,y):r\}
+S=\{x:succ(|r\cap s|>1), (x,y):r\}
 \end{align*}
 \end{ex}
-However there might be an interpretation $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every interpretation of $S$. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
+However there might be an interpretation $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every model of $S$, if $S$ is consistent. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
 The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we might have no role name with a positive sign in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
 \begin{ex}
 \begin{align*}
 &\mathbf{R}=\{r,s\}\\
 &S=\{x:succ(|r^\neg|\geq 1)\}
 \end{align*} 
-It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. First we apply rule \ref{setterm} to actually add a successor. Therefore $y$ is introduced (it is safe because $n_{\mathcal{I}(S)}(x,r^\neg,S)$ increases) and $(x,y):r^\neg$ is added to $S$. Now no more rules are applicable except for rule \ref{chooserole}. With that rule we can pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$.
 \end{ex}
-In rule \ref{setterm} we first make a choice whether we take $k$ or $l$ from a cardinality constraints $k\lesseqgtr l$, where the chosen cardinality term has at least a term of the form $|s|$ with $s$ being a set term. Intuitively it would be better to only want to increase $l$ but there are cases, where we have to add a successor in $k$ instead.
+It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. First we apply rule \ref{setterm} to actually add a successor. Therefore $y$ is introduced and $(x,y):r^\neg$ is added to $S$. Now no more rules are applicable except for rule \ref{chooserole}. With that rule we can pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$.\\
+In the $cardinality_1$-rule we first make a choice whether we take $k$ or $l$ from a cardinality constraints $k\lesseqgtr l$, where the chosen cardinality term has at least a term of the form $|s|$ with $s$ being a set term. Intuitively it would be better to only want to increase $l$ but there are cases, where we have to add a successor in $k$ instead.
 \begin{ex}
 \begin{align*}
-&\mathbf{R=\{r,s\}}\\
 &S=\{x:succ(|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|<|s|+|r|)\}
 \end{align*}
 \end{ex}
-Note that $|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|=|s\cup r|$. No matter how often we add a successor in $|r|$ or $|s|$, the left hand side always increases and therefore this assertion stays violated. However if we add a successor in $|s\cap r|$ the assertion becomes satisfied. Hence for this example we can choose rule \ref{setterm} and then choose $i=|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|$. We then introduce $y$ and add $(x,y): s\cap r$ to $S$. Also note that we can not choose $i=|s|+|r|$ because it is not safe: By adding $(x,y):s$ or $(x,y):r$ to $S$ the number on the right hand side of the cardinality term does not increases faster then the left hand side.\\
-We consider now two examples to explain rule \ref{exceeded}
+Note that $|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|=|s\cup r|$. No matter how often we add a successor in $|r|$ or $|s|$, the left hand side always increases as fast as the right hand side and therefore this assertion stays violated (hence it is not safe). However if we add a successor in $|s\cap r|$ the assertion becomes satisfied. Hence for this example we can choose the $cardinality_1$-rule and choose $i=|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|$. Then the rule pick one $|s^\ast|$ from $i$ and look whether introducing a new successor $y$ in $s$ is safe. In our case let $s^\ast:=s\cap r$. We know it is save to add this successor because $|s|+||r|$ would increases faster. Therefore $(x,y):s\cap r$ is added to $S$.\\
+We consider now two examples to explain the $cardinality_2$-rule.
 \begin{ex}
 Consider the following example 
 \begin{align*}
-S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|)\\
-x:succ(|r|=1), x:succ(|r\cap s|=1), x:succ=(|r\cap C|=1|)
-\}
+S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|)\}
 \end{align*}
-By applying rule \ref{setterm} and add a new variable $y$ we satisfies at least one assertion from the second line but still at least one assertion remains violated. If we apply it a second time to satisfy the remaining assertion(s) then $x:succ(|r|=1)$, which was satisfied before, becomes violated. In case we decided to apply \ref{setterm} on $x:succ(|r|=1)$ and $x:succ(|r\cap s|=1)$ we have the option of either applying rule \ref{setterm} on $x:succ(|r\cap C|=1)$ or applying rule \ref{exceeded} on the two new variables. We decide for the first choice:
+First by the $\sqcap$-rule we split the whole constraint into three assertion and add them to $S$.\\
+By applying the $cardinality_1$-rule and add a new variable $y$ we satisfy at least one assertion but still at least one assertion remains violated. If we apply it a second time to satisfy the remaining assertion(s) then $x:succ(|r|=1)$, which was satisfied before, becomes violated. In case we decided to apply the $cardinality_1$-rule on $x:succ(|r|=1)$ and $x:succ(|r\cap s|=1)$ we have the option of either applying rule the same rule on $x:succ(|r\cap C|=1)$ next or applying the $cardinality_2$-rule on the two introduced variables next. We decide for the first choice:
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -333,7 +327,7 @@ By applying rule \ref{setterm} and add a new variable $y$ we satisfies at least 
 \path[->] (0) edge node[above]{$r$} (3);
 \end{tikzpicture}
 \end{figure}
-In this case we have to merge three variables: $y_1$, $y_2$ and $y_3$. We can apply \ref{exceeded} here because satisfied assertions regarding $x$ does not become violated. We can also see that the order does not matter: In case we decided for the second choice and merge $y_1$ and $y_2$ to $y$ before introducing $y_3$ we end up with the same results because then we have to merge $y$ and $y_3$.
+In this case we have to merge three variables: $y_1$, $y_2$ and $y_3$. We can apply the $cardinality_2$-rule here because satisfied assertions regarding $x$ do not become violated. We can also see that the order does not matter: In case we decided for the second choice and merge $y_1$ and $y_2$ to $y$ before introducing $y_3$ we end up with the same results because then we have to merge $y$ and $y_3$.
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -349,9 +343,9 @@ In the example we see a case where $S$ is unsatisfiable.
 \begin{align*}
 S=\{x:succ(|r|<2)\sqcap succ(|r|\geq 2)\}	
 \end{align*}
-First we apply the rules \ref{setterm} two times to add two $r$-successors for $x$ to satisfy $x:succ(|r|\geq 2)$. But this results to $x:succ(|r|<2)$ being violated. If we ignore the condition in rule \ref{exceeded} and apply it then we merge the two successors leading to $x:succ(|r|<2)$ being satisfied but $x:succ(|r|\geq 2)$ being violated. Then we can apply the rule \ref{setterm} again leading to $x:succ(|r|<2)$ being violated and so on. By the condition in \ref{exceeded} we can not merge the two new variables because the satisfied assertion $x:succ(|r|\geq 2)$ would become violated. Hence the algorithm terminates with a clash stating that the constraint set is unsatisfiable.
 \end{ex}
-We also know that the application of rule \ref{repeat} eventually terminates because the number of concept names and role names are finite in $S$ (since $S$ is finite).
+First we use the $\sqcap$-rule to split the constraint into two assertions. The assertion $x:succ(|r|<2)$ is satisfied therefore the algorithm tries to fix $x:succ(|r|\geq 2)$. Hence the $cardinality_1$-rule is applied. after that the first assertions remains satisfied but the second one remains violated. Therefore the algorithm applies the $cardinality_1$-rule again on $x:succ(|r|\geq 2)$ which result in $x:succ(|r|<2)$ being violated. To fix this the algorithm tries to apply the $cardinality_2$-rule and tries to merge the two variable. However since $x:succ(|r|\geq 2)$ would become violated the merging is preempted and the algorithm stops with a clash. Since this sequence of rule applications is the only one possible we can say that all possible sequences leads to a clash which means that $S$ in this example is unsatisfiable.\\
+The applications of the $set.term$-rules eventually terminates because the number of concept names and role names are finite in $S$ (since $S$ is finite).
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
