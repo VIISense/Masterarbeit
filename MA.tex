@@ -123,10 +123,10 @@ With $NNF(C)$ we denote the concept which is obtained by applying the rules abov
 \begin{mydef}[Positive and Negative Sign]
 Let be $(x,y):s$ an assertion. A concept name $C$ or a role name $r$ has a \textit{positive sign} in $s$ if it occurs with no negation sign in front or above it in $s$. It has a \textit{negative sign} otherwise. A concept name $C$ (or a role name $r$) can have both sign in $s$ if $C$ and $\neg C$ (or $r$ and $r^\neg$) are in $s$.
 \end{mydef}
-The constraint set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.\\
-Note that in a assertion in $NNF$ the negation sign can only occurs in front of a concept name and above a role name.
+an assertion set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.\\
+Note that in an assertion in $NNF$ the negation sign can only occurs in front of a concept name and above a role name.
 \begin{mydef}[Interpretation]
-An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I}},\pi_\mathcal{I})$ over a constraint set $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
+An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I}},\pi_\mathcal{I})$ over an assertion set $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
 \item $\emptyset$ to $\emptyset^\mathcal{I}$
 \item $\mathcal{U}$ to $\mathcal{U}^\mathcal{I}\subseteq \Delta^\mathcal{I}$
@@ -159,7 +159,7 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
 \item $(x,y):s$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in s^\mathcal{I}$
 \end{itemize} 
-$\pi_\mathcal{I}$ satisfies a constraint set $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
+$\pi_\mathcal{I}$ satisfies an assertion set $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
 By the semantic definition $s^\mathcal{I}\cup (s^\neg)^\mathcal{I}=\mathcal{U}^\mathcal{I}$.
 \begin{mydef}[Number of successors]
@@ -174,9 +174,9 @@ A assertion regarding a variable $x$ in an interpretation $\mathcal{I}$ is \text
 where $n\in\mathbb{N}$.
 \end{mydef}
 \section{Tableau}
-A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the constraint sets is unsatisfiable, otherwise it is satisfiable.
+A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the assertion set is unsatisfiable, otherwise it is satisfiable.
 \begin{mydef}[Clash]
-A constraint set $S$ contains a \textit{clash} if
+An assertion set $S$ contains a \textit{clash} if
 \begin{itemize}
 \item $\{x:\perp\}\subseteq S$ or
 \item $\{x:A,\,x:\neg A\}\subseteq S$ or
@@ -204,7 +204,7 @@ y:succ(|s|\leq 1), y.s.z_1, y.s.z_2\}
 \end{align*}
 To solve this problem we have to merge $z_1$ and $z_2$.
 \begin{mydef}[Induced Interpretation $\mathcal{I}(S)$]
-An interpretation $\mathcal{I}(S)$ can be induced from a constraint set $S$ by the following steps:
+An interpretation $\mathcal{I}(S)$ can be induced from an assertion set $S$ by the following steps:
 \begin{itemize}
 \item for each variable $x\in Var(S)$ we introduce $x^{\mathcal{I}(S)}$ and add it to $\Delta^{\mathcal{I}(S)}$
 \item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}(S)}$ to $C^{\mathcal{I}(S)}$
@@ -239,13 +239,13 @@ S:=\{x:succ(|r\cup s\cup t\cup B|<|r|+|s|)\sqcap succ(|r\cap C|=1)\}
 \end{align*}
 The first cardinality term $|r\cup s\cup t\cup B|$ in $CNNF$ is split into 15 cardinality terms, which is a high number of terms. The set term $t$ and $B$ is only mentioned once. That means that whether $x$'s successor is a $t$-successor or not it does not bring any further information regarding $x$ and the successor except it is a $t$-successor. The same goes for the information whether the successor is in $B$ or not. Also no assertions can become violated solely by those information. (Note that this algorithm works without a TBox in which axioms regarding $t$ or $B$ may occur and therefore both would be not unnecessary.) On the other hand $r$ is necessary because it appears again in the cardinality term $|r|+|s|$, which describe successors of $x$. For the same reason $s$ is necessary, too. Hence if we omit $t$ and $B$ we do not loose necessary information to conclude more knowledge while reducing the number of split cardinality terms (seven instead of 15).
 \begin{mydef}[simplified constraint]
-A constraint in $NNF$ in a constraint set $S$ is \textit{simplified} if we omit \textit{unnecessary} set terms from any disjunction.\\
+A constraint in $NNF$ in an assertion set $S$ is \textit{simplified} if we omit \textit{unnecessary} set terms from any disjunction.\\
 Let $S_x\subseteq S$ be a set of all constraints regarding $x$ in $S$ (e.g. $x:C\in S\rightarrow x:C\in S_x$ and $y:C\in S_x\rightarrow y=x$, $C$ is a concept name and $y$ a variable). A set term $s$ in a constraint $x:succ(s\cup t_1\cup\dots\cup t_n)\in S_x$ is unnecessary and can be omit if it appears syntactically only once in $S_x$.
 \end{mydef}
 \begin{mydef}[simplified $CNNF$]
-A constraint is in \textit{simplified} $CNNF$ if we simplified the constraint first and then convert it to $CNNF$. A constrain set $S$ is in simplified $CNNF$ if all constraint are simplified $CNNF$.
+A constraint is in \textit{simplified} $CNNF$ if we simplified the constraint first and then convert it to $CNNF$. An assertion set $S$ is in simplified $CNNF$ if all constraints in all assertions are simplified $CNNF$.
 \end{mydef}
-We consider only simplified $CNNF$ for the algorithm. Also every constraint arise from the algorithm is converted into simplified $CNNF$.
+We consider only simplified $CNNF$ for the algorithm. Also every assertion set raised from the algorithm is converted into simplified $CNNF$.
 \subsection{Algorithm}
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
@@ -267,7 +267,7 @@ $\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$
 $\rightarrow$ choose one rule name $r\in\mathbf{R}$, which appears with a negative sign in $s$, and add $(x,y):r$ to $S$
 \item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\,n\,dvd\,l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$:\\
 $\rightarrow$ choose a set term $s$, such that $|s|$ is in $i$, and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
-\item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated in $\mathcal{I}(S)$ regarding $x$, and $l$ does not contain a set term. If we have two successor $y_1\neq y_2$ of $x$, such that for a set term $s$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$, and by merging them no satisfied constraint regarding $x$ becomes violated:\\
+\item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated in $\mathcal{I}(S)$ regarding $x$, and $l$ does not contain a set term. If we have two successor $y_1\neq y_2$ of $x$, such that for a set term $s$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$, and by merging them no satisfied assertion regarding $x$ becomes violated:\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(s_1\subseteq s_2)$ and $(x,y):s_1$ but not $(x,y):s_2$\\
 $\rightarrow$ $S:=S\cup\{(x,y):s_2\}$ and then jump to rule \ref{repeat}
@@ -289,7 +289,7 @@ Note that:
 \end{itemize}
 \end{mydef}
 \begin{mydef}[Derived Set]
-A \textit{derived set} is a constraint set $S^\prime$ where rule \ref{repeat} is not applicable.
+A \textit{derived set} is an assertion set $S^\prime$ where rule \ref{repeat} is not applicable.
 \end{mydef}
 The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$:
 \begin{ex}
@@ -319,7 +319,7 @@ Consider the following example
 \begin{align*}
 S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|)\}
 \end{align*}
-First by the $\sqcap$-rule we split the whole constraint into three assertion and add them to $S$.\\
+First by the $\sqcap$-rule we split the whole assertion into three assertions and add them to $S$.\\
 By applying the $cardinality_1$-rule and add a new variable $y$ we satisfy at least one assertion but still at least one assertion remains violated. If we apply it a second time to satisfy the remaining assertion(s) then $x:succ(|r|=1)$, which was satisfied before, becomes violated. In case we decided to apply the $cardinality_1$-rule on $x:succ(|r|=1)$ and $x:succ(|r\cap s|=1)$ we have the option of either applying rule the same rule on $x:succ(|r\cap C|=1)$ next or applying the $cardinality_2$-rule on the two introduced variables next. We decide for the first choice:
 \begin{figure}[H]
 \centering
@@ -351,13 +351,13 @@ In the example we see a case where $S$ is unsatisfiable.
 S=\{x:succ(|r|<2)\sqcap succ(|r|\geq 2)\}	
 \end{align*}
 \end{ex}
-First we use the $\sqcap$-rule to split the constraint into two assertions. The assertion $x:succ(|r|<2)$ is satisfied therefore the algorithm tries to fix $x:succ(|r|\geq 2)$. Hence the $cardinality_1$-rule is applied. after that the first assertions remains satisfied but the second one remains violated. Therefore the algorithm applies the $cardinality_1$-rule again on $x:succ(|r|\geq 2)$ which result in $x:succ(|r|<2)$ being violated. To fix this the algorithm tries to apply the $cardinality_2$-rule and tries to merge the two variable. However since $x:succ(|r|\geq 2)$ would become violated the merging is preempted and the algorithm stops with a clash. Since this sequence of rule applications is the only one possible we can say that all possible sequences leads to a clash which means that $S$ in this example is unsatisfiable.\\
+First we use the $\sqcap$-rule to split the assertion into two assertions. The assertion $x:succ(|r|<2)$ is satisfied therefore the algorithm tries to fix $x:succ(|r|\geq 2)$. Hence the $cardinality_1$-rule is applied. after that the first assertions remains satisfied but the second one remains violated. Therefore the algorithm applies the $cardinality_1$-rule again on $x:succ(|r|\geq 2)$ which result in $x:succ(|r|<2)$ being violated. To fix this the algorithm tries to apply the $cardinality_2$-rule and tries to merge the two variable. However since $x:succ(|r|\geq 2)$ would become violated the merging is preempted and the algorithm stops with a clash. Since this sequence of rule applications is the only one possible we can say that all possible sequences leads to a clash which means that $S$ in this example is unsatisfiable.\\
 The applications of the $set.term$-rules eventually terminates because the number of concept names and role names are finite in $S$ (since $S$ is finite).
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
 \item For every input the Tableau-algorithm terminates
-\item If no more rules are applicable on a clash-free constraint set $S$ then $S$ is satisfiable
+\item If no more rules are applicable on a clash-free assertion set $S$ then $S$ is satisfiable
 \item If $S$ is satisfiable then the Tableau-algorithm terminates without a clash
 \end{itemize}
 First we prove that the tableau algorithm terminates. 
@@ -384,7 +384,7 @@ n-m& \text{if } n> m\\
 \end{equation*}
 The septuples in $Q$ are defined as follows
 \begin{mydef}
-Let $S$ be a constraint set. The multiset $\Psi(S)$ consist of septuples $\psi_S(x)$ for each variable $x$. The component of the septuples are structured as follows
+Let $S$ be an assertion set. The multiset $\Psi(S)$ consist of septuples $\psi_S(x)$ for each variable $x$. The component of the septuples are structured as follows
 \begin{itemize}
 \item the first component is a non-negative integer $max\{size(C)\mid x:C\in S\}$
 \item the second component is a multiset of integers containing for each $x:C\sqcap D$, on which the $\sqcap$-rule is applicable, the non-negative integer $size(C\sqcap D)$ (respectively for $C\sqcup D$)
@@ -457,18 +457,18 @@ If the Tableau-algorithm terminates without a clash then $S$ is satisfiable
 \end{mylem}
 \begin{proof}$ $\\
 Again the proof is sectioned by the obtained derived sets.\\
-Let $\mathcal{I}(S^\prime)$ be the induced interpretation of the constraint set $S^\prime$ created by the Tableau-algorithm from $S$. We show that $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.\\
+Let $\mathcal{I}(S^\prime)$ be the induced interpretation of the assertion set $S^\prime$ created by the Tableau-algorithm from $S$. We show that $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.\\
 We start with the simple assertions $x:C$ and $(x,y):r$ for $C\in\mathbf{C}$ and $r\in\mathbf{R}$ (induction base): By the definition of induced interpretation we assign $\pi_{\mathcal{I}(S^\prime)}(x):=x^{\mathcal{I}(S^\prime)}\in C^{\mathcal{I}(S^\prime)}$. Also by the definition of induced interpretation for every $(x,y):r\in S^\prime$ we have $(\pi_{\mathcal{I}(S^\prime)}(x),\pi_{\mathcal{I}(S^\prime)}(y)):=(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})\in r^{\mathcal{I}(S^\prime)}$.\\
-Let $S$ be a constraint set and $\pi_{\mathcal{I}(S)}$ be an assignment which satisfies $S$ (induction hypothesis).\par
+Let $S$ be an assertion set and $\pi_{\mathcal{I}(S)}$ be an assignment which satisfies $S$ (induction hypothesis).\par
 \begin{enumerate}
 \item If we can apply rule \ref{cap} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcap C_2\in S$. By the definition of induced interpretation and by the hypothesis we already have $\pi_{\mathcal{I}(S^\prime)}(x)\in C_1^{\mathcal{I}(S^\prime)}$ and $\pi_{\mathcal{I}(S^\prime)}(x)\in C_2^{\mathcal{I}(S^\prime)}$. By adding $x:C_1$ and $x:C_2$ we do not change $\mathcal{I}(S)$. Hence $\mathcal{I}(S^\prime):=\mathcal{I}(S)$ and $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
 \item If we can apply rule \ref{cup} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcup C_2\in S$. Like above by the definition of the induced interpretation we have $\pi_{\mathcal{I}(S^\prime)}(x):=x^{\mathcal{I}(S^\prime)}$. We also know that $x^{\mathcal{I}(S^\prime)}$ is in $C_1^{\mathcal{I}(S^\prime)}\cup C_2^{\mathcal{I}(S^\prime)}$. By adding either $x:C_1$ or $x:C_2$ we do not change $\mathcal{I}(S)$. Hence $\mathcal{I}(S^\prime):=\mathcal{I}(S)$ and $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
-\item If we can apply rule \ref{choose} and obtain $S^\prime$ then we have a constraint $x:succ(k\leq l)$ and a successor $y$ such that $(x,y):k^\prime\in S$, $k^\prime$ occurs in $k$. We then choose between $(x,y):s$ and $(x,y):s^\neg$ for all $|s|$ in $k$ then apply rule \ref{repeat} until this rule is inapplicable. That means at the end we might add several assertions of the form $x:C$ and $(x,y):r$. In case we add $x:C$ we also add $x^{\mathcal{I}(S^\prime)}$ to $C^{\mathcal{I}(S^\prime)}$. Therefore in this case $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$. In case we add $(x,y):r$ we also add $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ to $r^{\mathcal{I}(S^\prime)}$. Hence $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.
-\item If we can apply rule \ref{chooserole} and obtain $S^\prime$ then we have a constraint $(x,y):k$ but for every role name $r$ we do not have $(x,y):r\in S$, where $r$ has a positive sign in this assertion. After adding $(x,y):r$, $r\in\mathbf{R}$, to $S^\prime$ the element $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ is also added to $r^{\mathcal{I}(S^\prime)}$. Hence $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.
-\item If we can apply rule \ref{c} and obtain $S^\prime$ then we have a constraint $x:succ(c)$ such that it is violated regarding $x$. We either add a new successor $y$ or merge two successor $y_1, y_2$ to one successor $y$.\\
+\item If we can apply rule \ref{choose} and obtain $S^\prime$ then we have an assertion $x:succ(k\leq l)$ and a successor $y$ such that $(x,y):k^\prime\in S$, $k^\prime$ occurs in $k$. We then choose between $(x,y):s$ and $(x,y):s^\neg$ for all $|s|$ in $k$ then apply rule \ref{repeat} until this rule is inapplicable. That means at the end we might add several assertions of the form $x:C$ and $(x,y):r$. In case we add $x:C$ we also add $x^{\mathcal{I}(S^\prime)}$ to $C^{\mathcal{I}(S^\prime)}$. Therefore in this case $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$. In case we add $(x,y):r$ we also add $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ to $r^{\mathcal{I}(S^\prime)}$. Hence $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.
+\item If we can apply rule \ref{chooserole} and obtain $S^\prime$ then we have an assertion $(x,y):k$ but for every role name $r$ we do not have $(x,y):r\in S$, where $r$ has a positive sign in this assertion. After adding $(x,y):r$, $r\in\mathbf{R}$, to $S^\prime$ the element $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ is also added to $r^{\mathcal{I}(S^\prime)}$. Hence $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.
+\item If we can apply rule \ref{c} and obtain $S^\prime$ then we have an assertion $x:succ(c)$ such that it is violated regarding $x$. We either add a new successor $y$ or merge two successor $y_1, y_2$ to one successor $y$.\\
 In the first case we introduce $y$ and add $(x,y):l$ to $S$ and then apply rule \ref{repeat} until this rule is inapplicable. When we introduce $y$ we also add a new element $y^{\mathcal{I}(S^\prime)}$ to $\mathcal{I}(S^\prime)$. For each $y:C$ we add $y^{\mathcal{I}(S^\prime)}$ to $C^{\mathcal{I}(S^\prime)}$ and for each $(x,y):r$, $r\in\mathbf{R}$, we add $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ to $r^{\mathcal{I}(S^\prime)}$. Therefore let $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}\cup \{y\mapsto y^{\mathcal{I}(S^\prime)}\}$.\\
 In the second case there are two successors $y_1$ and $y_2$ for which $(x,y):s$ and $(x,y):s$ are in $S$. If we merge both together to $y$ we also have to merge $y_1^{\mathcal{I}(S)}$ and $y_2^{\mathcal{I}(S)}$ to one element $y^{\mathcal{I}(S^\prime)}$. For each $y_i:C\in S$, $i\in\{1,2\}$ we have $y_i^{\mathcal{I}(S)}\in C^{\mathcal{I}(S)}$ and for each $(x,y_i):r$, $r\in\mathbf{R}$ we have $(x^{\mathcal{I}_S},y_i^{\mathcal{I}(S)})\in r^{\mathcal{I}(S)}$ due to the hypothesis. That means that by merging both elements the element $y^{\mathcal{I}(S^\prime)}$ must be in $C^{\mathcal{I}(S^\prime)}$ for every $y_i^{\mathcal{I}(S)}\in C^{\mathcal{I}(S)}$ and the element $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ must be in $r^{\mathcal{I}(S^\prime)}$ for every $(x^{\mathcal{I}(S)},y_i^{\mathcal{I}(S)})\in r^{\mathcal{I}(S)}$. Therefore let $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}\backslash\{y_1\mapsto y_1^{\mathcal{I}(S)}, y_2\mapsto y_2^{\mathcal{I}(S)}\}\cup\{y\mapsto y^{\mathcal{I}(S)}\}$ which satisfies $S^\prime$.
-\item If we can apply rule \ref{s} and obtain $S^\prime$ then we have a constraint $x:succ(c_1\subseteq c_2)$ and a successor $y$ such that $(x,y):c_1\in S$ but $(x,y):c_2\notin S$. By adding $(x,y):c_2$ to $S$ we have also to add $y:C$ for every concept $C$ in $c_2$ and $(x,y):r$ for every role name $r$ in $c_2$. That means that $x^{\mathcal{I}(S)}$ is added to every $C^{\mathcal{I}(S)}$ and that $(x^{\mathcal{I}(S)},x^{\mathcal{I}(S)})$ is added to every $r^{\mathcal{I}(S)}$. Therefore the assignment $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
+\item If we can apply rule \ref{s} and obtain $S^\prime$ then we have an assertion $x:succ(c_1\subseteq c_2)$ and a successor $y$ such that $(x,y):c_1\in S$ but $(x,y):c_2\notin S$. By adding $(x,y):c_2$ to $S$ we have also to add $y:C$ for every concept $C$ in $c_2$ and $(x,y):r$ for every role name $r$ in $c_2$. That means that $x^{\mathcal{I}(S)}$ is added to every $C^{\mathcal{I}(S)}$ and that $(x^{\mathcal{I}(S)},x^{\mathcal{I}(S)})$ is added to every $r^{\mathcal{I}(S)}$. Therefore the assignment $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
 \end{enumerate}
 \end{proof}
 \begin{mylem}
