@@ -233,12 +233,19 @@ Let $k$ be a cardinality term. Each $|s_1\cup s_2\cup\dots \cup s_n|$ in $k$ is 
 where in the $1.$-line we have one set term with the negation sign above, in the $2.$-line two set term with the negation sign above and so on.
 \end{mydef}
 We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms which are disjoint to each other. This helps to determinate all properties of successors in $k$.\\
-We can easily see that the splitting creates exponential new set terms. To simplify them we omit \textit{unnecessary} set terms. To explain what set terms are unnecessary we look at the following example:
+We can easily see that the splitting creates exponential more new set terms. To simplify them we omit \textit{unnecessary} set terms. To explain what set terms are unnecessary we look at the following example:
 \begin{align*}
-S:=\{x:succ(|r\cap s\cap t\cap B|<|r|+|s|)\sqcap succ(|r\cap C|=1)\}
+S:=\{x:succ(|r\cup s\cup t\cup B|<|r|+|s|)\sqcap succ(|r\cap C|=1)\}
 \end{align*}
-The first cardinality term $|r\cap s\cap t|$ in $CNNF$ is split into seven cardinality terms. The set term $t$ is not mentioned in any other cardinality terms regarding $x$. That means that whether $x$'s successor is a $t$-successor or not it does not bring any further information regarding $x$ and the successor. Also no assertions can become violated solely by this information. (Note that this algorithm works without a TBox in which axioms regarding $t$-successor may occur and therefore $t$ would be not unnecessary.) For the same reason the concept names $B$ and $C$ is also unnecessary. On the other hand $r$ is necessary because it appears again in the cardinality term $|r|+|s|$, which describe successors of $x$. For the same reason $s$ is necessary, too.\\
-\textcolor{red}{still not sure about that...}
+The first cardinality term $|r\cup s\cup t\cup B|$ in $CNNF$ is split into 15 cardinality terms, which is a high number of terms. The set term $t$ and $B$ is only mentioned once. That means that whether $x$'s successor is a $t$-successor or not it does not bring any further information regarding $x$ and the successor except it is a $t$-successor. The same goes for the information whether the successor is in $B$ or not. Also no assertions can become violated solely by those information. (Note that this algorithm works without a TBox in which axioms regarding $t$ or $B$ may occur and therefore both would be not unnecessary.) On the other hand $r$ is necessary because it appears again in the cardinality term $|r|+|s|$, which describe successors of $x$. For the same reason $s$ is necessary, too. Hence if we omit $t$ and $B$ we do not loose necessary information to conclude more knowledge while reducing the number of split cardinality terms (seven instead of 15).
+\begin{mydef}[simplified constraint]
+A constraint in $NNF$ in a constraint set $S$ is \textit{simplified} if we omit \textit{unnecessary} set terms from any disjunction.\\
+Let $S_x\subseteq S$ be a set of all constraints regarding $x$ in $S$ (e.g. $x:C\in S\rightarrow x:C\in S_x$ and $y:C\in S_x\rightarrow y=x$, $C$ is a concept name and $y$ a variable). A set term $s$ in a constraint $x:succ(s\cup t_1\cup\dots\cup t_n)\in S_x$ is unnecessary and can be omit if it appears syntactically only once in $S_x$.
+\end{mydef}
+\begin{mydef}[simplified $CNNF$]
+A constraint is in \textit{simplified} $CNNF$ if we simplified the constraint first and then convert it to $CNNF$. A constrain set $S$ is in simplified $CNNF$ if all constraint are simplified $CNNF$.
+\end{mydef}
+We consider only simplified $CNNF$ for the algorithm. Also every constraint arise from the algorithm is converted into simplified $CNNF$.
 \subsection{Algorithm}
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
@@ -248,7 +255,7 @@ n_\mathcal{I}(x,k,S)-n_\mathcal{I}(x,k,S^\prime)<n_\mathcal{I}(x,l,S)-n_\mathcal
 \end{align*}
 Same goes for $(x,y):k$. This says that it is only safe to add a variable if the number of successor in $l$ increases faster then the number of successors in $k$.
 \begin{mydef}[Tableau]
-Let $S$ be a set of assertions in $CNNF$.
+Let $S$ be a set of assertions in simplified $CNNF$.
 \begin{enumerate}
 \item\label{cap} $\sqcap$-rule: $S$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
