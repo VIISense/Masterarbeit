@@ -356,13 +356,13 @@ The applications of the $set.term$-rules eventually terminates because the numbe
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
-\item for every input the Tableau-algorithm terminates
+\item For every input the Tableau-algorithm terminates
 \item If no more rules are applicable on a clash-free constraint set $S$ then $S$ is satisfiable
-\item For every interpretation $\mathcal{I}$ of a satisfiable constraint set $S$ we can find a chain of rule application such that the induced interpretation $\mathcal{I}(S)$ is equal to $\mathcal{I}$
+\item If $S$ is satisfiable then the Tableau-algorithm terminates without a clash
 \end{itemize}
 First we prove that the tableau algorithm terminates. 
 \begin{mypro}
-Let $C$ be a concept in negation normal form. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
+Let $C$ be a concept in simplified $CNNF$. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
 \end{mypro}
 To prove this we map any derived set $S$ to an element $\Psi(S)$ from a set $Q$. We then show that the elements in $Q$ can be ordered by a well-founded relation $\prec$. A well-founded relation says that there is no infinite decreasing chain. If we can show that by obtaining a derived set $S^\prime$ from another set $S$ we have $\Psi(S^\prime)\prec\Psi(S)$ then the algorithm terminates.\\
 The elements in $Q$ are finite multisets of septuples and the elements of the septuples are either integers or mutlisets of integers. For two septuples $q=(q_1,\dots,q_7)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_7)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 7$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i^\prime\prec q_i$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i^\prime$ by a finite number of integers which are all smaller than $c$. The relation $\prec$ for those multisets is also well-founded because we work with integers. That means from a multiset $\{0,\,\dots\,,0\}$ we can not obtain a smaller multiset because we would have to replace at least one $0$ with integers which are smaller.\\
