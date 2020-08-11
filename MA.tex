@@ -1,4 +1,3 @@
-
 \documentclass[a4paper,11pt]{scrartcl}
 \usepackage[english]{babel}  % falls der Artikel auf Deutsch verfasst ist
 % Verwenden Sie nur EINE der beiden folgenden Zeilen, je nachdem, ob Ihr
@@ -103,7 +102,7 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \item $\neg\neg C$ $\rightarrow$ $C$
 \item $\neg(C\sqcap D)$ $\rightarrow$ $\neg C \sqcup \neg D$
 \item $\neg(C\sqcup D)$ $\rightarrow$ $\neg C \sqcap \neg D$
-\item $(C)^\neg$ $\rightarrow$ $\neg C$
+\item $C^\neg$ $\rightarrow$ $\neg C$
 \item $\neg succ(c)$ $\rightarrow$ $succ(\neg c)$
 \end{itemize}
 \end{minipage}% <---------------- Note the use of "%"
@@ -121,11 +120,11 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \end{minipage}
 \end{figure}
 \end{mydef}
-With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more.
+With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more. The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ may be a result of $s^\neg$, where $s$ is a set term. It is equal to $\neg C$ because $C$ is a concept which means it is only of the form $D$,  $D_1\sqcap D_2$, $D_1\sqcup D_2$ and $succ(c)$, where $D\in\mathbf{C}$ and $D_1,D_2$ are concepts.\\
+An assertion set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
 \begin{mydef}[Positive and Negative Sign]
-Let be $(x,y):s$ an assertion. A concept name $C$ or a role name $r$ has a \textit{positive sign} in $s$ if it occurs with no negation sign in front or above it in $s$. It has a \textit{negative sign} otherwise. A concept name $C$ (or a role name $r$) can have both sign in $s$ if $C$ and $\neg C$ (or $r$ and $r^\neg$) are in $s$.
+For two variables $x,y$ and a set term $s$ it holds that $(x,y):s$. A concept name $C$ or a role name $r$ has a \textit{positive sign} in $s$ if it occurs with no negation sign in front or above it in $s$. It has a \textit{negative sign} otherwise. A concept name $C$ (or a role name $r$) can have both sign in $s$ if $C$ and $\neg C$ (or $r$ and $r^\neg$) are in $s$.
 \end{mydef}
-an assertion set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.\\
 Note that in an assertion in $NNF$ the negation sign can only occurs in front of a concept name and above a role name.
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I}},\pi_\mathcal{I})$ over an assertion set $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
@@ -167,7 +166,7 @@ By the semantic definition $s^\mathcal{I}\cup (s^\neg)^\mathcal{I}=\mathcal{U}^\
 \begin{mydef}[Number of successors]
 Let $S$ be a set of assertion, $\mathcal{I}$ be an interpretation, $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x,k,S):=k^{\mathcal{I}_x}$
 where $i,j,l$ are cardinality terms, $n\in\mathbb{N}$ and $s$ is a set term.\\
-A assertion regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
+A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
 \begin{itemize}
 \item $x:succ(k\lesseqgtr n)$ and $n_\mathcal{I}(x,k,S)\not\lesseqgtr n$
 \item $x:succ(k\lesseqgtr l)$ and $n_\mathcal{I}(x,k,S)\not\lesseqgtr n_\mathcal{I}(x,l,S)$
