@@ -203,12 +203,12 @@ An interpretation $\mathcal{I}(S)$ can be induced from an assertion set $S$ by t
 \end{mydef}
 With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm.
 \begin{mydef}[Number of successors]
-Let $S$ be a set of assertion, $x$ be a variable and $k$ be a cardinality term. The number of $x$'s successors which satisfies $k$ in the induced interpretation $\mathcal{I}(S)$ is denoted by $n_\mathcal{I}(x,k,S):=k^{\mathcal{I}_x}$.\\
+Let $S$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. The number of $x$'s successors which satisfies $k$ in the induced interpretation $\mathcal{I}(S)$ is denoted by $n(x,k,S):=k^{\mathcal{I}_x}$.\\
 A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
 \begin{itemize}
-\item $x:succ(k\lesseqgtr n)$ and $n_\mathcal{I}(x,k,S)\not\lesseqgtr n$
-\item $x:succ(k\lesseqgtr l)$ and $n_\mathcal{I}(x,k,S)\not\lesseqgtr n_\mathcal{I}(x,l,S)$
-\item $x:succ(n\,dvd\,k)$ and $mod(n_\mathcal{I}(x,k,S),n)\neq 0$
+\item $x:succ(k\lesseqgtr n)$ and $n(x,k,S)\not\lesseqgtr n$
+\item $x:succ(k\lesseqgtr l)$ and $n(x,k,S)\not\lesseqgtr n(x,l,S)$
+\item $x:succ(n\,dvd\,k)$ and $mod(n(x,k,S),n)\neq 0$
 \end{itemize} 
 where $n\in\mathbb{N}$.
 \end{mydef}
@@ -252,7 +252,7 @@ To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instea
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
 Let $x:succ(k\leq l)$ or $x:succ(k<l)$, where $l$ has at least one cardinality term $|s|$, be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):l\}$ if 
 \begin{align*}
-n_\mathcal{I}(x,k,S)-n_\mathcal{I}(x,k,S^\prime)<n_\mathcal{I}(x,l,S)-n_\mathcal{I}(x,l,S^\prime)
+n(x,k,S)-n(x,k,S^\prime)<n(x,l,S)-n(x,l,S^\prime)
 \end{align*}
 Same goes for $(x,y):k$. This says that it is only safe to add a variable if the number of successor in $l$ increases faster then the number of successors in $k$.
 \begin{mydef}[Tableau]
@@ -292,13 +292,13 @@ Note that:
 \begin{mydef}[Derived Set]
 A \textit{derived set} is an assertion set $S^\prime$ where rule \ref{repeat} is not applicable.
 \end{mydef}
-The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n_\mathcal{I}(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n_\mathcal{I}(x,k,S)$ does not count $y$:
+The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n(x,k,S)$ does not count $y$:
 \begin{ex}
 \begin{align*}
 S=\{x:succ(|r\cap s|>1), (x,y):r\}
 \end{align*}
 \end{ex}
-However there might be an interpretation $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $n_{\mathcal{I}}(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every model of $S$, if $S$ is consistent. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
+However there might be an interpretation $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $n(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every model of $S$, if $S$ is consistent. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
 The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we might have no role name with a positive sign in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
 \begin{ex}
 \begin{align*}
@@ -389,7 +389,7 @@ Let $S$ be an assertion set. The multiset $\Psi(S)$ consist of septuples $\psi_S
 \begin{itemize}
 \item the first component is a non-negative integer $max\{size(C)\mid x:C\in S\}$
 \item the second component is a multiset of integers containing for each $x:C\sqcap D$, on which the $\sqcap$-rule is applicable, the non-negative integer $size(C\sqcap D)$ (respectively for $C\sqcup D$)
-\item the third component is a multiset which denotes for every $x:succ(k\leq l)$ the integer $n_{\mathcal{I}(S)}(x,k,S)\unlhd n_{\mathcal{I}(S)}(x,l,S)$
+\item the third component is a multiset which denotes for every $x:succ(k\leq l)$ the integer $n(x,k,S)\unlhd n(x,l,S)$
 \item the fourth component is a multiset of integers in which for each successor $y$ of $x$ we have $n_{sc}(x)-n_{sc}(x,y)$
 \item the fifth component denotes the number of all successors of $x$ in $S$
 \item the sixth component is a multiset of integers containing for each $x:succ(k\leq n)\in S$ the number of all successors $y$ of $x$ such that we have $(x,y):k^\prime$, $k^\prime$ occurs in $k$ but for at least one $|s|$ in $k$ we have neither $(x,y):s\in S$ nor $(x,y):\neg s\in S$
@@ -438,12 +438,12 @@ The first and second component remains unchanged. Also the third and fifth compo
 Let $z$ be a variable such that $z\neq y$. The element $\psi_S(z)$ can only change if $z$ is a predecessor of $y$. But by Lemma 1.2 that means that $z=x$.\\
 We can obtained $\Psi(S^\prime)$ from $\Psi(S)$ by replacing $\psi_S(x)$ with the smaller $\psi_{S^\prime}(x)$.
 \item $S^\prime$ is obtained by the application of rule \ref{setterm} on $x:succ(k<l)$, $x:succ(k\leq l)$ or $x:succ(n\,dvd\,l)$ and rule \ref{repeat}:\\ 
-For a set term $s$ which occurs as $|s|$ in $l$ we introduce a new variable $y$ and add $(x,y):s$. The first two component of $\psi_S(x)$ remains unchanged. Because we can apply this rule we have $n_{\mathcal{I}(S)}(x,k,S)>n_{\mathcal{I}(S)}(x,l,S)$ and we have no set term $s$ which occurs in $k$ and in $l$ with the same sign. That means that by adding a new successor to $l$ it can never be a successor to $k$, too. Therefore only $n_{\mathcal{I}(S)}(x,l,S)$ increases which means $n_{\mathcal{I}(S)}(x,k,S)\unlhd n_{\mathcal{I}(S)}(x,l,S)$ decreases and hence also the third component.\\
+For a set term $s$ which occurs as $|s|$ in $l$ we introduce a new variable $y$ and add $(x,y):s$. The first two component of $\psi_S(x)$ remains unchanged. Because we can apply this rule we have $n(x,k,S)>n(x,l,S)$ and we have no set term $s$ which occurs in $k$ and in $l$ with the same sign. That means that by adding a new successor to $l$ it can never be a successor to $k$, too. Therefore only $n(x,l,S)$ increases which means $n(x,k,S)\unlhd n(x,l,S)$ decreases and hence also the third component.\\
 In $S^\prime$ exists now a new tuple $\psi_{S^\prime}(y)$. But since it was introduced by the assertion $x:succ(c)$, $c\in\{k<l,k\leq l,n\,dvd\,l\}$, the first component of it is always smaller then the first component of $\psi_S(x)$.\\
 For any variable $z$ such that $z\neq y$. The tuple $\psi_S(z)$ is unaffected. It can only be affected by the rules if $z$ is a predecessor of $y$. But by Lemma 1.2 that would mean that $z=x$.\\
 Altogether $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by replacing $\psi_S(x)$ with the two smaller tuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \item $S^\prime$ is obtained by the application of rule \ref{exceeded} on $x:succ(k<l)$ or $x:succ(k\leq l)$:\\
-The first and second component of $\psi_S(x)$ remain unchanged. The third component also remains unchanged: Because we can apply rule \ref{exceeded} we have $l\in\mathbb{N}$ and therefore $n_{\mathcal{I}(S)}(x,k,S)>l$ which means the integer in this multiset is $0$. By merging two successor we have $n_{\mathcal{I}(S)}(x,k,S)\geq n_{\mathcal{I}(S)}(x,l,S)$ which means the asymmetrical difference $n_{\mathcal{I}(S)}(x,k,S)\unlhd  n_{\mathcal{I}(S)}(x,l,S)$ is still $0$. The fourth component can decreases: By merging two successor $y_1, y_2$ the two corresponding entries in the multiset are removed and a new one is added. The new variable $y$ has all assertions of the two successors which means that for some assertions $x:succ(s_1\subseteq s_2)$, such that $(x,y_1):s_1\in S$ and $(x,y_2):s_2\in S$ but $(x,y_1):s_1\not\in S$ and $(x,y_2):s_2\not\in S$, we have after the rule application $(x,y):s_1\in S$ and $(x,y):s_2\in S$ which means that $n_{sc}(x,y)>n_{sc}(x,y_1)$ and $n_{sc}(x,y)>n_{sc}(x,y_2)$. Therefore $n_{sc}(x)-n_{sc}(x,y)$ is smaller than $n_{sc}(x)-n_{sc}(x,y_1)$ or $n_{sc}(x)-n_{sc}(x,y_2)$. The fourth component can not increases because that would mean that by merging two successors we had lost assertions regarding $y_1$ and $y_2$. The fifth component decreases because we have one successor less and therefore $\psi_{S^\prime}(x)$ is smaller than $\psi_S(x)$. The new tuple $\psi_{S^\prime}(y)$ is also smaller than $\psi_S(x)$ because $y$ has the same assertions of the two merged successors whose first component are always smaller than the first component of $\psi_S(x)$ because of Lemma 1.3.\\
+The first and second component of $\psi_S(x)$ remain unchanged. The third component also remains unchanged: Because we can apply rule \ref{exceeded} we have $l\in\mathbb{N}$ and therefore $n(x,k,S)>l$ which means the integer in this multiset is $0$. By merging two successor we have $n(x,k,S)\geq n(x,l,S)$ which means the asymmetrical difference $n(x,k,S)\unlhd  n(x,l,S)$ is still $0$. The fourth component can decreases: By merging two successor $y_1, y_2$ the two corresponding entries in the multiset are removed and a new one is added. The new variable $y$ has all assertions of the two successors which means that for some assertions $x:succ(s_1\subseteq s_2)$, such that $(x,y_1):s_1\in S$ and $(x,y_2):s_2\in S$ but $(x,y_1):s_1\not\in S$ and $(x,y_2):s_2\not\in S$, we have after the rule application $(x,y):s_1\in S$ and $(x,y):s_2\in S$ which means that $n_{sc}(x,y)>n_{sc}(x,y_1)$ and $n_{sc}(x,y)>n_{sc}(x,y_2)$. Therefore $n_{sc}(x)-n_{sc}(x,y)$ is smaller than $n_{sc}(x)-n_{sc}(x,y_1)$ or $n_{sc}(x)-n_{sc}(x,y_2)$. The fourth component can not increases because that would mean that by merging two successors we had lost assertions regarding $y_1$ and $y_2$. The fifth component decreases because we have one successor less and therefore $\psi_{S^\prime}(x)$ is smaller than $\psi_S(x)$. The new tuple $\psi_{S^\prime}(y)$ is also smaller than $\psi_S(x)$ because $y$ has the same assertions of the two merged successors whose first component are always smaller than the first component of $\psi_S(x)$ because of Lemma 1.3.\\
 No other tuples $\psi_S(z)$ are affected because otherwise $z$ must be a predecessor of $y$ and by Lemma 1.2 $z=x$.\\
 Therefore $\Psi(S^\prime)$ can be obtained from $\Psi(S)$ by deleting the tuples of the two merged successors and by replacing $\psi(x)$ with the smaller tuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \item $S^\prime$ is obtained by the application of rule \ref{s} on $x:succ(s_1\subseteq s_2)$ and rule \ref{repeat}:\\ 
