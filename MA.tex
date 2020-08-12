@@ -123,11 +123,11 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more. The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ may be a result of $s^\neg$, where $s$ is a set term. It is equal to $\neg C$ because $C$ is a concept which means it is only of the form $D$,  $D_1\sqcap D_2$, $D_1\sqcup D_2$ and $succ(c)$, where $D\in\mathbf{C}$ and $D_1,D_2$ are concepts.\\
 An assertion set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
 \begin{mydef}[Positive and Negative Sign]
-For two variables $x,y$ and a set term $s$ it holds that $(x,y):s$. A concept name $C$ or a role name $r$ has a \textit{positive sign} in $s$ if it occurs with no negation sign in front or above it in $s$. It has a \textit{negative sign} otherwise. A concept name $C$ (or a role name $r$) can have both sign in $s$ if $C$ and $\neg C$ (or $r$ and $r^\neg$) are in $s$.
+For two variables $x,y$ and a set term $s$ in $NNF$ it holds that $(x,y):s$. A concept name $C$ or a role name $r$ has a \textit{positive sign} in $s$ if it occurs with no negation sign in front or above it in $s$. It has a \textit{negative sign} otherwise. A concept name $C$ (or a role name $r$) can have both sign in $s$ if $C$ and $\neg C$ (or $r$ and $r^\neg$) are in $s$.
 \end{mydef}
 Note that in an assertion in $NNF$ the negation sign can only occurs in front of a concept name and above a role name.
 \begin{mydef}[Interpretation]
-An \textit{interpretation} $\mathcal{I=(\Delta^\mathcal{I},\cdot^\mathcal{I}},\pi_\mathcal{I})$ over an assertion set $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
+An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an assertion set $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
 \item $\emptyset$ to $\emptyset^\mathcal{I}$
 \item $\mathcal{U}$ to $\mathcal{U}^\mathcal{I}\subseteq \Delta^\mathcal{I}$
@@ -163,17 +163,6 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 $\pi_\mathcal{I}$ satisfies an assertion set $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
 By the semantic definition $s^\mathcal{I}\cup (s^\neg)^\mathcal{I}=\mathcal{U}^\mathcal{I}$.
-\begin{mydef}[Number of successors]
-Let $S$ be a set of assertion, $\mathcal{I}$ be an interpretation, $x$ be a variable and $k$ be a cardinality term. The number of successors of $x$ in $k$ in the interpretation $\mathcal{I}$ is denoted by $n_\mathcal{I}(x,k,S):=k^{\mathcal{I}_x}$
-where $i,j,l$ are cardinality terms, $n\in\mathbb{N}$ and $s$ is a set term.\\
-A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
-\begin{itemize}
-\item $x:succ(k\lesseqgtr n)$ and $n_\mathcal{I}(x,k,S)\not\lesseqgtr n$
-\item $x:succ(k\lesseqgtr l)$ and $n_\mathcal{I}(x,k,S)\not\lesseqgtr n_\mathcal{I}(x,l,S)$
-\item $x:succ(n\,dvd\,k)$ and $mod(n_\mathcal{I}(x,k,S),n)\neq 0$
-\end{itemize} 
-where $n\in\mathbb{N}$.
-\end{mydef}
 \section{Tableau}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} and we can not apply any more rules then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the assertion set is unsatisfiable, otherwise it is satisfiable.
 \begin{mydef}[Clash]
@@ -182,7 +171,7 @@ An assertion set $S$ contains a \textit{clash} if
 \item $\{x:\perp\}\subseteq S$ or
 \item $\{x:A,\,x:\neg A\}\subseteq S$ or
 \item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$
-\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$
+\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$ and no more rules are able to fix it
 \end{itemize}
 Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
 \begin{mydef}[Merge]
@@ -211,14 +200,24 @@ An interpretation $\mathcal{I}(S)$ can be induced from an assertion set $S$ by t
 \item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}(S)}$ to $C^{\mathcal{I}(S)}$
 \item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ to $r^{\mathcal{I}(S)}$
 \end{itemize}
-With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm.\\
+\end{mydef}
+With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm.
+\begin{mydef}[Number of successors]
+Let $S$ be a set of assertion, $x$ be a variable and $k$ be a cardinality term. The number of $x$'s successors which satisfies $k$ in the induced interpretation $\mathcal{I}(S)$ is denoted by $n_\mathcal{I}(x,k,S):=k^{\mathcal{I}_x}$.\\
+A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
+\begin{itemize}
+\item $x:succ(k\lesseqgtr n)$ and $n_\mathcal{I}(x,k,S)\not\lesseqgtr n$
+\item $x:succ(k\lesseqgtr l)$ and $n_\mathcal{I}(x,k,S)\not\lesseqgtr n_\mathcal{I}(x,l,S)$
+\item $x:succ(n\,dvd\,k)$ and $mod(n_\mathcal{I}(x,k,S),n)\neq 0$
+\end{itemize} 
+where $n\in\mathbb{N}$.
+\end{mydef}
 For the Tableau-algorithm we define the properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
 \item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
 \item if $s,t$ are set terms then $s=t$ replaces $s\subseteq t$ and $s\supseteq t$
 \end{itemize}
-\end{mydef}
 \subsection{Restrictions}
 Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with cardinality constraints. Therefore we restrict cardinality constraint to a more simple form. One difficulty lays in disjunctions in constraint terms. We want to split disjunctions in constraints into conjunctions which are disjoint to each other. while splitting we want to keep everything in $NNF$ because by turning a concept with conjunctions into its $NNF$ disjunctions may appear.\\
 \begin{algorithm}[H]
