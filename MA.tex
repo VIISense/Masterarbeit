@@ -91,37 +91,7 @@ Concepts are:
 \end{itemize}
 \end{itemize}
 \end{mydef}
-\begin{mydef}[Negation Normal Form]
-A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary concept. Its $NNF$ is obtained by applying the following rules
-\begin{figure}[H]
-\begin{minipage}[t]{.5\textwidth}
-\raggedright
-\begin{itemize}
-\item $\neg\top$ $\rightarrow$ $\perp$
-\item $\neg\perp$ $\rightarrow$ $\top$
-\item $\neg\neg C$ $\rightarrow$ $C$
-\item $\neg(C\sqcap D)$ $\rightarrow$ $\neg C \sqcup \neg D$
-\item $\neg(C\sqcup D)$ $\rightarrow$ $\neg C \sqcap \neg D$
-\item $C^\neg$ $\rightarrow$ $\neg C$
-\item $\neg succ(c)$ $\rightarrow$ $succ(\neg c)$
-\end{itemize}
-\end{minipage}% <---------------- Note the use of "%"
-\begin{minipage}[t]{.5\textwidth}
-\raggedleft
-\begin{itemize}
-\item $\neg (k\lesseqgtr l)$ $\rightarrow$ $k\not\lesseqgtr l$
-\item $\neg (n\text{ } dvd \text{ } k)$ $\rightarrow$ $n\text{ } \neg dvd \text{ } k$
-\item $\neg (n\text{ } \neg dvd \text{ } k)$ $\rightarrow$ $n\text{ } dvd \text{ } k$
-\item $\neg (s_1\subseteq s_2)$ $\rightarrow$ $|s_1\cap s_2^\neg|\geq 1$
-\item $(s\cap t)^\neg$ $\rightarrow$ $s^\neg \cup t^\neg$
-\item $(s\cup t)^\neg$ $\rightarrow$ $s^\neg \cap t^\neg$
-\item $(s^\neg)^\neg$ $\rightarrow$ $s$
-\end{itemize}
-\end{minipage}
-\end{figure}
-\end{mydef}
-With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more. The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ may be a result of $s^\neg$, where $s$ is a set term. It is equal to $\neg C$ because $C$ is a concept which means it is only of the form $D$,  $D_1\sqcap D_2$, $D_1\sqcup D_2$ and $succ(c)$, where $D\in\mathbf{C}$ and $D_1,D_2$ are concepts.\\
-An assertion set $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
+An ABox $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
 \begin{mydef}[Positive and Negative Sign]
 For two variables $x,y$ and a set term $s$ in $NNF$ it holds that $(x,y):s$. A concept name $C$ or a role name $r$ has a \textit{positive sign} in $s$ if it occurs with no negation sign in front or above it in $s$. It has a \textit{negative sign} otherwise. A concept name $C$ (or a role name $r$) can have both sign in $s$ if $C$ and $\neg C$ (or $r$ and $r^\neg$) are in $s$.
 \end{mydef}
@@ -163,6 +133,36 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 $\pi_\mathcal{I}$ satisfies an assertion set $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
 By the semantic definition $s^\mathcal{I}\cup (s^\neg)^\mathcal{I}=\mathcal{U}^\mathcal{I}$.
+\begin{mydef}[Negation Normal Form]
+A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary concept. Its $NNF$ is obtained by applying the following rules
+\begin{figure}[H]
+\begin{minipage}[t]{.5\textwidth}
+\raggedright
+\begin{itemize}
+\item $\neg\top$ $\rightarrow$ $\perp$
+\item $\neg\perp$ $\rightarrow$ $\top$
+\item $\neg\neg C$ $\rightarrow$ $C$
+\item $\neg(C\sqcap D)$ $\rightarrow$ $\neg C \sqcup \neg D$
+\item $\neg(C\sqcup D)$ $\rightarrow$ $\neg C \sqcap \neg D$
+\item $C^\neg$ $\rightarrow$ $\neg C$
+\item $\neg succ(c)$ $\rightarrow$ $succ(\neg c)$
+\end{itemize}
+\end{minipage}% <---------------- Note the use of "%"
+\begin{minipage}[t]{.5\textwidth}
+\raggedleft
+\begin{itemize}
+\item $\neg (k\lesseqgtr l)$ $\rightarrow$ $k\not\lesseqgtr l$
+\item $\neg (n\text{ } dvd \text{ } k)$ $\rightarrow$ $n\text{ } \neg dvd \text{ } k$
+\item $\neg (n\text{ } \neg dvd \text{ } k)$ $\rightarrow$ $n\text{ } dvd \text{ } k$
+\item $\neg (s_1\subseteq s_2)$ $\rightarrow$ $|s_1\cap s_2^\neg|\geq 1$
+\item $(s\cap t)^\neg$ $\rightarrow$ $s^\neg \cup t^\neg$
+\item $(s\cup t)^\neg$ $\rightarrow$ $s^\neg \cap t^\neg$
+\item $(s^\neg)^\neg$ $\rightarrow$ $s$
+\end{itemize}
+\end{minipage}
+\end{figure}
+\end{mydef}
+With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more. The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\mathcal{I}$ of $S$ we have $(C^\neg)^\mathcal{I}=\mathcal{U}\backslash C^\mathcal{I}$ and $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\mathcal{U}\subseteq \Delta$ we can conclude that every element in $(C^\neg)^\mathcal{I}$ is also in $(\neg C)^\mathcal{I}$.
 \section{Tableau}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} and we can not apply any more rules then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the assertion set is unsatisfiable, otherwise it is satisfiable.
 \begin{mydef}[Clash]
