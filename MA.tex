@@ -76,10 +76,11 @@ where $s,t$ are set terms
 \end{itemize}
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
-For readability we use $\lesseqgtr$ to address the comparison symbols $=,\,\leq,\,\geq,\,<,\,>$. The negation $\not\lesseqgtr$ address the symbols $\neq,\,>,\,<,\,\geq,\,\leq$ respectively.
 \end{mydef}
+For readability we use $\lesseqgtr$ to address the comparison symbols $=,\,\leq,\,\geq,\,<,\,>$. The negation $\not\lesseqgtr$ address the symbols $\neq,\,>,\,<,\,\geq,\,\leq$ respectively.\\
+Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work.
 \begin{mydef}[$\mathcal{ALCSCC}$]
-Concepts are:
+$\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
 \item all concept names
 \item $succ(c)$ if $c$ is a set or cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
@@ -91,7 +92,8 @@ Concepts are:
 \end{itemize}
 \end{itemize}
 \end{mydef}
-An ABox $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
+In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$.\\
+An ABox $S$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a $\mathcal{ALSCSS}$ concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an ABox $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
@@ -114,10 +116,8 @@ For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as
 \item $succ(c)^\mathcal{I}=\{x\in \Delta^\mathcal{I}|$the mapping $\cdot^{\mathcal{I}_x}$ satisfies $c\}$
 \end{itemize}
 The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{I}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}(x)$.\\
-The mappings satisfies for the set terms $s,t$ and the cardinality terms $k,l$
+The mappings satisfies for the cardinality terms $k,l$
 \begin{itemize}
-\item $s=t$ iff $s^\mathcal{I}=t^\mathcal{I}$
-\item $s\subseteq t$ iff $s^\mathcal{I}\subseteq t^\mathcal{I}$
 \item $k\lesseqgtr l$ iff $k^\mathcal{I}\lesseqgtr l^\mathcal{I}$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = l^\mathcal{I}$
 \end{itemize}
@@ -128,7 +128,7 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \end{itemize} 
 $\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
-By the semantic definition $s^\mathcal{I}\cup (s^\neg)^\mathcal{I}=\mathcal{U}^\mathcal{I}$.
+
 \begin{mydef}[Negation Normal Form]
 A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary concept. Its $NNF$ is obtained by applying the following rules
 \begin{figure}[H]
@@ -150,7 +150,6 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \item $\neg (k\lesseqgtr l)$ $\rightarrow$ $k\not\lesseqgtr l$
 \item $\neg (n\text{ } dvd \text{ } k)$ $\rightarrow$ $n\text{ } \neg dvd \text{ } k$
 \item $\neg (n\text{ } \neg dvd \text{ } k)$ $\rightarrow$ $n\text{ } dvd \text{ } k$
-\item $\neg (s_1\subseteq s_2)$ $\rightarrow$ $|s_1\cap s_2^\neg|\geq 1$
 \item $(s\cap t)^\neg$ $\rightarrow$ $s^\neg \cup t^\neg$
 \item $(s\cup t)^\neg$ $\rightarrow$ $s^\neg \cap t^\neg$
 \item $(s^\neg)^\neg$ $\rightarrow$ $s$
@@ -166,8 +165,8 @@ An ABox $S$ contains a \textit{clash} if
 \begin{itemize}
 \item $\{x:\perp\}\subseteq S$ or
 \item $\{x:A,\,x:\neg A\}\subseteq S$ or
-\item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$
-\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$ and no more rules are able to fix it
+\item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$ or
+\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$ and no more rules are applicable
 \end{itemize}
 Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
 \begin{mydef}[Merge]
@@ -216,8 +215,8 @@ For the Tableau-algorithm we define the properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
 \item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
-\item if $s,t$ are set terms then $s=t$ replaces $s\subseteq t$ and $s\supseteq t$
 \end{itemize}
+\iffalse
 \subsection{Restrictions}
 Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with cardinality constraints. Therefore we restrict cardinality constraint to a more simple form. One difficulty lays in disjunctions in constraint terms. We want to split disjunctions in constraints into conjunctions which are disjoint to each other. while splitting we want to keep everything in $NNF$ because by turning a concept with conjunctions into its $NNF$ disjunctions may appear.\\
 \begin{algorithm}[H]
@@ -248,6 +247,7 @@ A constraint is in \textit{simplified} $CNNF$ if we simplified the constraint fi
 \end{mydef}
 We consider only simplified $CNNF$ for the algorithm. Also every ABox raised from the algorithm is converted into simplified $CNNF$.
 \subsection{Algorithm}
+\fi
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
 Let $x:succ(k\leq l)$ or $x:succ(k<l)$, where $l$ has at least one cardinality term $|s|$, be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):l\}$ if 
