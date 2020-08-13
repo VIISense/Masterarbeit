@@ -92,10 +92,6 @@ Concepts are:
 \end{itemize}
 \end{mydef}
 An ABox $S$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$.
-\begin{mydef}[Positive and Negative Sign]
-For two variables $x,y$ and a set term $s$ in $NNF$ it holds that $(x,y):s$. A concept name $C$ or a role name $r$ has a \textit{positive sign} in $s$ if it occurs with no negation sign in front or above it in $s$. It has a \textit{negative sign} otherwise. A concept name $C$ (or a role name $r$) can have both sign in $s$ if $C$ and $\neg C$ (or $r$ and $r^\neg$) are in $s$.
-\end{mydef}
-Note that in an assertion in $NNF$ the negation sign can only occurs in front of a concept name and above a role name.
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an ABox $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
@@ -212,6 +208,10 @@ A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \tex
 \end{itemize} 
 where $n\in\mathbb{N}$.
 \end{mydef}
+Also important for the algorithm is to consider the \textit{signs} of concept names and role names.
+\begin{mydef}[Positive and Negative Sign]
+Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.
+\end{mydef}
 For the Tableau-algorithm we define the properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
@@ -264,7 +264,7 @@ $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $x$ has a successor $y$ such that for some for some $k^\prime$ in $k$ we have $(x,y):k^\prime\in S$ but $(x,y):k\notin S$\\
 $\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$
-\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but there is no $(x,y):r\notin S$, $r\in\mathbf{R}$, where $r$ has a positive sign in this assertion\\
+\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for any $r\in\mathbf{R}$ we have $(x,y):r\notin S$, where $r$ has a positive sign\\
 $\rightarrow$ choose one rule name $r\in\mathbf{R}$, which appears with a negative sign in $s$, and add $(x,y):r$ to $S$
 \item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\,n\,dvd\,l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$:\\
 $\rightarrow$ choose a set term $s$, such that $|s|$ is in $i$, and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
