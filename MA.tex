@@ -130,7 +130,7 @@ $\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every ass
 \end{mydef}
 
 \begin{mydef}[Negation Normal Form]
-A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary concept. Its $NNF$ is obtained by applying the following rules
+A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary $\mathcal{ALCSCC}$ concept. With $NNF(C)$ we denote the concept which is obtained by applying the rules below on $C$ until none is applicable any more.
 \begin{figure}[H]
 \begin{minipage}[t]{.5\textwidth}
 \raggedright
@@ -148,6 +148,7 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \raggedleft
 \begin{itemize}
 \item $\neg (k\lesseqgtr l)$ $\rightarrow$ $k\not\lesseqgtr l$
+\item $\neg (k\not\lesseqgtr l)$ $\rightarrow$ $k\lesseqgtr l$
 \item $\neg (n\text{ } dvd \text{ } k)$ $\rightarrow$ $n\text{ } \neg dvd \text{ } k$
 \item $\neg (n\text{ } \neg dvd \text{ } k)$ $\rightarrow$ $n\text{ } dvd \text{ } k$
 \item $(s\cap t)^\neg$ $\rightarrow$ $s^\neg \cup t^\neg$
@@ -157,9 +158,9 @@ A concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg
 \end{minipage}
 \end{figure}
 \end{mydef}
-With $NNF(C)$ we denote the concept which is obtained by applying the rules above on $C$ until none is applicable any more. The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\mathcal{I}$ of $S$ we have $(C^\neg)^\mathcal{I}=\mathcal{U}\backslash C^\mathcal{I}$ and $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\mathcal{U}\subseteq \Delta$ we can conclude that every element in $(C^\neg)^\mathcal{I}$ is also in $(\neg C)^\mathcal{I}$.
+The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\mathcal{I}$ of $S$ we have $(C^\neg)^\mathcal{I}=\mathcal{U}\backslash C^\mathcal{I}$ and $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\mathcal{U}\subseteq \Delta$ we can conclude that every element in $(C^\neg)^\mathcal{I}$ is also in $(\neg C)^\mathcal{I}$.
 \section{Tableau}
-A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} and we can not apply any more rules then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.
+A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.
 \begin{mydef}[Clash]
 An ABox $S$ contains a \textit{clash} if
 \begin{itemize}
@@ -209,16 +210,16 @@ where $n\in\mathbb{N}$.
 \end{mydef}
 Also important for the algorithm is to consider the \textit{signs} of concept names and role names.
 \begin{mydef}[Positive and Negative Sign]
-Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.
+Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.\\
+Concept names in $\mathbf{C}$ have a positive sign and role names in $\mathbf{R}$ have a positive sign.
 \end{mydef}
 For the Tableau-algorithm we define the properties of the following notations:
 \begin{itemize}
 \item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
 \item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
 \end{itemize}
-\iffalse
 \subsection{Restrictions}
-Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with cardinality constraints. Therefore we restrict cardinality constraint to a more simple form. One difficulty lays in disjunctions in constraint terms. We want to split disjunctions in constraints into conjunctions which are disjoint to each other. while splitting we want to keep everything in $NNF$ because by turning a concept with conjunctions into its $NNF$ disjunctions may appear.\\
+Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with cardinality constraints. Therefore we restrict cardinality constraint to a more simple form. One difficulty lays in disjunctions in constraint terms. We want to split them, which are in $NNF$, into conjunctions ($CNNF$) such that the conjunctions are disjoint to each other. While splitting we want to keep everything in $NNF$ because by turning a concept with conjunctions into its $NNF$ disjunctions may appear.\\
 \begin{algorithm}[H]
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
@@ -230,24 +231,12 @@ Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with 
 		split $c$ into $(s_1\cup s_2)\cap s_3+t$\;
 		$c:=|s_1\cap s_2\cap s_3|+|NNF(s_1^\neg)\cap s_2\cap s_3|+|s_1\cap NNF(s_2^\neg)\cap s_3|+t$\;
     }
-    \caption{Transforming a constraint $c$ into its $CNNF$}
+    \Return $c$\;
+    \caption{$CNNF(c)$}
 \end{algorithm}
-We want to split $|s_1\cup s_2\cup\dots \cup s_n|$ into set terms which are disjoint to each other. This helps to determinate all properties of successors in $k$.\\
-We can easily see that the splitting creates exponential more new set terms. To simplify them we omit \textit{unnecessary} set terms. To explain what set terms are unnecessary we look at the following example:
-\begin{align*}
-S:=\{x:succ(|r\cup s\cup t\cup B|<|r|+|s|)\sqcap succ(|r\cap C|=1)\}
-\end{align*}
-The first cardinality term $|r\cup s\cup t\cup B|$ in $CNNF$ is split into 15 cardinality terms, which is a high number of terms. The set term $t$ and $B$ is only mentioned once. That means that whether $x$'s successor is a $t$-successor or not it does not bring any further information regarding $x$ and the successor except it is a $t$-successor. The same goes for the information whether the successor is in $B$ or not. Also no assertions can become violated solely by those information. (Note that this algorithm works without a TBox in which axioms regarding $t$ or $B$ may occur and therefore both would be not unnecessary.) On the other hand $r$ is necessary because it appears again in the cardinality term $|r|+|s|$, which describe successors of $x$. For the same reason $s$ is necessary, too. Hence if we omit $t$ and $B$ we do not loose necessary information to conclude more knowledge while reducing the number of split cardinality terms (seven instead of 15).
-\begin{mydef}[simplified constraint]
-A constraint in $NNF$ in an ABox $S$ is \textit{simplified} if we omit \textit{unnecessary} set terms from any disjunction.\\
-Let $S_x\subseteq S$ be a set of all constraints regarding $x$ in $S$ (e.g. $x:C\in S\rightarrow x:C\in S_x$ and $y:C\in S_x\rightarrow y=x$, $C$ is a concept and $y$ a variable). A set term $s$ in a constraint $x:succ(s\cup t_1\cup\dots\cup t_n)\in S_x$ is unnecessary and can be omit if it appears syntactically only once in $S_x$.
-\end{mydef}
-\begin{mydef}[simplified $CNNF$]
-A constraint is in \textit{simplified} $CNNF$ if we simplified the constraint first and then convert it to $CNNF$. An ABox $S$ is in simplified $CNNF$ if all constraints in all assertions are simplified $CNNF$.
-\end{mydef}
-We consider only simplified $CNNF$ for the algorithm. Also every ABox raised from the algorithm is converted into simplified $CNNF$.
+We can easily see that the splitting creates exponential more new set terms. Therefore we only want to transform a cardinality term $c:=|s_1\cup s_2|$ into its $CNNF$ for a certain case:
+For a assertion $x:succ(c^\prime\lesseqgtr d)$, such that $c$ is in $c^\prime$, we transform $c$ into its $CNNF$ if there exists another assertion $x:succ(c^\ast\lesseqgtr e)$ such that $c\neq c^\ast$ and for any interpretation $\mathcal{I}$ we have $(s_1\cup s_2)^\mathcal{I}\supseteq \bigcup_{|s|in\,c^\ast}s^\mathcal{I}$.
 \subsection{Algorithm}
-\fi
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
 Let $x:succ(k\leq l)$ or $x:succ(k<l)$, where $l$ has at least one cardinality term $|s|$, be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):l\}$ if 
@@ -262,16 +251,16 @@ Let $S$ be a set of assertions in simplified $CNNF$.
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
-\item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $x$ has a successor $y$ such that for some for some $k^\prime$ in $k$ we have $(x,y):k^\prime\in S$ but $(x,y):k\notin S$\\
+\item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $(x,y):k^\prime$, $k^\prime$ occurs in $k$, but $(x,y):k\notin S$\\
 $\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$
-\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for any $r\in\mathbf{R}$ we have $(x,y):r\notin S$, where $r$ has a positive sign\\
-$\rightarrow$ choose one rule name $r\in\mathbf{R}$, which appears with a negative sign in $s$, and add $(x,y):r$ to $S$
+\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for any $r\in\mathbf{R}$: $(x,y):r\notin S$\\
+$\rightarrow$ choose $r\in\mathbf{R}$, such that $r$ has not a negative sign in any set term $s$, for which $(x,y):s\in S$, and $S:=S\cup\{(x,y):r\}$
 \item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\,n\,dvd\,l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$:\\
 $\rightarrow$ choose a set term $s$, such that $|s|$ is in $i$, and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
 \item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated in $\mathcal{I}(S)$ regarding $x$, and $l$ does not contain a set term. If we have two successor $y_1\neq y_2$ of $x$, such that for a set term $s$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$, and by merging them no satisfied assertion regarding $x$ becomes violated:\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
-\item\label{s}$set$-rule: $S$ contains $x:succ(s_1\subseteq s_2)$ and $(x,y):s_1$ but not $(x,y):s_2$\\
-$\rightarrow$ $S:=S\cup\{(x,y):s_2\}$ and then jump to rule \ref{repeat}
+\item\label{s}$set$-rule: $S$ contains $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$ and $(x,y):s_1$, $\dots$, $(x:y):s_i$, $i<j$, but not $(x,y):s_{i+1}$, $\dots$, $(x,y):s_j$\\
+$\rightarrow$ choose $n\in\{i+1,\dots, j\}$, extend $S:=S\cup\{(x,y):s_n^\neg\}$ and then jump to rule \ref{repeat}
 \item\label{repeat} $set.term$-rule (Repeat until inapplicable): In $S$ is $(x,y):s$ and
 \begin{enumerate}
 \item\label{setterm1} $s=s_1\cap s_2$ but $\{(x,y):s_1,\,(x,y):s_2\}\not\subseteq S$\\
