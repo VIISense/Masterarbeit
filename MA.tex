@@ -171,24 +171,14 @@ An ABox $S$ contains a \textit{clash} if
 \end{itemize}
 Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
 \begin{mydef}[Merge]
-\textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
+\textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$.
 \end{mydef}
-Note that by merging two successors other assertions might become violated:
-\begin{align}
-S=\{&x:succ(|r\cap A|=1)\sqcap succ(|r\cap B|=1)\sqcap succ(|r|>1),\nonumber\\ &y_1:A, y_2:B, x.r.y_1, x.r.y_2\}
-\end{align}
-If we merge $y_1$ and $y_2$ then the assertion $x:succ(|r|>1)$ which was satisfied becomes violated.\\
-But not only assertions regarding $x$ might become violated after merging two successors of $x$: 
-\begin{align}
-S=\{&x:succ(|r|\leq 1), x.r.y_1, x.r.y_2,\nonumber
-\\&y_1:succ(|s|\leq 1), y_2:succ(|s|\leq 1), y_1.s.z_1, y_2.s.z_2\}
-\end{align}
-We see that the first assertion is violated and therefore merging $y_1$ and $y_2$ to $y$ would solve the problem but on the other hand the assertion regarding $y$ become violated: 
-\begin{align*}
-S=\{x:succ(|r|\leq 1), x.r.y,
-y:succ(|s|\leq 1), y.s.z_1, y.s.z_2\}
-\end{align*}
-To solve this problem we have to merge $z_1$ and $z_2$.
+Note that by merging two successors of $x$ into one variable $y$ other assertions might become violated. In regards of the Tableau-algorithm we distinguish between two types:
+\begin{itemize}
+\item assertions regarding the predecessor $x$
+\item assertions regarding the successor $y$
+\end{itemize}
+We want to avoid to violate satisfied assertions regarding the predecessor because this can lead into an endless loop of adding and merging new variables. Hence we say that it is \textit{safe to merge} two successors of $x$ if no satisfied assertions regarding $x$ becomes violated. On the other hand we allow satisfied assertions regarding the $y$ becoming violated. The reason is that either we detect a clash and/or $y$ has successors. In case $y$ has successors we can try fixing the violation by applying rules.
 \begin{mydef}[Induced Interpretation $\mathcal{I}(S)$]
 An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the following steps:
 \begin{itemize}
@@ -200,7 +190,7 @@ An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the follow
 With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm.
 \begin{mydef}[Number of successors]
 Let $S$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. The number of $x$'s successors which satisfies $k$ in the induced interpretation $\mathcal{I}(S)$ is denoted by $n(x,k,S):=k^{\mathcal{I}_x}$.\\
-A constraint regarding a variable $x$ in an interpretation $\mathcal{I}$ is \textit{violated} if
+A constraint regarding a variable $x$ is \textit{violated} if
 \begin{itemize}
 \item $x:succ(k\lesseqgtr n)$ and $n(x,k,S)\not\lesseqgtr n$
 \item $x:succ(k\lesseqgtr l)$ and $n(x,k,S)\not\lesseqgtr n(x,l,S)$
@@ -235,15 +225,16 @@ Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with 
     \caption{$CNNF(c)$}
 \end{algorithm}
 We can easily see that the splitting creates exponential more new set terms. Therefore we only want to transform a cardinality term $c:=|s_1\cup s_2|$ into its $CNNF$ for a certain case:
-For a assertion $x:succ(c^\prime\lesseqgtr d)$, such that $c$ is in $c^\prime$, we transform $c$ into its $CNNF$ if there exists another assertion $x:succ(c^\ast\lesseqgtr e)$ such that $c\neq c^\ast$ and for any interpretation $\mathcal{I}$ we have $(s_1\cup s_2)^\mathcal{I}\supseteq \bigcup_{|s|in\,c^\ast}s^\mathcal{I}$.
+For a assertion $x:succ(c^\prime\lesseqgtr d)$, such that $c$ is in $c^\prime$, we transform $c$ into its $CNNF$ if there exists another assertion $x:succ(c^\ast\lesseqgtr e)$ such that $c\neq c^\ast$ and for any interpretation $\mathcal{I}$ we have $(s_1\cup s_2)^\mathcal{I}\supseteq \bigcup_{|s|in\,c^\ast}s^\mathcal{I}$.\\
+We also loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox and $s$ is a (still finite) chain of disjunction and conjunction, we want to add the assertions of $y$ before any other rule application so that all $n(x,k,S)$, for which $|s|$ occurs in $k$, also count $y$. This is important because we want to know the correct number of successors at any time so we can avoid any violation of assertions.
 \subsection{Algorithm}
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
-Let $x:succ(k\leq l)$ or $x:succ(k<l)$, where $l$ has at least one cardinality term $|s|$, be violated regarding $x$ in an interpretation $\mathcal{I}$. It is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):l\}$ if 
+For an assertion $x:succ(k\leq l)$ or $x:succ(k<l)$, which is violated regarding x, it is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):i\}$, $i\in\{k,l\}$, if
 \begin{align*}
-n(x,k,S)-n(x,k,S^\prime)<n(x,l,S)-n(x,l,S^\prime)
+n(x,k,S^\prime)-n(x,k,S)<n(x,l,S^\prime)-n(x,l,S)
 \end{align*}
-Same goes for $(x,y):k$. This says that it is only safe to add a variable if the number of successor in $l$ increases faster then the number of successors in $k$.
+This says that it is only safe to add a variable if $l$ increases faster then $k$.
 \begin{mydef}[Tableau]
 Let $S$ be a set of assertions in simplified $CNNF$.
 \begin{enumerate}
@@ -252,12 +243,16 @@ $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
 \item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $(x,y):k^\prime$, $k^\prime$ occurs in $k$, but $(x,y):k\notin S$\\
-$\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$
+$\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$. Then jump to rule \ref{repeat}
 \item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for any $r\in\mathbf{R}$: $(x,y):r\notin S$\\
-$\rightarrow$ choose $r\in\mathbf{R}$, such that $r$ has not a negative sign in any set term $s$, for which $(x,y):s\in S$, and $S:=S\cup\{(x,y):r\}$
-\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l,\,n\,dvd\,l\}$, such that $c$ is violated in $\mathcal{I}(S)$ regarding $x$. Choose either $i:=k$ or $i:=l$, such that $i$ contains at least one cardinality term $|s|$. If it is safe to add a variable $y$ in $i$:\\
-$\rightarrow$ choose a set term $s$, such that $|s|$ is in $i$, and $S:=S\cup\{(x,y):s\}$, then jump to rule \ref{repeat}
-\item\label{exceeded}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated in $\mathcal{I}(S)$ regarding $x$, and $l$ does not contain a set term. If we have two successor $y_1\neq y_2$ of $x$, such that for a set term $s$ in $k$ we have $(x,y_1):s\in S$ and $(x,y_2):s\in S$, and by merging them no satisfied assertion regarding $x$ becomes violated:\\
+$\rightarrow$ choose $r\in\mathbf{R}$, such that $r$ has not a negative sign in any set term $s$, for which $(x,y):s\in S$, and $S:=S\cup\{(x,y):r\}$. Then jump to rule \ref{repeat}
+\item\label{dvd}$divide$-rule: $S$ contains $x:succ(n\,dvd\,l)$, which is violated\\
+$\rightarrow$ introduce a new variable $y$, choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
+\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, such that $c$ is violated regarding $x$, and it is safe to add a new variable $y$ in $k$:\\
+$\rightarrow$ choose $|s|$ in $k$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
+\item\label{setterm2}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, such that $c$ is violated regarding $x$, and it is safe to add a new variable $y$ in $l$:\\
+$\rightarrow$ choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
+\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated regarding $x$, $(x,y):s_1\in S$ and $(x,y):s_2\in S$, with $s_1$ and $s_2$ in $k$, and it is safe to merge $y_1$ and $y_2$\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$ and $(x,y):s_1$, $\dots$, $(x:y):s_i$, $i<j$, but not $(x,y):s_{i+1}$, $\dots$, $(x,y):s_j$\\
 $\rightarrow$ choose $n\in\{i+1,\dots, j\}$, extend $S:=S\cup\{(x,y):s_n^\neg\}$ and then jump to rule \ref{repeat}
@@ -275,7 +270,7 @@ $\rightarrow$ $S:=S\cup\{y:C\}$
 Note that:
 \begin{itemize}
 \item $s$ in \ref{setterm} can also be of the form $t^\neg$.
-\item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually
+\item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually $\rightarrow$ no infinite application of rule \ref{setterm}
 \end{itemize}
 \end{mydef}
 \begin{mydef}[Derived Set]
@@ -343,6 +338,7 @@ S=\{x:succ(|r|<2)\sqcap succ(|r|\geq 2)\}
 \end{ex}
 First we use the $\sqcap$-rule to split the assertion into two assertions. The assertion $x:succ(|r|<2)$ is satisfied therefore the algorithm tries to fix $x:succ(|r|\geq 2)$. Hence the $cardinality_1$-rule is applied. after that the first assertions remains satisfied but the second one remains violated. Therefore the algorithm applies the $cardinality_1$-rule again on $x:succ(|r|\geq 2)$ which result in $x:succ(|r|<2)$ being violated. To fix this the algorithm tries to apply the $cardinality_2$-rule and tries to merge the two variable. However since $x:succ(|r|\geq 2)$ would become violated the merging is preempted and the algorithm stops with a clash. Since this sequence of rule applications is the only one possible we can say that all possible sequences leads to a clash which means that $S$ in this example is unsatisfiable.\\
 The applications of the $set.term$-rules eventually terminates because the number of concept names and role names are finite in $S$ (since $S$ is finite).
+\iffalse
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
@@ -466,6 +462,7 @@ If $S$ is satisfiable then the Tableau-algorithm terminates without a clash.
 \end{mylem}
 \begin{proof}
 \end{proof}
+\fi
 \normalem
 \bibliographystyle{abbrv}
 \bibliography{ref}
