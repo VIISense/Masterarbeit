@@ -169,16 +169,7 @@ An ABox $S$ contains a \textit{clash} if
 \item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$ or
 \item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$ and no more rules are applicable
 \end{itemize}
-Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
-\begin{mydef}[Merge]
-\textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$.
-\end{mydef}
-Note that by merging two successors of $x$ into one variable $y$ other assertions might become violated. In regards of the Tableau-algorithm we distinguish between two types:
-\begin{itemize}
-\item assertions regarding the predecessor $x$
-\item assertions regarding the successor $y$
-\end{itemize}
-We want to avoid to violate satisfied assertions regarding the predecessor because this can lead into an endless loop of adding and merging new variables. Hence we say that it is \textit{safe to merge} two successors of $x$ if no satisfied assertions regarding $x$ becomes violated. On the other hand we allow satisfied assertions regarding the $y$ becoming violated. The reason is that either we detect a clash and/or $y$ has successors. In case $y$ has successors we can try fixing the violation by applying rules.
+\end{mydef}  
 \begin{mydef}[Induced Interpretation $\mathcal{I}(S)$]
 An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the following steps:
 \begin{itemize}
@@ -188,13 +179,12 @@ An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the follow
 \end{itemize}
 \end{mydef}
 With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm.
-\begin{mydef}[Number of successors]
-Let $S$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. The number of $x$'s successors which satisfies $k$ in the induced interpretation $\mathcal{I}(S)$ is denoted by $n(x,k,S):=k^{\mathcal{I}_x}$.\\
-A constraint regarding a variable $x$ is \textit{violated} if
+\begin{mydef}[Violated assertion]
+Let $S$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion is \textit{violated} if
 \begin{itemize}
-\item $x:succ(k\lesseqgtr n)$ and $n(x,k,S)\not\lesseqgtr n$
-\item $x:succ(k\lesseqgtr l)$ and $n(x,k,S)\not\lesseqgtr n(x,l,S)$
-\item $x:succ(n\,dvd\,k)$ and $mod(n(x,k,S),n)\neq 0$
+\item $x:succ(k\lesseqgtr n)$ and $k^{\mathcal{I}(S)_x}\not\lesseqgtr n$
+\item $x:succ(k\lesseqgtr l)$ and $k^{\mathcal{I}(S)_x}\not\lesseqgtr l^{\mathcal{I}(S)_x}$
+\item $x:succ(n\,dvd\,k)$ and $mod(k^{\mathcal{I}(S)_x},n)\neq 0$
 \end{itemize} 
 where $n\in\mathbb{N}$.
 \end{mydef}
@@ -209,6 +199,19 @@ For the Tableau-algorithm we define the properties of the following notations:
 \item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
 \end{itemize}
 \subsection{Restrictions}
+Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
+\begin{mydef}[Merge]
+\textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$.
+\end{mydef}
+Note that by merging two successors of $x$ into one variable $y$ other assertions might become violated. In regards of the Tableau-algorithm we distinguish between two types:
+\begin{itemize}
+\item assertions regarding the predecessor $x$
+\item assertions regarding the successor $y$
+\end{itemize}
+We want to avoid to violate satisfied assertions regarding the predecessor because this can lead into an endless loop of adding and merging variables. On the other hand we allow satisfied assertions regarding the merged successor $y$ becoming violated. The reason is that in this case $y$ has at least one successor itself and hence like with $x$ we try to fix these violated assertions regarding $y$ by applying rules while also avoiding violating already satisfied ones. Hence we want to \textit{block} a merging if necessary.
+\begin{mydef}[Blocking]
+A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1$ and $y_2$ from merging if otherwise by merging we have $k^{\mathcal{I}(S)_x}\not\lesseqgtr l^{\mathcal{I}(S)_x}$.
+\end{mydef}
 Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with cardinality constraints. Therefore we restrict cardinality constraint to a more simple form. One difficulty lays in disjunctions in constraint terms. We want to split them, which are in $NNF$, into conjunctions ($CNNF$) such that the conjunctions are disjoint to each other. While splitting we want to keep everything in $NNF$ because by turning a concept with conjunctions into its $NNF$ disjunctions may appear.\\
 \begin{algorithm}[H]
     \SetKwInOut{Input}{Input}
@@ -230,7 +233,7 @@ We also loose a bit the property of a Tableau-algorithm that rules can be applie
 \subsection{Algorithm}
 To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
 Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
-For an assertion $x:succ(k\leq l)$ or $x:succ(k<l)$, which is violated regarding x, it is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):i\}$, $i\in\{k,l\}$, if
+For an assertion $x:succ(k\leq l)$ or $x:succ(k<l)$, which is violated regarding $x$, it is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):l\}$ if
 \begin{align*}
 n(x,k,S^\prime)-n(x,k,S)<n(x,l,S^\prime)-n(x,l,S)
 \end{align*}
@@ -248,11 +251,9 @@ $\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$. Then j
 $\rightarrow$ choose $r\in\mathbf{R}$, such that $r$ has not a negative sign in any set term $s$, for which $(x,y):s\in S$, and $S:=S\cup\{(x,y):r\}$. Then jump to rule \ref{repeat}
 \item\label{dvd}$divide$-rule: $S$ contains $x:succ(n\,dvd\,l)$, which is violated\\
 $\rightarrow$ introduce a new variable $y$, choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{setterm}$cardinality_1$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, such that $c$ is violated regarding $x$, and it is safe to add a new variable $y$ in $k$:\\
-$\rightarrow$ choose $|s|$ in $k$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{setterm2}$cardinality_2$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, such that $c$ is violated regarding $x$, and it is safe to add a new variable $y$ in $l$:\\
+\item\label{leq}$\leq$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, and it is safe to add a new variable $y$ in $l$:\\
 $\rightarrow$ choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated regarding $x$, $(x,y):s_1\in S$ and $(x,y):s_2\in S$, with $s_1$ and $s_2$ in $k$, and it is safe to merge $y_1$ and $y_2$\\
+\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, $(x,y):s_1\in S$ and $(x,y):s_2\in S$, with $s_1$ and $s_2$ in $k$\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$ and $(x,y):s_1$, $\dots$, $(x:y):s_i$, $i<j$, but not $(x,y):s_{i+1}$, $\dots$, $(x,y):s_j$\\
 $\rightarrow$ choose $n\in\{i+1,\dots, j\}$, extend $S:=S\cup\{(x,y):s_n^\neg\}$ and then jump to rule \ref{repeat}
@@ -269,10 +270,9 @@ $\rightarrow$ $S:=S\cup\{y:C\}$
 \end{mydef}
 Note that:
 \begin{itemize}
-\item $s$ in \ref{setterm} can also be of the form $t^\neg$.
-\item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually $\rightarrow$ no infinite application of rule \ref{setterm}
+\item $s$ in \ref{leq} can also be of the form $t^\neg$.
+\item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually $\rightarrow$ no infinite application of rule \ref{leq}
 \end{itemize}
-\end{mydef}
 \begin{mydef}[Derived Set]
 A \textit{derived set} is an ABox $S^\prime$ where rule \ref{repeat} is not applicable.
 \end{mydef}
@@ -290,7 +290,7 @@ The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we
 &S=\{x:succ(|r^\neg|\geq 1)\}
 \end{align*} 
 \end{ex}
-It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. First we apply rule \ref{setterm} to actually add a successor. Therefore $y$ is introduced and $(x,y):r^\neg$ is added to $S$. Now no more rules are applicable except for rule \ref{chooserole}. With that rule we can pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$.\\
+It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. First we apply rule \ref{leq} to actually add a successor. Therefore $y$ is introduced and $(x,y):r^\neg$ is added to $S$. Now no more rules are applicable except for rule \ref{chooserole}. With that rule we can pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$.\\
 In the $cardinality_1$-rule we first make a choice whether we take $k$ or $l$ from a cardinality constraints $k\lesseqgtr l$, where the chosen cardinality term has at least a term of the form $|s|$ with $s$ being a set term. Intuitively it would be better to only want to increase $l$ but there are cases, where we have to add a successor in $k$ instead.
 \begin{ex}
 \begin{align*}
@@ -397,7 +397,7 @@ max\{size(C)\mid x:C\in S\}>max\{size(D)\mid y:D \in S\}
 \begin{enumerate}
 \item By induction over the number of applications to compute the negation normal form we have $size(C)=size(NNF(\neg C))$. Because $\neg succ(k\geq0)$ can be replace by $\perp$ which is $smaller$ than $\neg succ(k\geq 0)$, we have $size(C)\geq size(NNF(\neg C))$. This can be done because $\neg succ(k\geq 0)= succ(k<0)$ which is impossible to satisfy and therefore $\neg succ(k\geq 0)=\perp$.
 \item If $y$ is a newly introduced variable, then it can only be introduced by exactly one variable $x$ which is $y$'s only predecessor. If two variables are merged together by rule \ref{exceeded} then both variables must have the same predecessor $x$ by the condition of that rule.
-\item By the second fact we know that $x$ is the only predecessor of $y$. When $y$ is introduced by applying \ref{setterm} on a assertion $x:succ(k\lesseqgtr l)$ then we have $y:C$ for every concept $C$ occurring in $l$ (for $\neg C$ we have $y:\neg C$). We know that $size(succ(k\lesseqgtr l))$ is greater then $size(C)=:max\{size(D)\mid y:D\in S\}$ therefore Lemma 1.3 holds. A new assertion $y:D$ can occur either because rule \ref{cap} or \ref{cup} are applicable on $y:C$ with $C=D\sqcap D^\prime$ or $C=D\sqcup D^\prime$, which neither raise $max\{size(D)\mid y:D \in S\}$, or because rule \ref{choose} is applicable but that also does not raise $max\{size(D)\mid y:D \in S\}$: If rule \ref{choose} is applicable on $x:succ(k\leq l)$ then for every added assertion $y:D$ the concept $D$ must occur in $k$ and therefore $size(succ(k\leq))>size(D)$. If $y$ gets merged together with another variable $z$, then $y$ and $z$ must have the same predecessor which means that all concept sizes regarding $z$ are also smaller then $max\{size(C)\mid x:C\in S\}$. 
+\item By the second fact we know that $x$ is the only predecessor of $y$. When $y$ is introduced by applying \ref{leq} on a assertion $x:succ(k\lesseqgtr l)$ then we have $y:C$ for every concept $C$ occurring in $l$ (for $\neg C$ we have $y:\neg C$). We know that $size(succ(k\lesseqgtr l))$ is greater then $size(C)=:max\{size(D)\mid y:D\in S\}$ therefore Lemma 1.3 holds. A new assertion $y:D$ can occur either because rule \ref{cap} or \ref{cup} are applicable on $y:C$ with $C=D\sqcap D^\prime$ or $C=D\sqcup D^\prime$, which neither raise $max\{size(D)\mid y:D \in S\}$, or because rule \ref{choose} is applicable but that also does not raise $max\{size(D)\mid y:D \in S\}$: If rule \ref{choose} is applicable on $x:succ(k\leq l)$ then for every added assertion $y:D$ the concept $D$ must occur in $k$ and therefore $size(succ(k\leq))>size(D)$. If $y$ gets merged together with another variable $z$, then $y$ and $z$ must have the same predecessor which means that all concept sizes regarding $z$ are also smaller then $max\{size(C)\mid x:C\in S\}$. 
 \end{enumerate}
 \end{proof}
 From the next Lemma we can conclude that the Tableau-algorithm terminates.
@@ -419,10 +419,10 @@ For any variable $z$ such that $z\neq y$. The tuple $\psi_S(z)$ is unaffected. I
 Because $y$ is a successor of $x$ we know by Lemma 1.3 that the first component of $\psi_{S^\prime}(y)$ is smaller than the first component of $\psi_{S^\prime}(x)$ and therefore $\psi_{S^\prime}(y)\prec\psi_{S^\prime}(x)$. Since the first component of $\psi_{S^\prime}(x)$ does not change we also have $\psi_{S^\prime}(y)\prec\psi_{S}(x)$.\\
 We can obtained $\Psi(S^\prime)$ from $\Psi(S)$ by deleting $\psi_S(y)$ and replacing $\psi_S(x)$ by the two smaller septuples $\psi_{S^\prime}(x)$ and $\psi_{S^\prime}(y)$.
 \item $S^\prime$ is obtained by the application of rule \ref{chooserole} on $(x,y):s$:\\
-The first and second component remains unchanged. Also the third and fifth component because we do not add new successors. The fourth component can decrease but never increase: By adding an assertion $(x,y):r, r\in\mathbf{R}$ we can only increase $n_{sc}(x,y)$ and therefore can only decrease the multiset. With a similar reasoning the sixth component can decrease but never increase. The seventh component always decreases because for a successor $y$ there was no positive role name $r$ such that $(x,y):r$ but afte rthe rule application there is such an assertion. therefore the fifference becomes smaller.\\
+The first and second component remains unchanged. Also the third and fifth component because we do not add new successors. The fourth component can decrease but never increase: By adding an assertion $(x,y):r, r\in\mathbf{R}$ we can only increase $n_{sc}(x,y)$ and therefore can only decrease the multiset. With a similar reasoning the sixth component can decrease but never increase. The seventh component always decreases because for a successor $y$ there was no positive role name $r$ such that $(x,y):r$ but after the rule application there is such an assertion. therefore the difference becomes smaller.\\
 Let $z$ be a variable such that $z\neq y$. The element $\psi_S(z)$ can only change if $z$ is a predecessor of $y$. But by Lemma 1.2 that means that $z=x$.\\
 We can obtained $\Psi(S^\prime)$ from $\Psi(S)$ by replacing $\psi_S(x)$ with the smaller $\psi_{S^\prime}(x)$.
-\item $S^\prime$ is obtained by the application of rule \ref{setterm} on $x:succ(k<l)$, $x:succ(k\leq l)$ or $x:succ(n\,dvd\,l)$ and rule \ref{repeat}:\\ 
+\item $S^\prime$ is obtained by the application of rule \ref{leq} on $x:succ(k<l)$, $x:succ(k\leq l)$ or $x:succ(n\,dvd\,l)$ and rule \ref{repeat}:\\ 
 For a set term $s$ which occurs as $|s|$ in $l$ we introduce a new variable $y$ and add $(x,y):s$. The first two component of $\psi_S(x)$ remains unchanged. Because we can apply this rule we have $n(x,k,S)>n(x,l,S)$ and we have no set term $s$ which occurs in $k$ and in $l$ with the same sign. That means that by adding a new successor to $l$ it can never be a successor to $k$, too. Therefore only $n(x,l,S)$ increases which means $n(x,k,S)\unlhd n(x,l,S)$ decreases and hence also the third component.\\
 In $S^\prime$ exists now a new tuple $\psi_{S^\prime}(y)$. But since it was introduced by the assertion $x:succ(c)$, $c\in\{k<l,k\leq l,n\,dvd\,l\}$, the first component of it is always smaller then the first component of $\psi_S(x)$.\\
 For any variable $z$ such that $z\neq y$. The tuple $\psi_S(z)$ is unaffected. It can only be affected by the rules if $z$ is a predecessor of $y$. But by Lemma 1.2 that would mean that $z=x$.\\
@@ -450,9 +450,9 @@ Let $S$ be an ABox and $\pi_{\mathcal{I}(S)}$ be an assignment which satisfies $
 \item If we can apply rule \ref{cup} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcup C_2\in S$. Like above by the definition of the induced interpretation we have $\pi_{\mathcal{I}(S^\prime)}(x):=x^{\mathcal{I}(S^\prime)}$. We also know that $x^{\mathcal{I}(S^\prime)}$ is in $C_1^{\mathcal{I}(S^\prime)}\cup C_2^{\mathcal{I}(S^\prime)}$. By adding either $x:C_1$ or $x:C_2$ we do not change $\mathcal{I}(S)$. Hence $\mathcal{I}(S^\prime):=\mathcal{I}(S)$ and $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
 \item If we can apply rule \ref{choose} and obtain $S^\prime$ then we have an assertion $x:succ(k\leq l)$ and a successor $y$ such that $(x,y):k^\prime\in S$, $k^\prime$ occurs in $k$. We then choose between $(x,y):s$ and $(x,y):s^\neg$ for all $|s|$ in $k$ then apply rule \ref{repeat} until this rule is inapplicable. That means at the end we might add several assertions of the form $x:C$ and $(x,y):r$. In case we add $x:C$ we also add $x^{\mathcal{I}(S^\prime)}$ to $C^{\mathcal{I}(S^\prime)}$. Therefore in this case $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$. In case we add $(x,y):r$ we also add $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ to $r^{\mathcal{I}(S^\prime)}$. Hence $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.
 \item If we can apply rule \ref{chooserole} and obtain $S^\prime$ then we have an assertion $(x,y):k$ but for every role name $r$ we do not have $(x,y):r\in S$, where $r$ has a positive sign in this assertion. After adding $(x,y):r$, $r\in\mathbf{R}$, to $S^\prime$ the element $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ is also added to $r^{\mathcal{I}(S^\prime)}$. Hence $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.
-\item If we can apply rule \ref{setterm} and obtain $S^\prime$ then we have an assertion $x:succ(c)$ such that it is violated regarding $x$.\\
+\item If we can apply rule \ref{leq} and obtain $S^\prime$ then we have an assertion $x:succ(c)$ such that it is violated regarding $x$.\\
 We introduce $y$ and add $(x,y):l$ to $S$ and then apply rule \ref{repeat} until this rule is inapplicable. When we introduce $y$ we also add a new element $y^{\mathcal{I}(S^\prime)}$ to $\mathcal{I}(S^\prime)$. For each $y:C$ we add $y^{\mathcal{I}(S^\prime)}$ to $C^{\mathcal{I}(S^\prime)}$ and for each $(x,y):r$, $r\in\mathbf{R}$, we add $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ to $r^{\mathcal{I}(S^\prime)}$. Therefore let $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}\cup \{y\mapsto y^{\mathcal{I}(S^\prime)}\}$.
-\item If we can apply rule \ref{setterm} and obtain $S^\prime$ then we have an assertion $x:succ(k<l)$ or $x:succ(k\leq l)$ such that it is violated regarding $x$. We also have two successors $y_1$ and $y_2$ for which $(x,y):s$ and $(x,y):s$ are in $S$.\\
+\item If we can apply rule \ref{leq} and obtain $S^\prime$ then we have an assertion $x:succ(k<l)$ or $x:succ(k\leq l)$ such that it is violated regarding $x$. We also have two successors $y_1$ and $y_2$ for which $(x,y):s$ and $(x,y):s$ are in $S$.\\
 If we merge both together to $y$ we also have to merge $y_1^{\mathcal{I}(S)}$ and $y_2^{\mathcal{I}(S)}$ to one element $y^{\mathcal{I}(S^\prime)}$. For each $y_i:C\in S$, $i\in\{1,2\}$ we have $y_i^{\mathcal{I}(S)}\in C^{\mathcal{I}(S)}$ and for each $(x,y_i):r$, $r\in\mathbf{R}$ we have $(x^{\mathcal{I}_S},y_i^{\mathcal{I}(S)})\in r^{\mathcal{I}(S)}$ due to the hypothesis. That means that by merging both elements the element $y^{\mathcal{I}(S^\prime)}$ must be in $C^{\mathcal{I}(S^\prime)}$ for every $y_i^{\mathcal{I}(S)}\in C^{\mathcal{I}(S)}$ and the element $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ must be in $r^{\mathcal{I}(S^\prime)}$ for every $(x^{\mathcal{I}(S)},y_i^{\mathcal{I}(S)})\in r^{\mathcal{I}(S)}$. Therefore let $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}\backslash\{y_1\mapsto y_1^{\mathcal{I}(S)}, y_2\mapsto y_2^{\mathcal{I}(S)}\}\cup\{y\mapsto y^{\mathcal{I}(S)}\}$ which satisfies $S^\prime$.
 \item If we can apply rule \ref{s} and obtain $S^\prime$ then we have an assertion $x:succ(c_1\subseteq c_2)$ and a successor $y$ such that $(x,y):c_1\in S$ but $(x,y):c_2\notin S$. By adding $(x,y):c_2$ to $S$ we have also to add $y:C$ for every concept $C$ in $c_2$ and $(x,y):r$ for every role name $r$ in $c_2$. That means that $x^{\mathcal{I}(S)}$ is added to every $C^{\mathcal{I}(S)}$ and that $(x^{\mathcal{I}(S)},x^{\mathcal{I}(S)})$ is added to every $r^{\mathcal{I}(S)}$. Therefore the assignment $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
 \end{enumerate}
