@@ -169,7 +169,8 @@ An ABox $S$ contains a \textit{clash} if
 \item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$ or
 \item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$ and no more rules are applicable
 \end{itemize}
-\end{mydef}  
+\end{mydef}
+To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.  
 \begin{mydef}[Induced Interpretation $\mathcal{I}(S)$]
 An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the following steps:
 \begin{itemize}
@@ -212,32 +213,19 @@ We want to avoid to violate satisfied assertions regarding the predecessor becau
 \begin{mydef}[Blocking]
 A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1$ and $y_2$ from merging if otherwise by merging we have $k^{\mathcal{I}(S)_x}\not\lesseqgtr l^{\mathcal{I}(S)_x}$.
 \end{mydef}
-Dealing with $\mathcal{ALCSCC}$ concept is challenging, especially dealing with cardinality constraints. Therefore we restrict cardinality constraint to a more simple form. One difficulty lays in disjunctions in constraint terms. We want to split them, which are in $NNF$, into conjunctions ($CNNF$) such that the conjunctions are disjoint to each other. While splitting we want to keep everything in $NNF$ because by turning a concept with conjunctions into its $NNF$ disjunctions may appear.\\
-\begin{algorithm}[H]
-    \SetKwInOut{Input}{Input}
-    \SetKwInOut{Output}{Output}
-    \Input{cardinality term $c$}
-    \Output{$c$ with no disjunctions}
-	$t$ is a cardinality term (can be 0)\;
-	$s_1,s_2,s_3$ are set terms ($s_3$ can be $\top$)\;
-    \While{$c$ contains disjunctions}{
-		split $c$ into $(s_1\cup s_2)\cap s_3+t$\;
-		$c:=|s_1\cap s_2\cap s_3|+|NNF(s_1^\neg)\cap s_2\cap s_3|+|s_1\cap NNF(s_2^\neg)\cap s_3|+t$\;
-    }
-    \Return $c$\;
-    \caption{$CNNF(c)$}
-\end{algorithm}
-We can easily see that the splitting creates exponential more new set terms. Therefore we only want to transform a cardinality term $c:=|s_1\cup s_2|$ into its $CNNF$ for a certain case:
-For a assertion $x:succ(c^\prime\lesseqgtr d)$, such that $c$ is in $c^\prime$, we transform $c$ into its $CNNF$ if there exists another assertion $x:succ(c^\ast\lesseqgtr e)$ such that $c\neq c^\ast$ and for any interpretation $\mathcal{I}$ we have $(s_1\cup s_2)^\mathcal{I}\supseteq \bigcup_{|s|in\,c^\ast}s^\mathcal{I}$.\\
+Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$-times successors, which counts in $l^{\mathcal{I}(S)_x}$. For any other cardinality constraints 
+\begin{mydef}[Safe]
+Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_i\cdot|t_i|$, $i,j\in\mathbb{N}$. It is \textit{safe} to introduce a new variable $y$ and add $(x,y):t$, $t=t_1\cap \dots \cap t_i$ with $i\leq m$, to $S$ if $n_k(t)<n_l(t)$. The numbers $n_k(t)$ and $n_l(t)$ are computed as follows:
+\begin{align*}
+&n_k(t):=0\\
+&\text{ For every }n^\prime\cdot|s^\prime_1\cup\dots\cup s^\prime_p|,\,p\in\mathbb{N},\,\text{in}\, k\\
+&\quad\quad\quad\text{if }\exists q:\,1\leq q\leq p\text{ and }s_q\text{ appears syntactically with the same sign in } t \\
+&\quad\quad\quad\text{then } n_k(t):=n_k(t)+n^\prime 
+\end{align*}
+\end{mydef}
+This says that it is only safe to add a variable if $l$ increases faster then $k$.\\
 We also loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox and $s$ is a (still finite) chain of disjunction and conjunction, we want to add the assertions of $y$ before any other rule application so that all $n(x,k,S)$, for which $|s|$ occurs in $k$, also count $y$. This is important because we want to know the correct number of successors at any time so we can avoid any violation of assertions.
 \subsection{Algorithm}
-To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
-Like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output.\\
-For an assertion $x:succ(k\leq l)$ or $x:succ(k<l)$, which is violated regarding $x$, it is \textit{safe} to introduce a new variable $y$ and $S^\prime:=S\cup\{(x,y):l\}$ if
-\begin{align*}
-n(x,k,S^\prime)-n(x,k,S)<n(x,l,S^\prime)-n(x,l,S)
-\end{align*}
-This says that it is only safe to add a variable if $l$ increases faster then $k$.
 \begin{mydef}[Tableau]
 Let $S$ be a set of assertions in simplified $CNNF$.
 \begin{enumerate}
@@ -253,7 +241,7 @@ $\rightarrow$ choose $r\in\mathbf{R}$, such that $r$ has not a negative sign in 
 $\rightarrow$ introduce a new variable $y$, choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
 \item\label{leq}$\leq$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, and it is safe to add a new variable $y$ in $l$:\\
 $\rightarrow$ choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, $(x,y):s_1\in S$ and $(x,y):s_2\in S$, with $s_1$ and $s_2$ in $k$\\
+\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, $(x,y_1):s_1\in S$ and $(x,y_2):s_2\in S$, with $s_1$ and $s_2$ in $k$ and $y_1$ and $y_2$ being unblocked by any assertions\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$ and $(x,y):s_1$, $\dots$, $(x:y):s_i$, $i<j$, but not $(x,y):s_{i+1}$, $\dots$, $(x,y):s_j$\\
 $\rightarrow$ choose $n\in\{i+1,\dots, j\}$, extend $S:=S\cup\{(x,y):s_n^\neg\}$ and then jump to rule \ref{repeat}
