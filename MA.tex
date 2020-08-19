@@ -212,7 +212,7 @@ Note that by merging two successors of $x$ into one variable $y$ other assertion
 \item assertions regarding the predecessor $x$
 \item assertions regarding the successor $y$
 \end{itemize}
-We want to avoid to violate satisfied assertions regarding the predecessor because this can lead into an endless loop of adding and merging variables. On the other hand we allow satisfied assertions regarding the merged successor $y$ becoming violated. The reason is that in this case $y$ has at least one successor itself and hence like with $x$ we try to fix these violated assertions regarding $y$ by applying rules while also avoiding violating already satisfied ones. Hence we want to \textit{block} a merging if necessary.
+We want to avoid to violate satisfied assertions regarding the predecessor because this can lead into an endless loop of adding and merging variables. On the other hand we allow satisfied assertions regarding the merged successor $y$ becoming violated. The reason is that in this case $y$ has at least one successor itself and hence like with $x$ we try to fix these violated assertions regarding $y$ by applying rules while also avoiding violating already satisfied ones. Hence we want to \textit{block} a merging only if assertions regarding the predecessor becomes violated.
 \begin{mydef}[Blocking]
 A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1$ and $y_2$ from merging if otherwise by merging we have $k^{\mathcal{I}(S)_x}\not\lesseqgtr l^{\mathcal{I}(S)_x}$.
 \end{mydef}
