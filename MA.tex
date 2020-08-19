@@ -214,21 +214,44 @@ Note that by merging two successors of $x$ into one variable $y$ other assertion
 \end{itemize}
 We want to avoid to violate satisfied assertions regarding the predecessor because this can lead into an endless loop of adding and merging variables. On the other hand we allow satisfied assertions regarding the merged successor $y$ becoming violated. The reason is that in this case $y$ has at least one successor itself and hence like with $x$ we try to fix these violated assertions regarding $y$ by applying rules while also avoiding violating already satisfied ones. Hence we want to \textit{block} a merging only if assertions regarding the predecessor becomes violated.
 \begin{mydef}[Blocking]
-A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1$ and $y_2$ from merging if otherwise by merging we have $k^{\mathcal{I}(S)_x}\not\lesseqgtr l^{\mathcal{I}(S)_x}$.
+A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1\neq y_2$ from merging if $\#k(y_1,y_2)\leq \#l(y_1,y_2)$.
+The number $\#k(x,y_1,y_2)$ (and respectively $\#l(x,y_1,y_2)$) is computed as followed:
+\begin{algorithm}[H] \caption{Compute $\#k(x,y_1,y_2)$}
+\begin{algorithmic}[l]
+\State $S$, ABox
+\State $\#k:=0$
+\State $k$, cardinality term of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$
+\State $y_1$ and $y_2$, different variables in $Var(S)$
+\State $x$ predecessor of $y_1$ and $y_2$
+\ForEach {$s_p$, $1\leq p\leq i$}
+\If{$(x,y_1):s_p\in S$ and $(x,y_2):s_p\in S$}
+\State $\#k:=\#k-n_p$
+\EndIf
+\If{$(x,y_1):s_p\in S$ and $(x,y_2):s_p\notin S$ $||$ $(x,y_1):s_p\notin S$ and $(x,y_2):s_p\in S$}
+\State $\#k:=\#k+n_p$
+\EndIf
+\If{$(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s_p=s^\prime\cap s^\ast$}
+\State $\#k:=\#k+1$
+\EndIf
+\EndFor\\
+\Return $\#k$
+\end{algorithmic}
+\end{algorithm}
 \end{mydef}
 Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$-times successors, which counts in $l^{\mathcal{I}(S)_x}$. The same goes for assertions with cardinality constraints of the form $x:succ(k\lesseqgtr l)$, with $k$ being a number e.g. it does not contain any set terms. We can just increase $l$ until this assertion is satisfied. In case $k$ and $l$ can increases e.g. both contain set terms, we have to avoid cases where $k$ increases faster then $l$.
 \begin{mydef}[Safe]
-Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_i\cdot|t_i|$, $i,j\in\mathbb{N}$. Let $u=u_1\cap \dots \cap u_o$ be a set term with $o\leq m$ and $o\leq n$ and each $u$ appears syntactically with the same sign in $l$. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as follows:
+Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_i\cdot|t_i|$, $i,j\in\mathbb{N}$. Let $u=u_1\cap \dots \cap u_o$ be a set term with $o\leq m$ and $o\leq n$ and each $u$ appears syntactically with the same sign in $l$. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
 \begin{algorithm}[H] \caption{Compute $n_k(u)$}
 \begin{algorithmic}[l]
-\State $n_k(u)$
+\State $n_k(u):=0$
 \State $k$, cardinality term of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$
 \State $u$, set term of the form $u_1\cap \dots \cap u_o$, $o\leq i$
 \ForEach {$n^\prime\cdot|s^\prime_1\cup\dots\cup s^\prime_p|,\,p\in\mathbb{N}$, in $k$}
-\If {$\exists q, 1\leq q\leq p:\, s^\prime_q$ appears syntactically with the same sign in $t$}
+\If {$\exists q, 1\leq q\leq p:\, s^\prime_q$ appears syntactically with the same sign in $u$}
 \State $n_k(u):=n_k(u)+n^\prime$
 \EndIf
-\EndFor
+\EndFor\\
+\Return $n_k(u)$
 \end{algorithmic}
 \end{algorithm}
 If $n_k(u)<n_l(u)$ then we call $u$ \textit{safe}.\\
@@ -252,7 +275,7 @@ $\rightarrow$ choose $r\in\mathbf{R}$, such that $(x,y):r^\neg\notin S$. $S:=S\c
 $\rightarrow$ introduce a new variable $y$, choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
 \item\label{leq}$\leq$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, and there is a safe set term $s:=|s_1\cap \dots \cap s_n|$:\\
 $\rightarrow$ $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, $(x,y_1):s_1\in S$ and $(x,y_2):s_2\in S$, with $s_1$ and $s_2$ in $k$ and $y_1$ and $y_2$ being unblocked by any assertions\\
+\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated. For two successor $y_1\neq y_2$ we have $(x,y_1):s_1\in S$ and $(x,y_2):s_2\in S$, with $s_1$ and $s_2$ in $k$ and $y_1$ and $y_2$ not being blocked by the same assertion\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$ and $(x,y):s_1$, $\dots$, $(x:y):s_i$, $i<j$, but not $(x,y):s_{i+1}$, $\dots$, $(x,y):s_j$\\
 $\rightarrow$ choose $n\in\{i+1,\dots, j\}$, extend $S:=S\cup\{(x,y):s_n^\neg\}$ and then jump to rule \ref{repeat}
