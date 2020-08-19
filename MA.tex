@@ -240,22 +240,21 @@ The number $\#k(x,y_1,y_2)$ (and respectively $\#l(x,y_1,y_2)$) is computed as f
 \end{mydef}
 Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$-times successors, which counts in $l^{\mathcal{I}(S)_x}$. The same goes for assertions with cardinality constraints of the form $x:succ(k\lesseqgtr l)$, with $k$ being a number e.g. it does not contain any set terms. We can just increase $l$ until this assertion is satisfied. In case $k$ and $l$ can increases e.g. both contain set terms, we have to avoid cases where $k$ increases faster then $l$.
 \begin{mydef}[Safe]
-Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_i\cdot|t_i|$, $i,j\in\mathbb{N}$. Let $u=u_1\cap \dots \cap u_o$ be a set term with $o\leq m$ and $o\leq n$ and each $u$ appears syntactically with the same sign in $l$. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
+Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_j\cdot|t_j|$, $i,j\in\mathbb{N}$. Let $u=t_1\cap\dots \cap t_o$ with $1\leq o\leq j$. If $n_k(u)<n_l(u)$ then we call $u$ \textit{safe}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
 \begin{algorithm}[H] \caption{Compute $n_k(u)$}
 \begin{algorithmic}[l]
 \State $n_k(u):=0$
 \State $k$, cardinality term of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$
-\State $u$, set term of the form $u_1\cap \dots \cap u_o$, $o\leq i$
+\State $u$, set term of the form $t_1\cap \dots \cap t_o$
 \ForEach {$n^\prime\cdot|s^\prime_1\cup\dots\cup s^\prime_p|,\,p\in\mathbb{N}$, in $k$}
-\If {$\exists q, 1\leq q\leq p:\, s^\prime_q$ appears syntactically with the same sign in $u$}
+\If {$\exists q, 1\leq q\leq p:$ $u=s^\prime_q\cap t^\prime$}
 \State $n_k(u):=n_k(u)+n^\prime$
 \EndIf
 \EndFor\\
 \Return $n_k(u)$
 \end{algorithmic}
 \end{algorithm}
-If $n_k(u)<n_l(u)$ then we call $u$ \textit{safe}.\\
-If $k$ is a number e.g. it does not contain a set term, then all $u$ consisting of set terms from $l$ with the same sign are \textit{safe}.
+If $k$ is a number e.g. it does not contain a set term, then all $u$ are \textit{safe}.
 \end{mydef}
 This says that it is only safe to add a variable if $l$ increases faster then $k$.\\
 We also loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox and $s$ is a (still finite) chain of disjunction and conjunction, we want to add the assertions of $y$ before any other rule application so that all $n(x,k,S)$, for which $|s|$ occurs in $k$, also count $y$. This is important because we want to know the correct number of successors at any time so we can avoid any violation of assertions.
