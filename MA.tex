@@ -86,7 +86,7 @@ Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\n
 $\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
 \item all concept names
-\item $succ(c)$ if $c$ is a set or cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
+\item $succ(c)$ if $c$ is a cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \item if $C,D$ are concepts then:
 \begin{itemize}
 \item $\neg C$
@@ -212,31 +212,49 @@ Note that by merging two successors of $x$ into one variable $y$ other assertion
 \item assertions regarding the predecessor $x$
 \item assertions regarding the successor $y$
 \end{itemize}
-We want to avoid to violate satisfied assertions regarding the predecessor because this can lead into an endless loop of adding and merging variables. On the other hand we allow satisfied assertions regarding the merged successor $y$ becoming violated. The reason is that in this case $y$ has at least one successor itself and hence like with $x$ we try to fix these violated assertions regarding $y$ by applying rules while also avoiding violating already satisfied ones. Hence we want to \textit{block} a merging only if assertions regarding the predecessor becomes violated.
-\begin{mydef}[Blocking]
-A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1\neq y_2$ from merging if $\#k(y_1,y_2)\leq \#l(y_1,y_2)$.
-The number $\#k(x,y_1,y_2)$ (and respectively $\#l(x,y_1,y_2)$) is computed as followed:
+We want to avoid the first cases because we can otherwise end with an endless loop of adding and merging variables:
+\begin{ex}
+\begin{align*}
+S=\{x:succ(|r|\leq 1)\sqcap succ(|r\cap s|>1)\}
+\end{align*}
+\end{ex}
+We can clearly see that the ABox is unsatisfiable but the algorithm will try to fix the second assertion by adding a two new successors. After the second successors been added however the first assertions, which was satisfied, becomes violated. The algorithm tries then to merge the two variable leading the second assertions being violated. Then the cycle begins and the algorithm tries to satisfies the second assertion and so on. Hence we want to prevent the algorithm from violating already satisfied assertion regarding the predecessor.\\
+However we allow the second case because it can be unavoidable to violate assertions regarding the successor first before fixing it later.
+\begin{ex}
+\begin{align*}
+&S=\{x:succ(|r|\leq 1),\, (x,y_1):r,\, (x,y_2):r\\
+&\quad\quad y_1:succ(|s|\leq 1),\, y_2:succ(|s|\leq 1),\, (y_1,z_1):s,\,(y_2,z_2):s\}
+\end{align*}
+\end{ex}
+In this example the ABox is violated but can be fixed by merging $y_1$ and $y_2$ together and $z_1$ and $z_2$. The only violated assertion is $x:succ(|r|\leq 1)$ hence we want to merge $y_1$ and $y_2$ to $y$. But then $y:(|s|\leq 1)$ becomes violated but can be fixed by merging $z_1$ and $z_2$. We could merge $z_1$ and $z_2$ first then $y:(|s|\leq 1)$ would not be violated but this would be to difficult to detect since the assertion regarding $y_1$ and $y_2$ are not violated.\\
+Therefore we want to \textit{block} a merging of two variables if satisfied assertions regarding their successor become violated. To detect a possible violation we count how often the successors $y_1,y_2$ are counted in the assertion $x:succ(k\lesseqgtr l)$. The idea is that if $y_1$ and $y_2$ are counted more often in $l$ than in $k$ then there is a chance for the assertion's violation. More precisely if the difference between their cardinality in $l$ and in $k$ is greater then $l^{\mathcal{I}(S)_x}-k^{\mathcal{I}(S)_x}$ then the satisfied assertion will be violated if we merge $y_1$ and $y_2$. The cardinality of two successor $y_1$ and $y_2$ of $x$ in a cardinality term $k$ is denoted by $k(x,y_1,y_2)$. The number is calculated as follows (respectively for $l(x,y_1,y_2)$)
 \begin{algorithm}[H] \caption{Compute $\#k(x,y_1,y_2)$}
 \begin{algorithmic}[l]
 \State $S$, ABox
-\State $\#k:=0$
-\State $k$, cardinality term of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$
+\State $\#k(x,y_1,y_2):=0$
 \State $y_1$ and $y_2$, different variables in $Var(S)$
 \State $x$ predecessor of $y_1$ and $y_2$
+\If{$k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$}
 \ForEach {$s_p$, $1\leq p\leq i$}
 \If{$(x,y_1):s_p\in S$ and $(x,y_2):s_p\in S$}
-\State $\#k:=\#k-n_p$
+\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+n_p$
 \EndIf
-\If{$(x,y_1):s_p\in S$ and $(x,y_2):s_p\notin S$ $||$ $(x,y_1):s_p\notin S$ and $(x,y_2):s_p\in S$}
-\State $\#k:=\#k+n_p$
+\If{$(x,y_i):s_p\in S$ and $(x,y_j):s_p\notin S$, $i\neq j,\, i,j\in\{1,2\}$}
+\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+n_p$
 \EndIf
 \If{$(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s_p=s^\prime\cap s^\ast$}
-\State $\#k:=\#k+1$
+\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+1$
 \EndIf
-\EndFor\\
-\Return $\#k$
+\EndFor
+\State \textbf{return} $\#k(x,y_1,y_2)$
+\Else
+\State \textbf{return} $0$
+\EndIf
 \end{algorithmic}
 \end{algorithm}
+Note that the blocking assertion is satisfied and at least $l$ must be of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$.
+\begin{mydef}[Blocking]
+A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1\neq y_2$ from merging if $\#l(x,y_1,y_2)-\#k(x,y_1,y_2) > l^{\mathcal{I}(S)_x}-k^{\mathcal{I}(S)_x}$.
 \end{mydef}
 Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$-times successors, which counts in $l^{\mathcal{I}(S)_x}$. The same goes for assertions with cardinality constraints of the form $x:succ(k\lesseqgtr l)$, with $k$ being a number e.g. it does not contain any set terms. We can just increase $l$ until this assertion is satisfied. In case $k$ and $l$ can increases e.g. both contain set terms, we have to avoid cases where $k$ increases faster then $l$.
 \begin{mydef}[Safe]
