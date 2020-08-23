@@ -226,8 +226,14 @@ However we allow the second case because it can be unavoidable to violate assert
 &\quad\quad y_1:succ(|s|\leq 1),\, y_2:succ(|s|\leq 1),\, (y_1,z_1):s,\,(y_2,z_2):s\}
 \end{align*}
 \end{ex}
-In this example the ABox is violated but can be fixed by merging $y_1$ and $y_2$ together and $z_1$ and $z_2$. The only violated assertion is $x:succ(|r|\leq 1)$ hence we want to merge $y_1$ and $y_2$ to $y$. But then $y:(|s|\leq 1)$ becomes violated but can be fixed by merging $z_1$ and $z_2$. We could merge $z_1$ and $z_2$ first then $y:(|s|\leq 1)$ would not be violated but this would be to difficult to detect since the assertion regarding $y_1$ and $y_2$ are not violated.\\
-Therefore we want to \textit{block} a merging of two variables if satisfied assertions regarding their successor become violated. To detect a possible violation we count how often the successors $y_1,y_2$ are counted in the assertion $x:succ(k\lesseqgtr l)$. The idea is that if $y_1$ and $y_2$ are counted more often in $l$ than in $k$ then there is a chance for the assertion's violation. More precisely if the difference between their cardinality in $l$ and in $k$ is greater then $l^{\mathcal{I}(S)_x}-k^{\mathcal{I}(S)_x}$ then the satisfied assertion will be violated if we merge $y_1$ and $y_2$. The cardinality of two successor $y_1$ and $y_2$ of $x$ in a cardinality term $k$ is denoted by $k(x,y_1,y_2)$. The number is calculated as follows (respectively for $l(x,y_1,y_2)$)
+In this example the ABox is violated but can be fixed by merging $y_1$ and $y_2$ together and $z_1$ and $z_2$. The only violated assertion is $x:succ(|r|\leq 1)$ hence we want to merge $y_1$ and $y_2$ to $y$. But then $y:(|s|\leq 1)$ becomes violated but can be fixed by merging $z_1$ and $z_2$. We could merge $z_1$ and $z_2$ first then $y:(|s|\leq 1)$ would not be violated but this would be too difficult to detect since the assertion regarding $y_1$ and $y_2$ are not violated.\\
+Therefore we want to \textit{block} a merging of two variables if satisfied assertions regarding their successor become violated. To detect a possible violation we count how often the successors $y_1,y_2$ are counted in the assertion $x:succ(k\lesseqgtr l)$. The idea is that if $y_1$ and $y_2$ are counted more often in $l$ than in $k$ then there is a chance for the assertion's violation. More precisely: If there is a cardinality $n\cdot |s|$ in $l$ (or $k$) and
+\begin{itemize}
+\item  $(x,y_1):s\in S$ and $(x,y_2):s\in S$, then $l^{\mathcal{I}(S)_x}$ decreases by $n$ after merging
+\item $(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s=s^\prime\cap s^\ast$, then $l^{\mathcal{I}(S)_x}$ increases by $n$ after merging
+\item $(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s=s^\prime\cup s^\ast$, then $l^{\mathcal{I}(S)_x}$ decreases by $n$ after merging
+\end{itemize}
+Hence we denote the \textit{merge coefficient} of two successor $y_1$ and $y_2$ of $x$ in a cardinality term $k$ by $\#k(x,y_1,y_2)$ and calculate it as follows (respectively for $\#l(x,y_1,y_2)$)
 \begin{algorithm}[H] \caption{Compute $\#k(x,y_1,y_2)$}
 \begin{algorithmic}[l]
 \State $S$, ABox
@@ -239,11 +245,11 @@ Therefore we want to \textit{block} a merging of two variables if satisfied asse
 \If{$(x,y_1):s_p\in S$ and $(x,y_2):s_p\in S$}
 \State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+n_p$
 \EndIf
-\If{$(x,y_i):s_p\in S$ and $(x,y_j):s_p\notin S$, $i\neq j,\, i,j\in\{1,2\}$}
-\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+n_p$
-\EndIf
 \If{$(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s_p=s^\prime\cap s^\ast$}
-\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+1$
+\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)-n_p$
+\EndIf
+\If{$(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s_p=s^\prime\cup s^\ast$}
+\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+n_p$
 \EndIf
 \EndFor
 \State \textbf{return} $\#k(x,y_1,y_2)$
@@ -252,7 +258,8 @@ Therefore we want to \textit{block} a merging of two variables if satisfied asse
 \EndIf
 \end{algorithmic}
 \end{algorithm}
-Note that the blocking assertion is satisfied and at least $l$ must be of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$.
+Note that the blocking assertion is satisfied and at least $l$ must be of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$. For a satisfied assertion $x:succ(k\leq l)$, where $k$ is of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ but not $l$, a merging can not lead into its violation.\\
+We need to compute for both cardinality term $k$ and $l$ the \textit{merge coefficient}, because not only $l^{\mathcal{I}(S)_x}$ can change after merging but also $l^{\mathcal{I}(S)_x}$. However if $\#l(x,y_1,y_2)-\#k(x,y_1,y_2)$ is greater than $l^{\mathcal{I}(S)_x}-k^{\mathcal{I}(S)_x}$ then the merging leads into a violation.
 \begin{mydef}[Blocking]
 A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1\neq y_2$ from merging if $\#l(x,y_1,y_2)-\#k(x,y_1,y_2) > l^{\mathcal{I}(S)_x}-k^{\mathcal{I}(S)_x}$.
 \end{mydef}
