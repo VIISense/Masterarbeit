@@ -207,7 +207,7 @@ Similar in \cite{1} and \cite{6}, where a variable can be replaced by another va
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
 \end{mydef}
-For the Tableau-algorithm in this work a merging can only occur if an assertion $x:succ(k\lesseqgtr l)$ is violated.\\
+For the Tableau-algorithm in this work a merging can only occur if an assertion $x:succ(k\lesseqgtr l)$ is violated. The merging is only reasonable if it reduces $k$. Hence $k$ must be of the form $n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$. It can be reasonable if by merging $l$ increases, for example $x:succ(1\leq |r\cap t|)$ with $(x,y_1):r$ and $(x,y_2):t$. However the easiest solution is just to add an $r\cap t$-successor.\\
 By merging variables assertion may become violated. To ensure the termination of the algorithm we intuitively want to avoid violating any assertions especially when they are satisfied. However there are cases where a violation is unavoidable. We look at the following example:
 \begin{ex}
 \begin{align*}
@@ -215,11 +215,11 @@ By merging variables assertion may become violated. To ensure the termination of
 &\quad\quad y_1:A,\,y_2:B,\,(x,y_1):t,\,(x,y_2):t\}
 \end{align*}
 \end{ex}
-We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. This can lead us into a endless loop of adding and merging variables. Hence we introduce a notion of \textit{blocking}. Note that a merging is only reasonable if it reduces $k$. Hence $k$ must be of the form $n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$. If we merged two variable $y_1$ and $y_2$ into $y$ because of a violated assertion $x:succ(k\lesseqgtr l)$, $k=n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, then we want to \textit{block} any introduction of an assertion of the form $z:s_1\cap\dots \cap s_i$, $1\leq i\leq j$. This way we want to avoid a possible re-violation of $x:succ(k\lesseqgtr l)$ and possible unless loops of merging and introducing variables.
+We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. This can lead us into a endless loop of adding and merging variables. Hence we introduce a notion of \textit{blocking}. If we merged two variable $y_1$ and $y_2$ into $y$ because of a violated assertion $x:succ(k\lesseqgtr l)$, $k=n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, then we want to \textit{block} any introduction of an assertion of the form $z:s_1\cap\dots \cap s_i$, $1\leq i\leq j$. This way we want to avoid a possible re-violation of $x:succ(k\lesseqgtr l)$ and possible unless loops of merging and introducing variables. In our example the set term $A\cup B$ is blocked by $x$ after merging $y_1$ and $y_2$ to $y$ which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. 
 \begin{mydef}[Blocking]
 Let $x:succ(k\lesseqgtr l)$, $k=n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, be an assertion, which causes the merging of two successors $y_1$ and $y_2$ to $y$. Every set term $s_1\cap\dots\cap s_i$, $1\leq i\leq j$ is \textit{blocked} by $x$.
 \end{mydef}
-Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$ successors, which are counted in $l^{\mathcal{I}(S)_x}$. The same goes for assertions with cardinality constraints of the form $x:succ(k\lesseqgtr l)$, with $k$ being a number e.g. it does not contain any set terms. For those cases we just increase $l$ until the assertion is satisfied. However if $k$ and $l$ can increases e.g. both contain set terms, we have to avoid cases where $k$ increases faster then $l$. The increase depends on the set term $u$ for which we want to introduce a new variable $y$ and add $(x,y):u$ to $S$. To determine whether $u$ is \textit{safe} we count how often $u$ "appears" in $l$ and $k$. If it appears more often in $l$ than in $k$ then it is safe.
+Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$ successors, which are counted in $l^{\mathcal{I}(S)_x}$. The same goes for assertions with cardinality constraints of the form $x:succ(k\lesseqgtr l)$, with $k$ being a number e.g. it does not contain any set terms. For those cases we just increase $l$ until the assertion is satisfied. However if $k$ and $l$ can both increase e.g. both contain set terms, we have to avoid cases where $k$ increases faster then $l$. The increment depends on the set term $u$, which is not blocked by $x$, for which we want to introduce a new variable $y$ and add $(x,y):u$ to $S$. To determine whether $u$ is \textit{safe} we count how often $u$ "appears" in $l$ and $k$. If it appears more often in $l$ than in $k$ then it is safe.
 \begin{mydef}[Safe]
 Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_j\cdot|t_j|$, $i,j\in\mathbb{N}$. Let $u=t_1\cap\dots \cap t_o$ with $1\leq o\leq j$. If $n_k(u)<n_l(u)$ and $u$ is not blocked by $x$ then $u$ is called \textit{safe regarding $k\leq l$}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
 \begin{algorithm}[H] \caption{Compute $n_k(u)$}
@@ -241,27 +241,41 @@ This says that it is only safe to add a variable if $l$ increases faster then $k
 We also loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox and $s$ is a (still finite) chain of disjunction and conjunction, we want to add the assertions of $y$ before any other rule application so that all $n(x,k,S)$, for which $|s|$ occurs in $k$, also count $y$. This is important because we want to know the correct number of successors at any time so we can avoid any violation of assertions.
 \subsection{Algorithm}
 \begin{mydef}[Tableau]
-Let $S$ be a set of assertions in simplified $CNNF$.
+Let $S$ be a set of assertions in simplified $NNF$.
 \begin{enumerate}
 \item\label{cap} $\sqcap$-rule: $S$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
-\item\label{choose}$choose$-rule: $S$ contains $x:succ(k<l)$ or $x:succ(k\leq l)$ and $(x,y):k^\prime$, $k^\prime$ occurs in $k$, but $(x,y):k\notin S$\\
+\item\label{choose}$choose$-rule: $S$ contains
+\begin{itemize}
+\item $x:succ(k\lesseqgtr l)$
+\item $(x,y):k^\prime$, $k=n\cdot|k^\prime\cup u_1|+m\cdot|k^\prime\cap u_2|+u_3$, $n,m\in\mathbb{N}_0$, $u_1,u_2,u_3$ are set terms
+\item but not $(x,y):k$
+\end{itemize}
 $\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$. Then jump to rule \ref{repeat}
 \item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for any $r\in\mathbf{R}$: $(x,y):r\notin S$\\
 $\rightarrow$ choose $r\in\mathbf{R}$, such that $(x,y):r^\neg\notin S$. $S:=S\cup\{(x,y):r\}$. Then jump to rule \ref{repeat}
-\item\label{dvd}$divide$-rule: $S$ contains $x:succ(n\,dvd\,l)$, which is violated\\
-$\rightarrow$ introduce a new variable $y$, choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{leq}$\leq$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, and there is a safe set term $s:=|s_1\cap \dots \cap s_j|$ regarding $c$:\\
+\item\label{dvd}$divide$-rule: $S$ contains $x:succ(n\,dvd\,l)$, $l=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|+\dots+n_j\cdot|s_j|$, which is violated\\
+$\rightarrow$ introduce a new variable $y$, choose $s=s_1\cap \dots \cap s_i$, $1\leq i\leq j$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
+\item\label{leq}$\leq$-rule: $S$ contains 
+\begin{itemize}
+\item $x:succ(k\lesseqgtr l)$, which is violated
+\item there set term $s:=|s_1\cap \dots \cap s_i|$, $l=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|+\dots+n_j\cdot|s_j|$, which is safe regarding $k\lesseqgtr l$
+\end{itemize}
 $\rightarrow$ $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
 \item\label{exceeded}$merge$-rule: $S$ contains
 \begin{itemize}
-\item $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated
+\item $x:succ(k\lesseqgtr l)$, which is violated
 \item $(x,y_1):s_1$ and $(x,y_2):s_2$, such that $y_1\neq y_2$ and $k=n\cdot |s_1\cup s_2|+u$, where $u$ is a cardinality term
 \end{itemize}
 $\rightarrow$ merge $y_1$ and $y_2$ 
-\item\label{s}$set$-rule: $S$ contains $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$ and $(x,y):s_1$, $\dots$, $(x:y):s_i$, $i<j$, but not $(x,y):s_{i+1}$, $\dots$, $(x,y):s_j$\\
+\item\label{s}$\leq 0$-rule: $S$ contains 
+\begin{itemize}
+\item $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$
+\item $(x,y):s_1$, $\dots$, $(x:y):s_i$, $1\leq i<j$
+\item but not $(x,y):s_{i+1}$, $\dots$, $(x,y):s_j$
+\end{itemize}
 $\rightarrow$ choose $n\in\{i+1,\dots, j\}$, extend $S:=S\cup\{(x,y):s_n^\neg\}$ and then jump to rule \ref{repeat}
 \item\label{repeat} $set.term$-rule (Repeat until inapplicable): In $S$ is $(x,y):s$ and
 \begin{enumerate}
@@ -274,15 +288,13 @@ $\rightarrow$ $S:=S\cup\{y:C\}$
 \end{enumerate}
 \end{enumerate}
 \end{mydef}
-Note that:
-\begin{itemize}
-\item $s$ in \ref{leq} can also be of the form $t^\neg$.
-\item if  $n_1\,dvd\,n_2\cdot l$ and $mod(n_2,n_1)\neq 0$ then $n_1\,dvd\,l$ eventually $\rightarrow$ no infinite application of rule \ref{leq}
-\end{itemize}
 \begin{mydef}[Derived Set]
 A \textit{derived set} is an ABox $S^\prime$ where rule \ref{repeat} is not applicable.
 \end{mydef}
-The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion. The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n(x,k,S)$ does not count $y$:
+In order words a derived set is an ABox on which we applied a rule completely e.g. one of rule $1-8$ and if necessary rule $9$ to assign $y$ all assertion it has.\\
+We now explain the rules of the Tableau-algorithm and their intention, if not already mention in Section 2.1.\\
+The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion.\\
+The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n(x,k,S)$ does not count $y$:
 \begin{ex}
 \begin{align*}
 S=\{x:succ(|r\cap s|>1), (x,y):r\}
@@ -296,54 +308,21 @@ The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we
 &S=\{x:succ(|r^\neg|\geq 1)\}
 \end{align*} 
 \end{ex}
-It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. First we apply rule \ref{leq} to actually add a successor. Therefore $y$ is introduced and $(x,y):r^\neg$ is added to $S$. Now no more rules are applicable except for rule \ref{chooserole}. With that rule we can pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$.\\
-In the $cardinality_1$-rule we first make a choice whether we take $k$ or $l$ from a cardinality constraints $k\lesseqgtr l$, where the chosen cardinality term has at least a term of the form $|s|$ with $s$ being a set term. Intuitively it would be better to only want to increase $l$ but there are cases, where we have to add a successor in $k$ instead.
+It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be $s$-successors. First we apply rule \ref{leq} to actually add a successor. Therefore $y$ is introduced and $(x,y):r^\neg$ is added to $S$. Now no more rules are applicable except for the $choose$-$a$-$role$-rule. With that rule we can pick either $r$ or $s$. We can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$. Another more simple but not so significant example is
 \begin{ex}
 \begin{align*}
-&S=\{x:succ(|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|<|s|+|r|)\}
-\end{align*}
+&\mathbf{R}=\{r,s\}\\
+&S=\{x:succ(|A|\geq 1)\}
+\end{align*} 
 \end{ex}
-Note that $|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|=|s\cup r|$. No matter how often we add a successor in $|r|$ or $|s|$, the left hand side always increases as fast as the right hand side and therefore this assertion stays violated (hence it is not safe). However if we add a successor in $|s\cap r|$ the assertion becomes satisfied. Hence for this example we can choose the $cardinality_1$-rule and choose $i=|s\cap r|+|s\cap r^\neg|+|s^\neg\cap r|$. Then the rule pick one $|s^\ast|$ from $i$ and look whether introducing a new successor $y$ in $s$ is safe. In our case let $s^\ast:=s\cap r$. We know it is save to add this successor because $|s|+||r|$ would increases faster. Therefore $(x,y):s\cap r$ is added to $S$.\\
-We consider now two examples to explain the $cardinality_2$-rule.
-\begin{ex}
-Consider the following example 
-\begin{align*}
-S=\{x:succ(|r|=1)\sqcap succ(|r\cap s|=1)\sqcap succ=(|r\cap C|=1|)\}
-\end{align*}
-First by the $\sqcap$-rule we split the whole assertion into three assertions and add them to $S$.\\
-By applying the $cardinality_1$-rule and add a new variable $y$ we satisfy at least one assertion but still at least one assertion remains violated. If we apply it a second time to satisfy the remaining assertion(s) then $x:succ(|r|=1)$, which was satisfied before, becomes violated. In case we decided to apply the $cardinality_1$-rule on $x:succ(|r|=1)$ and $x:succ(|r\cap s|=1)$ we have the option of either applying rule the same rule on $x:succ(|r\cap C|=1)$ next or applying the $cardinality_2$-rule on the two introduced variables next. We decide for the first choice:
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\node (0) at (0,0) {$x$};
-\node (1) at (-4,-2) {$y_1$};
-\node (2) at (0,-2) {$y_2$};
-\node (3) at (4,-2) {$y_3$};
-\node[below = 1mm of 3] {$C$};
-\path[->] (0) edge node[above]{$r$} (1);
-\path[->] (0) edge node[left]{$r\cap s$} (2);
-\path[->] (0) edge node[above]{$r$} (3);
-\end{tikzpicture}
-\end{figure}
-In this case we have to merge three variables: $y_1$, $y_2$ and $y_3$. We can apply the $cardinality_2$-rule here because satisfied assertions regarding $x$ do not become violated. We can also see that the order does not matter: In case we decided for the second choice and merge $y_1$ and $y_2$ to $y$ before introducing $y_3$ we end up with the same results because then we have to merge $y$ and $y_3$.
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\node (0) at (0,0) {$x$};
-\node (2) at (4,0) {$y$};
-\node[below = 1mm of 2] {$C$};
-\path[->] (0) edge node[above]{$r\cap s$} (2);
-\end{tikzpicture}
-\end{figure}
-\end{ex}
-In the example we see a case where $S$ is unsatisfiable.
-\begin{ex}
-\begin{align*}
-S=\{x:succ(|r|<2)\sqcap succ(|r|\geq 2)\}	
-\end{align*}
-\end{ex}
-First we use the $\sqcap$-rule to split the assertion into two assertions. The assertion $x:succ(|r|<2)$ is satisfied therefore the algorithm tries to fix $x:succ(|r|\geq 2)$. Hence the $cardinality_1$-rule is applied. after that the first assertions remains satisfied but the second one remains violated. Therefore the algorithm applies the $cardinality_1$-rule again on $x:succ(|r|\geq 2)$ which result in $x:succ(|r|<2)$ being violated. To fix this the algorithm tries to apply the $cardinality_2$-rule and tries to merge the two variable. However since $x:succ(|r|\geq 2)$ would become violated the merging is preempted and the algorithm stops with a clash. Since this sequence of rule applications is the only one possible we can say that all possible sequences leads to a clash which means that $S$ in this example is unsatisfiable.\\
-The applications of the $set.term$-rules eventually terminates because the number of concept names and role names are finite in $S$ (since $S$ is finite).
+We know that $x$ must have a successor in $A$ but we still need to assign a role. In this case we can choose between $r$ and $s$.
+\\
+The $divide$-rule is straightforward: We choose one set term $s=s_1\cap\dots\cap s_i$ such that $l=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|+\dots+n_j\cdot|s_j|$ and introduce a new variable $y$ and add $(x,y):s$ to $S$. For any $x:succ(n\,dvd\,l)$ we know that the chain of this rule application is finite because in worst case we have to introduce $n$ new variables with the same set term.
+\\
+The reason and idea of the $\leq$-rule is written in Section 2.1.\\
+The same goes for the $merge$-rule.\\
+The $\leq 0$-rule deal with an assertion with a set constraint $s_1\subseteq s_2$, which is written here as cardinality constraint $|s_1\cap s_2^\neg|\leq 0$. Those cardinality constraint can not be dealt with the other rules. In case the left side has at least three set term  e.g. $|s_1\cap s_2\cap s_3|$ we have can have multiple possible solutions e.g. $(x,y):s_1\cap s_2\cap s_3^\neg$, $(x,y):s_1\cap s_2^\neg\cap s_3$ and $(x,y):s_1\cap s_2^\neg\cap s_3^\neg$. Hence we let the algorithm choose and backtrack if needed.\\
+The $set.term$-rules are applied immediately after a new assertions $(x,y):s$ is added to $S$. The reason for that is, that we want to add all needed assertions for $y$ and hence update all $k^{\mathcal{I}(S)_x}$ correctly. We know that the number of this application is finite because an ABox is finite and hence the number of concept names and role names occurring in this ABox is also finite. Since the constraints are in $NNF$ set terms can never be infinite and hence this rule applies only a finite times.
 \iffalse
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
