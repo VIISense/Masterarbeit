@@ -207,72 +207,21 @@ Similar in \cite{1} and \cite{6}, where a variable can be replaced by another va
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$.
 \end{mydef}
-Note that by merging two successors of $x$ into one variable $y$ other assertions might become violated. In regards of the Tableau-algorithm we distinguish between two types:
-\begin{itemize}
-\item assertions regarding the predecessor $x$
-\item assertions regarding the successor $y$
-\end{itemize}
-We want to avoid the first cases because we can otherwise end with an endless loop of adding and merging variables:
+For the Tableau-algorithm in this work a merging can only occur if an assertion $x:succ(k\lesseqgtr l)$ is violated.\\
+By merging variables assertion may become violated. To ensure the termination of the algorithm we intuitively want to avoid violating any assertions especially when they are satisfied. However there are cases where a violation is unavoidable. We look at the following example:
 \begin{ex}
 \begin{align*}
-S=\{x:succ(|r|\leq 1)\sqcap succ(|r\cap s|>1)\}
+&S=\{x:succ(|t|+|A\cup B|\geq 4),\,x:succ(|A\cup B|\leq 1)\\
+&\quad\quad y_1:A,\,y_2:B,\,(x,y_1):t,\,(x,y_2):t\}
 \end{align*}
 \end{ex}
-We can clearly see that the ABox is unsatisfiable but the algorithm will try to fix the second assertion by adding a two new successors. After the second successors been added however the first assertions, which was satisfied, becomes violated. The algorithm tries then to merge the two variable leading the second assertions being violated. Then the cycle begins and the algorithm tries to satisfies the second assertion and so on. Hence we want to prevent the algorithm from violating already satisfied assertion regarding the predecessor.\\
-However we allow the second case because it can be unavoidable to violate assertions regarding the successor first before fixing it later.
-\begin{ex}
-\begin{align*}
-&S=\{x:succ(|r|\leq 1),\, (x,y_1):r,\, (x,y_2):r\\
-&\quad\quad y_1:succ(|s|\leq 1),\, y_2:succ(|s|\leq 1),\, (y_1,z_1):s,\,(y_2,z_2):s\}
-\end{align*}
-\end{ex}
-In this example the ABox is violated but can be fixed by merging $y_1$ and $y_2$ together and $z_1$ and $z_2$. The only violated assertion is $x:succ(|r|\leq 1)$ hence we want to merge $y_1$ and $y_2$ to $y$. But then $y:(|s|\leq 1)$ becomes violated but can be fixed by merging $z_1$ and $z_2$. We could merge $z_1$ and $z_2$ first then $y:(|s|\leq 1)$ would not be violated but this would be too difficult to detect since the assertion regarding $y_1$ and $y_2$ are not violated.\\
-Therefore we want to \textit{block} a merging of two variables if satisfied assertions regarding their successor become violated. To detect a possible violation we count how often the successors $y_1,y_2$ are counted in the assertion $x:succ(k\lesseqgtr l)$. The idea is that if $y_1$ and $y_2$ are counted more often in $l$ than in $k$ then there is a chance for the assertion's violation. More precisely: If there is a cardinality $n\cdot |s|$ in $l$ (or $k$) and
-\begin{itemize}
-\item  $(x,y_1):s\in S$ and $(x,y_2):s\in S$, then $l^{\mathcal{I}(S)_x}$ decreases by $n$ after merging
-\item $(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s=s^\prime\cap s^\ast$, then $l^{\mathcal{I}(S)_x}$ increases by $n$ after merging
-\item $(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s=s^\prime\cup s^\ast$, then $l^{\mathcal{I}(S)_x}$ decreases by $n$ after merging
-\end{itemize}
-In the second case a merging can increases $l^{\mathcal{I}(S)_x}$ because we have more assertions for the new merged variable than for the two single variable. We consider the following example:
-\begin{ex}
-\begin{align*}
-&S=\{x:succ(|r|+|s|+|t|+|A\cup B|\geq 6),\\&(x,y_1):r,\,(x,y_2):s,\,(x,y_1):t,\, (x,y_2):t,\,y_1:A,\,y_2:B
-\\ &x:succ(|A\cup B|\leq 1)\}
-\end{align*}
-\end{ex}
-We denote the \textit{merge coefficient} of two successor $y_1$ and $y_2$ of $x$ in a cardinality term $k$ by $\#k(x,y_1,y_2)$ and calculate it as follows (respectively for $\#l(x,y_1,y_2)$)
-\begin{algorithm}[H] \caption{Compute $\#k(x,y_1,y_2)$}
-\begin{algorithmic}[l]
-\State $S$, ABox
-\State $\#k(x,y_1,y_2):=0$
-\State $y_1$ and $y_2$, different variables in $Var(S)$
-\State $x$ predecessor of $y_1$ and $y_2$
-\If{$k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$}
-\ForEach {$s_p$, $1\leq p\leq i$}
-\If{$(x,y_1):s_p\in S$ and $(x,y_2):s_p\in S$}
-\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+n_p$
-\EndIf
-\If{$(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s_p=s^\prime\cap s^\ast$}
-\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)-n_p$
-\EndIf
-\If{$(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s_p=s^\prime\cup s^\ast$}
-\State $\#k(x,y_1,y_2):=\#k(x,y_1,y_2)+n_p$
-\EndIf
-\EndFor
-\State \textbf{return} $\#k(x,y_1,y_2)$
-\Else
-\State \textbf{return} $0$
-\EndIf
-\end{algorithmic}
-\end{algorithm}
-Note that the blocking assertion is satisfied and at least $l$ must be of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$. For a satisfied assertion $x:succ(k\leq l)$, where $k$ is of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ but not $l$, a merging can not lead into its violation.\\
-We need to compute for both cardinality term $k$ and $l$ the \textit{merge coefficient}, because not only $l^{\mathcal{I}(S)_x}$ can change after merging but also $l^{\mathcal{I}(S)_x}$. However if $\#l(x,y_1,y_2)-\#k(x,y_1,y_2)$ is greater than $l^{\mathcal{I}(S)_x}-k^{\mathcal{I}(S)_x}$ then the merging leads into a violation.
+We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. This can lead us into a endless loop of adding and merging variables. Hence we introduce a notion of \textit{blocking}. If we merged two variable $y_1$ and $y_2$ because of an assertion $x:succ(k\lesseqgtr l)$, $k=n_1\cdot|s_1|+\dots +n_j\cdot |s_j|$, then we want to \textit{block} any introduction of an assertion of the form $z:s_1\cap\dots\cap s_i$, $1\leq i\leq j$. This way we avoid that the assertion $x:succ(k\lesseqgtr l)$ becomes violated again.
 \begin{mydef}[Blocking]
-A satisfied assertion $x:succ(k\lesseqgtr l)$ \textit{blocks} two variables $y_1\neq y_2$ from merging if $\#l(x,y_1,y_2)-\#k(x,y_1,y_2) > l^{\mathcal{I}(S)_x}-k^{\mathcal{I}(S)_x}$.
+Let $x:succ(k\lesseqgtr l)$, $k=n_1\cdot|s_1|+\dots +n_j\cdot |s_j|$, be an assertion which causes the merging of two successors $x$ into one successor $y$. Every set term of the form $s_1\cap\dots\cap s_i$, $1\leq i\leq j$, is \textit{blocked} by $x$.
 \end{mydef}
 Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$-times successors, which counts in $l^{\mathcal{I}(S)_x}$. The same goes for assertions with cardinality constraints of the form $x:succ(k\lesseqgtr l)$, with $k$ being a number e.g. it does not contain any set terms. For the remaining cases we could just increase $l$ until this assertion is satisfied. However in case $k$ and $l$ can increases e.g. both contain set terms, we have to avoid cases where $k$ increases faster then $l$. The increase depends on the set term $u$ for which we want to introduce a new variable $y$ and add $(x,y):u$ to $S$. To determine whether $u$ is \textit{safe} we again count how often $u$ "appears" in $l$ and $k$. If it appears more often in $l$ than in $k$ then it is safe.
 \begin{mydef}[Safe]
-Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_j\cdot|t_j|$, $i,j\in\mathbb{N}$. Let $u=t_1\cap\dots \cap t_o$ with $1\leq o\leq j$. If $n_k(u)<n_l(u)$ then we call $u$ \textit{safe}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
+Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_j\cdot|t_j|$, $i,j\in\mathbb{N}$. Let $u=t_1\cap\dots \cap t_o$ with $1\leq o\leq j$. If $n_k(u)<n_l(u)$ and not being blocked by $x$ then we call $u$ \textit{safe}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
 \begin{algorithm}[H] \caption{Compute $n_k(u)$}
 \begin{algorithmic}[l]
 \State $n_k(u):=0$
@@ -306,7 +255,7 @@ $\rightarrow$ choose $r\in\mathbf{R}$, such that $(x,y):r^\neg\notin S$. $S:=S\c
 $\rightarrow$ introduce a new variable $y$, choose $|s|$ in $l$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
 \item\label{leq}$\leq$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated, and there is a safe set term $s:=|s_1\cap \dots \cap s_n|$:\\
 $\rightarrow$ $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated. For two successor $y_1\neq y_2$ we have $(x,y_1):s_1\in S$ and $(x,y_2):s_2\in S$, with $s_1$ and $s_2$ in $k$ and $y_1$ and $y_2$ not being blocked by the same assertion\\
+\item\label{exceeded}$merge$-rule: $S$ contains $x:succ(c)$, with $c\in\{k\leq l,\,k<l\}$, which is violated. For two successor $y_1\neq y_2$ we have $(x,y_1):s_1\in S$ and $(x,y_2):s_2\in S$, with $s_1$ and $s_2$ in $k$\\
 $\rightarrow$ merge $y_1$ and $y_2$ 
 \item\label{s}$set$-rule: $S$ contains $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$ and $(x,y):s_1$, $\dots$, $(x:y):s_i$, $i<j$, but not $(x,y):s_{i+1}$, $\dots$, $(x,y):s_j$\\
 $\rightarrow$ choose $n\in\{i+1,\dots, j\}$, extend $S:=S\cup\{(x,y):s_n^\neg\}$ and then jump to rule \ref{repeat}
