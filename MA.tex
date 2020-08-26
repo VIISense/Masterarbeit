@@ -233,7 +233,14 @@ Therefore we want to \textit{block} a merging of two variables if satisfied asse
 \item $(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s=s^\prime\cap s^\ast$, then $l^{\mathcal{I}(S)_x}$ increases by $n$ after merging
 \item $(x,y_1):s^\prime\in S$ and $(x,y_2):s^\ast\in S$ and $s=s^\prime\cup s^\ast$, then $l^{\mathcal{I}(S)_x}$ decreases by $n$ after merging
 \end{itemize}
-Hence we denote the \textit{merge coefficient} of two successor $y_1$ and $y_2$ of $x$ in a cardinality term $k$ by $\#k(x,y_1,y_2)$ and calculate it as follows (respectively for $\#l(x,y_1,y_2)$)
+In the second case a merging can increases $l^{\mathcal{I}(S)_x}$ because we have more assertions for the new merged variable than for the two single variable. We consider the following example:
+\begin{ex}
+\begin{align*}
+&S=\{x:succ(|r|+|s|+|t|+|A\cup B|\geq 6),\\&(x,y_1):r,\,(x,y_2):s,\,(x,y_1):t,\, (x,y_2):t,\,y_1:A,\,y_2:B
+\\ &x:succ(|A\cup B|\leq 1)\}
+\end{align*}
+\end{ex}
+We denote the \textit{merge coefficient} of two successor $y_1$ and $y_2$ of $x$ in a cardinality term $k$ by $\#k(x,y_1,y_2)$ and calculate it as follows (respectively for $\#l(x,y_1,y_2)$)
 \begin{algorithm}[H] \caption{Compute $\#k(x,y_1,y_2)$}
 \begin{algorithmic}[l]
 \State $S$, ABox
