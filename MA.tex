@@ -203,11 +203,13 @@ Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set
 \end{mydef}
 All concept names in $\mathbf{C}$ and role names in $\mathbf{R}$ have a positive sign.
 \subsection{Restrictions}\label{restriction}
-Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
+The Tableau-algorithm for $\mathcal{ALC}$ is, as expected, straightforward: We apply rules in a arbitrary order whenever they are applicable. However for DLs which are more expressive then $\mathcal{ALC}$ some caution have to be made. In \cite{1} the considered DL is $\mathcal{ALCQ}$ which additionally allows qualified number restrictions. The algorithm uses a rule for replacing variables and introduces a safeness definition to prevent endless loops of rule application, which can occur due to the replication. In \cite{Ba},\cite{2} and\cite{6} the considered DLs allow inverse roles which is handled with blocking techniques. The DL $\mathcal{ALCSCC}$ is a very expressive concept language and hence there are some difficulty to handle for the Tableau-algorithm.\\
+We loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox and $s$ is a (always finite) chain of disjunction and conjunction we want to add all assertions of $y$ first before applying any other rules. This way $y$ has all assertion we want to assign to it and hence avoid adding unnecessary variables which can lead into a violation of other assertions.\\
+Similar to \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm like in \cite{2}.
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
 \end{mydef}
-For the Tableau-algorithm in this work a merging can only occur if an assertion $x:succ(k\lesseqgtr l)$ is violated. The merging is only reasonable if it reduces $k$. Hence $k$ must be of the form $n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$. It can be reasonable if by merging $l$ increases, for example $x:succ(1\leq |r\cap t|)$ with $(x,y_1):r$ and $(x,y_2):t$. However the easiest solution is just to add an $r\cap t$-successor.\\
+For the Tableau-algorithm in this work a merging can only occur if an assertion $x:succ(k\lesseqgtr l)$ is violated. The merging is only reasonable if it reduces $k$. It can be reasonable if by merging $l$ increases, for example $x:succ(1\leq |r\cap t|)$ with $(x,y_1):r$ and $(x,y_2):t$. However the easiest solution is just to add an $r\cap t$-successor.\\
 By merging variables assertion may become violated. To ensure the termination of the algorithm we intuitively want to avoid violating any assertions especially when they are satisfied. However there are cases where a violation is unavoidable. We look at the following example:
 \begin{ex}
 \begin{align*}
@@ -215,30 +217,28 @@ By merging variables assertion may become violated. To ensure the termination of
 &\quad\quad y_1:A,\,y_2:B,\,(x,y_1):t,\,(x,y_2):t\}
 \end{align*}
 \end{ex}
-We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. This can lead us into a endless loop of adding and merging variables. Hence we introduce a notion of \textit{blocking}. If we merged two variable $y_1$ and $y_2$ into $y$ because of a violated assertion $x:succ(k\lesseqgtr l)$, $k=n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, then we want to \textit{block} any introduction of an assertion of the form $(x,z):s_1\cap\dots \cap s_i$, $1\leq i\leq j$. This way we want to avoid a possible re-violation of $x:succ(k\lesseqgtr l)$ and possible unless loops of merging and introducing variables. In our example the set term $A\cup B$ is blocked by $x$ after merging $y_1$ and $y_2$ to $y$ which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. 
+We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. Hence the algorithm can run into a endless loop of adding and merging variables. Therefore we introduce a notion of \textit{blocking}. If we merged two variable $y_1$ and $y_2$ into $y$ because of a violated assertion $x:succ(k\lesseqgtr l)$, $k=n_0+n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, then we want to \textit{block} any introduction of an assertion of the form $(x,z):s_1\cap\dots \cap s_i$, $1\leq i\leq j$. This way we want to avoid a possible re-violation of $x:succ(k\lesseqgtr l)$ and possible unless loops of merging and introducing variables. For that we introduce for a variable $x$ a blocking set $b(S,x)$ in which set terms of $k$ are listed. In our example after the merging the set term $A\cup B$ is added to $b(S,x)$ and hence this set term is blocked by $x$, which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. 
 \begin{mydef}[Blocking]
-Let $x:succ(k\lesseqgtr l)$, $k=n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, be an assertion, which causes the merging of two successors $y_1$ and $y_2$ to $y$. Every set term $s_1\cap\dots\cap s_i$, $1\leq i\leq j$ is \textit{blocked} by $x$.
+Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merged into $y$ because of an assertion $x:succ(k\lesseqgtr l)$ then $b(S,x):=b(S,x)\cup\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$. A set term $u=t_1\cap\dots\cap t_j$ is \textit{blocked} by $x$ in the ABox $S$ if $\forall i:1\leq i\leq j,\, t_i\in b(S,x)$.
 \end{mydef}
-Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$ successors, which are counted in $l^{\mathcal{I}(S)_x}$. The same goes for assertions with cardinality constraints of the form $x:succ(k\lesseqgtr l)$, with $k$ being a number e.g. it does not contain any set terms. For those cases we just increase $l$ until the assertion is satisfied. However if $k$ and $l$ can both increase e.g. both contain set terms, we have to avoid cases where $k$ increases faster then $l$. The increment depends on the set term $u$, which is not blocked by $x$, for which we want to introduce a new variable $y$ and add $(x,y):u$ to $S$. To determine whether $u$ is \textit{safe} we count how often $u$ "appears" in $l$ and $k$. If it appears more often in $l$ than in $k$ then it is safe.
+Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$ successors, which are counted in $l^{\mathcal{I}(S)_x}$. The same goes for assertions of the form $x:succ(k\lesseqgtr l)$, $k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|$ with $\forall i: 1\leq i\leq j,\, n_i=0$. Here again we just increase $l$ until the assertion is satisfied. However if $k$ and $l$ can both increase, we have to avoid cases where $k$ increases faster then $l$. The increment depends on the set term $u$, which is not blocked by $x$, for which we want to introduce a new variable $y$ and add $(x,y):u$ to $S$. To determine whether $u$ is \textit{safe} we count how often $u$ "appears" in $l$ and $k$. If it appears more often in $l$ than in $k$ then it is safe.
 \begin{mydef}[Safe]
-Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$ where $k=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$ and $l=m_1\cdot|t_1|+\dots+m_j\cdot|t_j|$, $i,j\in\mathbb{N}$. Let $u=t_1\cap\dots \cap t_o$ with $1\leq o\leq j$. If $n_k(u)<n_l(u)$ and $u$ is not blocked by $x$ then $u$ is called \textit{safe regarding $k\leq l$}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
+Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$. Let $u=t_1\cap\dots \cap t_j$ with $1\leq i\leq j$. If $n_k(u)<n_l(u)$ and $u$ is not blocked by $x$ then $u$ is called \textit{safe regarding $k\leq l$}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
 \begin{algorithm}[H] \caption{Compute $n_k(u)$}
 \begin{algorithmic}[l]
 \State $n_k(u):=0$
-\State $k$, cardinality term of the form $n_1\cdot|s_1|+\dots+n_i\cdot|s_i|$
-\State $u$, set term of the form $t_1\cap \dots \cap t_o$
-\ForEach {$n^\prime\cdot|s^\prime_1\cup\dots\cup s^\prime_p|,\,p\in\mathbb{N}$, in $k$}
+\State $k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|s_j|$
+\State $u=t_1\cap \dots \cap t_o$
+\ForEach {$1\leq i\leq j:\, n_i\cdot|s_i|$, $s_i=s^\prime_1\cup \dots\cup s^\prime_p$, $p\in\mathbb{N}$}
 \If {$\exists q, 1\leq q\leq p:$ $u=s^\prime_q\cap t^\prime$}
-\State $n_k(u):=n_k(u)+n^\prime$
+\State $n_k(u):=n_k(u)+n_i$
 \EndIf
 \EndFor\\
 \Return $n_k(u)$
 \end{algorithmic}
 \end{algorithm}
-If $k$ is a number e.g. it does not contain a set term, then all $u$ are \textit{safe}.
 \end{mydef}
-This says that it is only safe to add a variable if $l$ increases faster then $k$.\\
-We also loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox and $s$ is a (still finite) chain of disjunction and conjunction, we want to add the assertions of $y$ before any other rule application so that all $n(x,k,S)$, for which $|s|$ occurs in $k$, also count $y$. This is important because we want to know the correct number of successors at any time so we can avoid any violation of assertions.
+This says that it is only safe to add a variable if $l$ increases faster then $k$.
 \subsection{Algorithm}
 For the Tableau-algorithm we define the properties of the following notations:
 \begin{itemize}
