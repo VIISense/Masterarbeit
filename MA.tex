@@ -48,7 +48,8 @@
 \begin{document}
 \section{Introduction}
 Traditional data bases where data are stored solely without any connection towards to themselves like many people would imagine are often not enough any more. In biological and (bio)medical researches data bases are often based on ontologies \cite{bio}. Ontologies (in the computer science field) can be viewed as formal representation of a certain domain of interest. In data base they are collection of relation between the entities in the data base and are formulated as a fragment of first-order logic (FOL). These fragments of FOL are represented as \textit{Description Logic (DL)}, which is a family of knowledge representation system. DL are mainly built of concepts, which correspond to unary relations in FOL, and relation between the concepts, which correspond to binary relations in FOL. For more complex (compound) concepts operators like $\sqcap$, $\sqcup$,$\sqsubseteq$, $\exists$ and $\forall$, depending on the DL, are used. For example the statement "All Men and Women are Human" is formalize in DL as an \textit{axiom} $Men\,\sqcup\, Women\sqsubseteq Human$ and in FOL as $\forall x.Men(x)\vee Women(x)\rightarrow Human(x)$. The statement "All Human, who has children, are parents" in DL can be formalized a $Human\sqcap \exists hasChildren.\top \sqsubseteq Parent$ and in FOL as $\forall x \exists y. Human(x)\wedge hasChildren(x,y)\rightarrow Parent(x)$. Restriction with the operators $\exists$ and $\forall$ are called \textit{quantified} restrictions. The second statement can also be formalized with a \textit{qualified} restriction: $Human\sqcap \geq 1 hasChildren.\top\sqsubseteq Parent$. Each quantified restriction can be transformed into a qualified restriction.\\
-One big research field in DL is \textit{Reasoning} which is the investigation of whether certain information can be concluded from the current data or not.
+One big research field in DL is \textit{Reasoning} which is the investigation of whether certain information can be concluded from the current data or not.\\
+\textcolor{red}{to be continued...}
 \section{Preliminaries}
 Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names such that they are disjoint.
 \begin{mydef}[$QFBAPA$]
@@ -84,7 +85,7 @@ where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
 \end{mydef}
 For readability we use $\lesseqgtr$ to address the comparison symbols $=,\,\leq,\,\geq,\,<,\,>$. The negation $\not\lesseqgtr$ address the symbols $\neq,\,>,\,<,\,\geq,\,\leq$ respectively.\\
-Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work.
+Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$.
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
@@ -98,7 +99,6 @@ $\mathcal{ALCSCC}$ concepts are defined inductively:
 \end{itemize}
 \end{itemize}
 \end{mydef}
-In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$.\\
 An ABox $S$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a $\mathcal{ALSCSS}$ concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$. 
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an ABox $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
@@ -134,7 +134,10 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \end{itemize} 
 $\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
-
+\section{Tableau}
+A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
+To maintain readability in this work we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.\\
+To help the algorithm we want to avoid nested negation e.g. $\neg(\neg(\neg(A\cup B)))$. Hence we consider all concepts in \textit{negated normal form (NNF)}.
 \begin{mydef}[Negation Normal Form]
 A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary $\mathcal{ALCSCC}$ concept. With $NNF(C)$ we denote the concept which is obtained by applying the rules below on $C$ until none is applicable any more.
 \begin{figure}[H]
@@ -164,20 +167,9 @@ A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the 
 \end{minipage}
 \end{figure}
 \end{mydef}
-The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\mathcal{I}$ of $S$ we have $(C^\neg)^\mathcal{I}=\mathcal{U}\backslash C^\mathcal{I}$ and $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\mathcal{U}\subseteq \Delta$ we can conclude that every element in $(C^\neg)^\mathcal{I}$ is also in $(\neg C)^\mathcal{I}$.
-\section{Tableau}
-A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.
-\begin{mydef}[Clash]
-An ABox $S$ contains a \textit{clash} if
-\begin{itemize}
-\item $\{x:\perp\}\subseteq S$ or
-\item $\{x:A,\,x:\neg A\}\subseteq S$ or
-\item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$ or
-\item $\{x:succ(c)\}\subseteq S$ and $c$ is violated regarding $x$ and no more rules are applicable
-\end{itemize}
-\end{mydef}
-To maintain readability we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on.  
-\begin{mydef}[Induced Interpretation $\mathcal{I}(S)$]
+The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\mathcal{I}$ of $S$ we have $(C^\neg)^\mathcal{I}=\mathcal{U}\backslash C^\mathcal{I}$ and $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\mathcal{U}\subseteq \Delta$ we can conclude that every element in $(C^\neg)^\mathcal{I}$ is also in $(\neg C)^\mathcal{I}$.\\
+Next we introduce \textit{induced interpretation} with which we can count successors of variables after any rule application.
+\begin{mydef}[Induced Interpretation]
 An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the following steps:
 \begin{itemize}
 \item for each variable $x\in Var(S)$ we introduce $x^{\mathcal{I}(S)}$ and add it to $\Delta^{\mathcal{I}(S)}$
@@ -185,7 +177,7 @@ An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the follow
 \item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ to $r^{\mathcal{I}(S)}$
 \end{itemize}
 \end{mydef}
-With $\mathcal{I}(S)$ we can count how many successors a variable has during the Tableau-algorithm.
+Since we can now denote the number of successor of a variable $x$ we can determine which assertion of the form $x:succ(c)$ are violated.
 \begin{mydef}[Violated assertion]
 Let $S$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion is \textit{violated} if
 \begin{itemize}
@@ -195,17 +187,22 @@ Let $S$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and 
 \end{itemize} 
 where $n\in\mathbb{N}$.
 \end{mydef}
+Like already mentioned an ABox is unsatisfiable if all choices ends in a clash. A clash in a ABox $S$ implies that $\perp$ can be derived from $S$.
+\begin{mydef}[Clash]
+An ABox $S$ contains a \textit{clash} if
+\begin{itemize}
+\item $\{x:\perp\}\subseteq S$ or
+\item $\{x:A,\,x:\neg A\}\subseteq S$ or
+\item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$ or
+\item $\{x:succ(c)\}\subseteq S$ violated and no more rules are applicable
+\end{itemize}
+\end{mydef}
 Also important for the algorithm is to consider the \textit{signs} of concept names and role names.
 \begin{mydef}[Positive and Negative Sign]
-Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.\\
-Concept names in $\mathbf{C}$ have a positive sign and role names in $\mathbf{R}$ have a positive sign.
+Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.
 \end{mydef}
-For the Tableau-algorithm we define the properties of the following notations:
-\begin{itemize}
-\item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
-\item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
-\end{itemize}
-\subsection{Restrictions}
+All concept names in $\mathbf{C}$ and role names in $\mathbf{R}$ have a positive sign.
+\subsection{Restrictions}\label{restriction}
 Similar in \cite{1} and \cite{6}, where a variable can be replaced by another variable, we can merge two variables during the Tableau-algorithm.
 \begin{mydef}[Merge]
 \textit{Merging} $y_1$ and $y_2$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$. 
@@ -243,6 +240,11 @@ If $k$ is a number e.g. it does not contain a set term, then all $u$ are \textit
 This says that it is only safe to add a variable if $l$ increases faster then $k$.\\
 We also loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox and $s$ is a (still finite) chain of disjunction and conjunction, we want to add the assertions of $y$ before any other rule application so that all $n(x,k,S)$, for which $|s|$ occurs in $k$, also count $y$. This is important because we want to know the correct number of successors at any time so we can avoid any violation of assertions.
 \subsection{Algorithm}
+For the Tableau-algorithm we define the properties of the following notations:
+\begin{itemize}
+\item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
+\item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
+\end{itemize}
 \begin{mydef}[Tableau]
 Let $S$ be a set of assertions in simplified $NNF$.
 \begin{enumerate}
@@ -322,7 +324,7 @@ We know that $x$ must have a successor in $A$ but we still need to assign a role
 \\
 The $divide$-rule is straightforward: We choose one set term $s=s_1\cap\dots\cap s_i$ such that $l=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|+\dots+n_j\cdot|s_j|$ and introduce a new variable $y$ and add $(x,y):s$ to $S$. For any $x:succ(n\,dvd\,l)$ we know that the chain of this rule application is finite because in worst case we have to introduce $n$ new variables with the same set term.
 \\
-The reason and idea of the $\leq$-rule is written in Section 2.1.\\
+The reason and idea of the $\leq$-rule is written in Section \ref{restriction}.\\
 The same goes for the $merge$-rule.\\
 The $\leq 0$-rule deal with an assertion with a set constraint $s_1\subseteq s_2$, which is written here as cardinality constraint $|s_1\cap s_2^\neg|\leq 0$. Those cardinality constraint can not be dealt with the other rules. In case the left side has at least three set term  e.g. $|s_1\cap s_2\cap s_3|$ we have can have multiple possible solutions e.g. $(x,y):s_1\cap s_2\cap s_3^\neg$, $(x,y):s_1\cap s_2^\neg\cap s_3$ and $(x,y):s_1\cap s_2^\neg\cap s_3^\neg$. Hence we let the algorithm choose and backtrack if needed.\\
 The $set.term$-rules are applied immediately after a new assertions $(x,y):s$ is added to $S$. The reason for that is, that we want to add all needed assertions for $y$ and hence update all $k^{\mathcal{I}(S)_x}$ correctly. We know that the number of this application is finite because an ABox is finite and hence the number of concept names and role names occurring in this ABox is also finite. Since the constraints are in $NNF$ set terms can never be infinite and hence this rule applies only a finite times.
