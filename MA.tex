@@ -296,16 +296,16 @@ $\rightarrow$ $S:=S\cup\{y:C\}$
 \begin{mydef}[Derived Set]
 A \textit{derived set} is an ABox $S^\prime$ where rule \ref{repeat} is not applicable.
 \end{mydef}
-In order words a derived set is an ABox on which we applied a rule completely e.g. one of rule $1-8$ and if necessary rule $9$ to assign $y$ all assertion it has.\\
-We now explain the rules of the Tableau-algorithm and their intention, if not already mention in Section 2.1.\\
+In order words a derived set is an ABox on which we applied a rule completely e.g. every time we add a new assertion $(x,y):s$ we add all assertion concluded by it to $S$ first.\\
+We now explain the rules of the Tableau-algorithm and their intention, if not already mention in Section \ref{restriction}.\\
 The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion.\\
-The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. We use $n(x,k,S)$ to count the successors of $x$ in $k$ which is important for detecting and avoiding violations of assertions. Now there might be a successor $y$ which satisfies only some part of $k$ in the given $S$ such that $n(x,k,S)$ does not count $y$:
+The $choose$-rule is important because we need to know of every successor what kind of role successors they are and in which concepts they are. For an assertion $x:succ(k\lesseqgtr l$ it is important that $k^{\mathcal{I}(S)_x}$ and $l^{\mathcal{I}(S)_x}$ counts the successors correctly. In the following case the successor $y$ is not counted in $l^{\mathcal{I}(S)_x}$ while $x:succ(k\leq l)$ is violated.
 \begin{ex}
 \begin{align*}
-S=\{x:succ(|r\cap s|>1), (x,y):r\}
+S=\{x:succ(1\leq|r\cap s|), (x,y):r\}
 \end{align*}
 \end{ex}
-However there might be an interpretation $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $n(x,k,S)\neq n_{\mathcal{I}^\prime}(x,k,S)$. However the Tableau-algorithm should be able to construct every model of $S$, if $S$ is consistent. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities.\\
+There might be an model $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $l^{\mathcal{I}(S)_x}<l^{\mathcal{I}^\prime(S)_x}$. However the Tableau-algorithm should be able to construct every model of $S$ if $S$ is consistent. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities. This way we are also able to construct $\mathcal{I^\prime}$.\\
 The $choose$-$a$-$role$-rule is necessary because for a assertion $x:succ(c)$ we might have no role name with a positive sign in $c$. Which means we know $x$ must have some successors but we can not decide which role-successor it is. As example we have
 \begin{ex}
 \begin{align*}
