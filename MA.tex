@@ -51,7 +51,7 @@ Traditional data bases where data are stored solely without any connection towar
 One big research field in DL is \textit{Reasoning} which is the investigation of whether certain information can be concluded from the current data or not.\\
 \textcolor{red}{to be continued...}
 \section{Preliminaries}
-Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names such that they are disjoint.
+In this work $\mathbf{C}$ denotes a set of concept names and $\mathbf{R}$ a set of role names, which are disjoint.
 \begin{mydef}[$QFBAPA$]
 Let $T$ be a set of symbols
 \begin{itemize}
@@ -217,10 +217,12 @@ By merging variables assertion may become violated. To ensure the termination of
 &\quad\quad y_1:A,\,y_2:B,\,(x,y_1):t,\,(x,y_2):t\}
 \end{align*}
 \end{ex}
-We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. Hence the algorithm can run into a endless loop of adding and merging variables. Therefore we introduce a notion of \textit{blocking}. If we merged two variable $y_1$ and $y_2$ into $y$ because of a violated assertion $x:succ(k\lesseqgtr l)$, $k=n_0+n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, then we want to \textit{block} any introduction of an assertion of the form $(x,z):s_1\cap\dots \cap s_i$, $1\leq i\leq j$. This way we want to avoid a possible re-violation of $x:succ(k\lesseqgtr l)$ and possible unless loops of merging and introducing variables. For that we introduce for a variable $x$ a blocking set $b(S,x)$ in which set terms of $k$ are listed. In our example after the merging the set term $A\cup B$ is added to $b(S,x)$ and hence this set term is blocked by $x$, which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. 
+We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. Hence the algorithm can run into a endless loop of adding and merging variables. Therefore we introduce a notion of \textit{blocking}. If we merged two variable $y_1$ and $y_2$ into $y$ because of a violated assertion $x:succ(k\lesseqgtr l)$, $k=n_0+n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, then we want to \textit{block} any introduction of an assertion of the form $(x,z):s_1\cap\dots \cap s_i$, $1\leq i\leq j$. This way we want to avoid a possible re-violation of $x:succ(k\lesseqgtr l)$ and possible unless loops of merging and introducing variables. For that we introduce for a variable $x$ a blocking set $b(S,x)$ in which set terms of $k$ are listed.
 \begin{mydef}[Blocking]
-Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merged into $y$ because of an assertion $x:succ(k\lesseqgtr l)$ then $b(S,x):=b(S,x)\cup\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$. A set term $u=t_1\cap\dots\cap t_j$ is \textit{blocked} by $x$ in the ABox $S$ if $\forall i:1\leq i\leq j,\, t_i\in b(S,x)$.
+Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merged into $y$ because of an assertion $x:succ(k\lesseqgtr l)$ then $b(S,x):=b(S,x)\cup\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$. A set term $u=t_1\cap\dots\cap t_j$ is \textit{blocked} by $x$ in the ABox $S$ if $\forall i:1\leq i\leq j,\, t_i\in b(S,x)$.\\
+At the beginning of the Tableau-algorithm all sets $b(S,x)$, $x\in Var(S)$, are empty.
 \end{mydef}
+In our example after the merging the set term $A\cup B$ is added to $b(S,x)$ and hence this set term is blocked by $x$, which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. 
 Also like in \cite{1} and \cite{6} we have to be \textit{safe} when introducing new variables otherwise we may end in a endless loop or with a false output. In case of $x:succ(n\,dvd\,l)$ we do not have to consider any special cases because in worst case we have to add $n$ successors, which are counted in $l^{\mathcal{I}(S)_x}$. The same goes for assertions of the form $x:succ(k\lesseqgtr l)$, $k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|$ with $\forall i: 1\leq i\leq j,\, n_i=0$. Here again we just increase $l$ until the assertion is satisfied. However if $k$ and $l$ can both increase, we have to avoid cases where $k$ increases faster then $l$. The increment depends on the set term $u$, which is not blocked by $x$, for which we want to introduce a new variable $y$ and add $(x,y):u$ to $S$. To determine whether $u$ is \textit{safe} we count how often $u$ "appears" in $l$ and $k$. If it appears more often in $l$ than in $k$ then it is safe.
 \begin{mydef}[Safe]
 Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$. Let $u=t_1\cap\dots \cap t_j$ with $1\leq i\leq j$. If $n_k(u)<n_l(u)$ and $u$ is not blocked by $x$ then $u$ is called \textit{safe regarding $k\leq l$}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
@@ -239,6 +241,13 @@ Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$. Let $u=t_1\cap\dots \cap t_j
 \end{algorithm}
 \end{mydef}
 This says that it is only safe to add a variable if $l$ increases faster then $k$.
+As example we look at 
+\begin{ex}
+\begin{align*}
+S=\{x:succ(|r\cup s|<|r|+|s|)\}
+\end{align*}
+\end{ex}
+The set terms $r$ and $s$ are not blocked but still not safe because $n_{|r\cup s|}(r)=n_{|r|+|s|}(r)=1$ and $n_{|r\cup s|}(s)=n_{|r|+|s|}(s)=1$. However the set term $r\cap t$ is safe because $r\cap t\notin b(S,x)=\emptyset$ and $1=n_{|r\cup s|}(r\cap s)<n_{|r|+|s|}(r\cap s)=2$. 
 \subsection{Algorithm}
 For the Tableau-algorithm we define the properties of the following notations:
 \begin{itemize}
