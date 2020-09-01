@@ -136,7 +136,6 @@ $\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every ass
 \end{mydef}
 \section{Tableau}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
-To maintain readability in this work we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on. \\
 To help the algorithm we want to avoid nested negation e.g. $\neg(\neg(\neg(A\cup B)))$. Hence we consider all concepts in \textit{negated normal form (NNF)}.
 \begin{mydef}[Negation Normal Form]
 A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary $\mathcal{ALCSCC}$ concept. With $NNF(C)$ we denote the concept which is obtained by applying the rules below on $C$ until none is applicable any more.
@@ -168,6 +167,7 @@ A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the 
 \end{figure}
 \end{mydef}
 The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\mathcal{I}$ of $S$ we have $(C^\neg)^\mathcal{I}=\mathcal{U}\backslash C^\mathcal{I}$ and $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\mathcal{U}\subseteq \Delta$ we can conclude that every element in $(C^\neg)^\mathcal{I}$ is also in $(\neg C)^\mathcal{I}$.\\
+The first five rules on the left hand side can be applied in linear time \cite{1},\cite{6}. The first four rules on the right hand side,$C^\neg\rightarrow \neg C$ and $\neg succ(c)\rightarrow succ(\neg c)$ can also be applied in linear time since we only shift the negation sign. the rule $(s^\neg)^\neg\rightarrow s$ works similarly to $\neg\neg C\rightarrow C$ and can be applied in linear time. The rules $(s\cap t)^\neg\rightarrow s^\neg\cup t^\neg$ and $(s\cup t)^\neg\rightarrow s^\neg \cap t^\neg$ works the similarly to $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and can also be applied in linear time.\\
 Next we introduce \textit{induced interpretation} with which we can count successors of variables after any rule application.
 \begin{mydef}[Induced Interpretation]
 An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the following steps:
@@ -202,6 +202,58 @@ Also important for the algorithm is to consider the \textit{signs} of concept na
 Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.
 \end{mydef}
 All concept names in $\mathbf{C}$ and role names in $\mathbf{R}$ have a positive sign.
+\subsection{The form of the ABox}
+Like already mention a ABox $S$ in $\mathcal{ALCSCC}$ contains assertions of the form $x:C$ and $(x,y):C$ where $C$ is a $\mathcal{ALCSCC}$ concept and $x,y\in Var(S)$ are variables. We already define that all concepts are in $NNF$. To enhance the readability in this work we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$, $k=l$ or $k<l$ from now on. Also if we have $k\leq l$ and $l\geq k$ then we replace it with $k=l$.\\
+Therefore $c$ in an assertion $x:succ(c)$ can have only one of the following form:
+
+\begin{figure}[H]
+\begin{minipage}[t]{.5\textwidth}
+\raggedright
+\begin{itemize}
+\item $k<l$
+\item $k\leq l$
+\end{itemize}
+\end{minipage}% <---------------- Note the use of "%"
+\begin{minipage}[t]{.5\textwidth}
+\raggedleft
+\begin{itemize}
+\item $k=l$
+\item $n\,dvd\, l$
+\end{itemize}
+\end{minipage}
+\end{figure}
+where $k,l$ are in $NNF$.\\
+Our desired form for the ABox is gained by the following algorithm.
+\begin{algorithm}[H] \caption{Transforming ABox}
+\begin{algorithmic}[l]
+\State ABox $S$
+\ForEach {assertion $x:succ(c)\in S$}
+\If {$c=s_1\subseteq s_2$}
+\State $c:=(|s_1\cap s_2^\neg|\leq 0)$; return;
+\EndIf
+\If{$c=s_1\supseteq s_2$}
+\State $c:=(|s_1^\neg\cap s_2|\leq 0)$; return;
+\EndIf
+\If{$c=l> k$}
+\State $c:=k< l$; return;
+\EndIf
+\If{$c=l\geq k$}
+\ForEach {assertion $x:succ(d)$}
+\If{$d=l\leq k$ or $d=k\geq l$}
+\State remove $x:succ(c)$ and $x:succ(d)$ from S;
+\State add $x:(k=l)$ to $S$; return;
+\Else
+\State $c:=k\leq l$; return;
+\EndIf
+\EndFor
+\EndIf
+\EndFor\\
+\ForEach{assertion $x:C$ or $(x,y):s$}
+\State $C:=NNF(C)$ or $s:=NNF(s)$;
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+The first part of the transformation runs in worst case in polynomial time: If any of the first three conditions holds, we only replace $c$ which runs in constant time. If the fourth conditions holds, we go through the ABox again, which leads to a polynomial time in total. In cases of an ABox where the fourth conditions never holds the first part runs in linear time. The second part always runs in polynomial time because each transformation into $NNF$ runs in linear time.
 \subsection{Restrictions}\label{restriction}
 The idea of a Tableau-algorithm is rather simple: We apply rules in a arbitrary order whenever they are applicable. However often some caution has to be made. In \cite{1} the considered DL is $\mathcal{ALCQ}$ which allows qualified number restrictions. The algorithm uses a rule for replacing variables but to prevent endless loops of rule application, which can occur due to the replication, a safeness condition ia added. In \cite{2} and\cite{6} the considered DL allows inverse roles which is handled with blocking techniques. A similar blocking technique is used in \cite{Ba} also to prevent non-termination due to considered cyclic TBoxes. The DL $\mathcal{ALCSCC}$ is a very expressive concept language and hence there are some difficulty to handle for the Tableau-algorithm. We also restrict ourself to solely ABoxes.\\
 We loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox and $s$ is a (always finite) chain of disjunction and conjunction we want to add all assertions of $y$ first before applying any other rules. This way $y$ has all assertion we want to assign to it and hence avoid adding unnecessary variables which can lead into a violation of other assertions.\\
@@ -217,7 +269,7 @@ By merging variables assertion may become violated. To ensure the termination of
 \end{align*}
 \end{ex}
 We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. Hence the algorithm can run into a endless loop of adding and merging variables. Therefore we introduce a notion of \textit{blocking}. If we merged two variable $y_1$ and $y_2$ into $y$ because of a violated assertion $x:succ(k\lesseqgtr l)$, $k=n_0+n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, then we want to \textit{block} any introduction of an assertion of the form $(x,z):s_1\cap\dots \cap s_i$, $1\leq i\leq j$. This way we want to avoid a possible re-violation of $x:succ(k\lesseqgtr l)$ and a possible unless loop of merging and introducing variables. For that we introduce for a variable $x$ a blocking set $b(S,x)$ in which set terms of $k$ are listed.
-\begin{mydef}[Blocking]
+\begin{mydef}[The blocking set $b(S,x)$]
 Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merged into $y$ because of an assertion $x:succ(k\lesseqgtr l)$ then $b(S,x):=b(S,x)\cup\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$. A set term $u=t_1\cap\dots\cap t_j$ is \textit{blocked} by $x$ in the ABox $S$ if $\forall i:1\leq i\leq j,\, t_i\cup u\in b(S,x)$, where $u$ is a arbitrary set term.\
 At the beginning of the Tableau-algorithm all sets $b(S,x)$, $x\in Var(S)$, are empty.
 \end{mydef}
@@ -249,11 +301,7 @@ S=\{x:succ(|r\cup s|<|r|+|s|)\}
 \end{ex}
 The set terms $r$ and $s$ are not blocked but still not safe because $n_{|r\cup s|}(r)=n_{|r|+|s|}(r)=1$ and $n_{|r\cup s|}(s)=n_{|r|+|s|}(s)=1$. However the set term $r\cap t$ is safe because $r\cap t\notin b(S,x)=\emptyset$ and $1=n_{|r\cup s|}(r\cap s)<n_{|r|+|s|}(r\cap s)=2$. 
 \subsection{Algorithm}
-For the Tableau-algorithm we define the properties of the following notations:
-\begin{itemize}
-\item Conjunction binds stronger than disjunction: $s\cup t\cap u = s\cup (t\cap u)$
-\item if $k,l$ are cardinality terms then $k=l$ replaces $k\leq l$ and $k\geq l$ 
-\end{itemize}
+Finally we can present the Tableau-algorithm to determine the satisfiability of an ABox in $\mathcal{ALCSCC}$.
 \begin{mydef}[Tableau]
 Let $S$ be a set of assertions in simplified $NNF$.
 \begin{enumerate}
