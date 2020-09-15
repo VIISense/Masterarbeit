@@ -150,7 +150,7 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \end{itemize} 
 $\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
-\section{Tableau}
+\section{Prearrangement}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
 To help the algorithm we want to avoid nested negation e.g. $\neg(\neg(\neg(A\cup B)))$. Hence we consider all concepts in \textit{negated normal form (NNF)}.
 \begin{mydef}[Negation Normal Form]
@@ -213,11 +213,6 @@ An ABox $S$ contains a \textit{clash} if
 \item $\{x:succ(c)\}\subseteq S$ violated and no more rules are applicable
 \end{itemize}
 \end{mydef}
-Also important for the algorithm is to consider the \textit{signs} of concept names and role names.
-\begin{mydef}[Positive and Negative Sign]
-Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.
-\end{mydef}
-All concept names in $\mathbf{C}$ and role names in $\mathbf{R}$ have a positive sign.
 \subsection{The form of the ABox}
 Like already mention a ABox $S$ in $\mathcal{ALCSCC}$ contains assertions of the form $x:C$ and $(x,y):C$ where $C$ is a $\mathcal{ALCSCC}$ concept and $x,y\in Var(S)$ are variables. We already define that all concepts are in $NNF$. To enhance the readability in this work and simplify the algorithm we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Hence it is sufficient to only consider the case $k\leq l$ and $k<l$ and "drop" the cases $l\geq k$ and $l>k$. Instead of $k=l$ we write $k\leq l$ and $l\leq k$ Therefore $k\lesseqgtr l$ can only represent $k\leq l$ or $k<l$ from now on. \\
 Therefore $c$ in an assertion $x:succ(c)$ can have only one of the following form:
@@ -270,19 +265,16 @@ Our desired form for the ABox is gained by the following algorithm.
 \EndFor
 \end{algorithmic}
 \end{algorithm}
-The first part of the transformation runs in worst case in polynomial time: If any of the first four conditions holds, we only replace $c$ which runs in constant time.  The complexity of a removing function depends on the implementation: If we have direct access to the elements in the ABox the remove function has a constant (runtime) complexity. If we have some kind of sorting then the (runtime) complexity is logarithm. In worst case if we the ABox is stored as a simple list, then the (runtime) complexity is linear. Hence in worse cast the first part runs in polynomial time. The second part always runs in polynomial time because each transformation into $NNF$ runs in linear time. Hence our desired form of the ABox can be obtained in a polynomial time.
-\subsection{Restrictions}\label{restriction}
+The first part of the transformation runs in worst case in polynomial time: If any of the first four conditions holds, we only replace $c$ which runs in constant time.  The complexity of a removing function depends on the implementation: If we have direct access to the elements in the ABox the remove function has a constant (runtime) complexity. If we have some kind of sorting then the (runtime) complexity is logarithm. In worst case if we the ABox is stored as a simple list, then the (runtime) complexity is linear. Hence in worse cast the first part runs in polynomial time. The second part always runs in polynomial time because each transformation into $NNF$ runs in linear time. Hence our desired form of the ABox can be obtained in a polynomial time.\\
 The idea of a Tableau-algorithm is rather simple: We apply rules in a arbitrary order whenever they are applicable. However often some caution has to be made. In general we do not want to apply rules which \textit{does not help} to satisfies assertion and hence results in a not necessary long runtime. For example we do not want to repeat any rule applications order, which can be applied infinity times. In \cite{1} the considered DL is $\mathcal{ALCQ}$ which allows qualified number restrictions. The algorithm uses a rule for replacing variables but to prevent endless loops of rule application, which can occur due to the replication, a safeness condition is added. In \cite{2} and\cite{6} the considered DL allows inverse roles which is handled with blocking techniques. A similar blocking technique is used in \cite{Ba} also to prevent non-termination due to considered cyclic TBoxes. The DL $\mathcal{ALCSCC}$ is a very expressive concept language and hence there are some difficulty to handle for the Tableau-algorithm.
-\subsubsection{Loosing properties of a Tableau-alorithm}
-First wee loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox $S$ and $s$ is a (always finite) chain of disjunction and conjunction we want to add all assertions of $y$ first before applying any other rules. This way $y$ has all assertion we want to assign to it and hence avoid adding unnecessary variables which do not help to satisfy $S$ or, which is worse, can lead into a violation of other assertions. For example we have
-\begin{ex}\label{order}
-\begin{align*}
-S=\{x:succ(1\leq|r\cap (A\cup B)|),\,x:succ(1\leq |A|)\}
-\end{align*}
-\end{ex}
-In case we want to satisfy the first assertion we introduced $y$ and add $(x,y):r\cap (A\cup B)$ to $S$. If we do not consider the new assertion first we take away the possibility of $y$ being in $A$ and hence the second assertion is already satisfied. Therefore we would introduce a new variable $z$ again to satisfy the second assertion, which is a successor of $x$ and in $A$. If it happens that $y:A$ then the introduction of $z$ was unnecessary. If instead of $1$ there stands a higher number, we can end up with a good amount of unnecessary introduced variables. In a worse case where $S$ has additionally the assertion $x:succ(1\geq |A|)$ and for $y$ we conclude that it is also a successor in $A$, the assertion even becomes violated.
-\subsubsection{Merging and Blocking}
-In case it is not avoidable to violate assertions by adding variables we want to have a possibility to fix it. As for example we have
+\subsection{Blocking}
+In this section we explain the blocking technique for our algorithm.\\
+For blocking we introduce a blocking set $b(S,x)$ which contains set terms which we want to be blocked in $S$.
+\begin{mydef}[Blocking Set $b(S,x)$ \RM{1}]
+The blocking set $b(S,x)$ denotes all set terms such that for a variable $y$ we can not add $(x,y):u$ to $S$ if $u=n_1\cdot|s_1|+\dots+n_j\cdot|s_j|$ and $s_i\cup u\in b(S,x)$, $1\leq i\leq j$. We say $u$ is blocked for $x$ in $S$.
+\end{mydef}
+Which set term needs to be blocked is explained in this section. We explain based on examples how we select set terms and why we select them.\\
+First we look into \textit{merging}. For that we consider this example:
 \begin{ex}\label{mergeex1}
 \begin{align*}
 S=\{x:succ(1\geq |A\cup B)|),\,x:succ(1\leq |A|),\,x:succ(1\leq |B|)\}
@@ -300,14 +292,13 @@ By merging variables assertion may become violated. To ensure the termination of
 &\quad\quad y_1:A,\,y_2:B,\,(x,y_1):t,\,(x,y_2):t\}
 \end{align*}
 \end{ex}
-We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. Hence the algorithm can run into a endless loop of adding and merging variables. Therefore we introduce a notion of \textit{blocking}. If we merged two variable $y_1$ and $y_2$ into $y$ because of a violated assertion $x:succ(k\lesseqgtr l)$, $k=n_0+n_1\cdot |s_1|+\dots + n_j\cdot|s_j|$, then we want to \textit{block} any introduction of an assertion of the form $(x,z):s_1\cap\dots \cap s_i$, $1\leq i\leq j$. This way we want to avoid a possible re-violation of $x:succ(k\lesseqgtr l)$ and a possible unless loop of merging and introducing variables. For that we introduce for a variable $x$ a blocking set $b(S,x)$ in which set terms of $k$ are listed.
-\begin{mydef}[Blocking Set $b(S,x)$ \RM{1}]
-Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merged into $y$ because of an assertion $x:succ(k\lesseqgtr l)$ then $b(S,x):=b(S,x)\cup\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$. A set term $u=t_1\cap\dots\cap t_j$ is \textit{blocked} by $x$ in the ABox $S$ if $\forall i:1\leq i\leq j,\, t_i\cup u\in b(S,x)$, where $u$ is a arbitrary set term.
+We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. Hence the algorithm can run into a endless loop of adding and merging variables. Hence we want block any introduction of assertion, which increases $k$.
+\begin{mydef}[Blocking Set $b(S,x)$ \RM{2} - Merging]
+Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merged into $y$ because of an assertion $x:succ(k\lesseqgtr l)$ then $b(S,x):=b(S,x)\cup\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$.
 \end{mydef}
-We say $t_i\cup u$ because in case there is a set term with disjunction $s_1\cup s_2$ in $b(S,x)$ then it is enough to add either $(x,y):s_1$ or $(x,y):s_2$ to possible violate a satisfied assertion.\\
-If it is clear of which ABox we talk about, we only say "$u$ is blocked by $x$".\\
 In our example after the merging the set term $A\cup B$ is added to $b(S,x)$ and hence this set term is blocked by $x$, which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. This blocking set is then used to determine whether a variable can be introduced or not.\\
-The last examples always compared a cardinality term with a fix number. However our DL is also capable of comparing two cardinality terms $k$ and $l$ as $k\lesseqgtr l$, where $k$ and $l$ can vary during the algorithm.\\ Intuitively for a assertion $x:succ(k\lesseqgtr l)$ we want to add variables, such that $l$ increases. However if both $k$ and $l$ can increase by a new variable, we have to avoid cases where $k$ increases faster then $l$. Another more crucial problem is when by adding successors not only $k^{\mathcal{I}(S)_x}$ and $l^{\mathcal{I}(S)_x}$ can differ, but also for some other assertion $x:succ(i\lesseqgtr j)$ the cardinality $i^{\mathcal{I}(S)_x}$ and $j^{\mathcal{I}(S)_x}$ may differ. We look onto two ABoxes:
+The last examples always compared a cardinality term with a fix number. However our DL is also capable of comparing two cardinality terms $k$ and $l$ as $k\lesseqgtr l$, where $k$ and $l$ can vary during the algorithm.\\ Intuitively for a assertion $x:succ(k\lesseqgtr l)$ we want to add variables, such that $l$ increases. However if both $k$ and $l$ can increase by a new variable, we have to avoid cases where $k$ increases faster then $l$. Another more crucial problem is when by adding successors not only $k^{\mathcal{I}(S)_x}$ and $l^{\mathcal{I}(S)_x}$ can differ, but also for some other assertion $x:succ(i\lesseqgtr j)$ also $i^{\mathcal{I}(S)_x}$ and $j^{\mathcal{I}(S)_x}$ may differ. And if $i^{\mathcal{I}(S)_x}$ and $j^{\mathcal{I}(S)_x}$ can differ then it can also become violated and hence we would try to fix it. However then it is possible that for another assertion $x:succ(e\lesseqgtr f)$ also $e^{\mathcal{I}(S)_x}$ and $f^{\mathcal{I}(S)_x}$ can differ and so on.\\
+We look onto two ABoxes:
 \begin{figure}[H]
 \begin{minipage}[t]{.5\textwidth}
 \raggedright
@@ -327,7 +318,7 @@ The last examples always compared a cardinality term with a fix number. However 
 \end{minipage}
 \end{figure}
 We can easily see that the left one is unsatisfiable whereas the right one is satisfiable. The problem on the left one is that by fixing either the first or second assertion the other assertion respectively becomes violated. Since $\lesseqgtr$ can only express $\leq$ and $<$ we can map this problem to a \textit{system of inequalities}.\\
-A system of inequalities is, like the name says, a set of inequalities e.g. $y<-x+5$ and $y<2x +1$. The solution for $y$ of those two inequalities can be illustrated in the following:
+A system of inequalities is, like the name says, a set of inequalities e.g. $y<-x+5$ and $y<2x +1$. The main idea to calculate the solution for a system of inequalities is to intersect the solutions of all inequalities in the set. The solution for those two inequalities can be illustrated in the following:
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -338,7 +329,7 @@ A system of inequalities is, like the name says, a set of inequalities e.g. $y<-
     y=1cm,
     xlabel={x},
     ylabel={y},
-    domain=-1:6,
+    domain=-2:8,
     minor tick num=1,% zwischen zwei Haupt-Achsmarkierungen jeweils einen Untermarkierungen einfügen
     minor tick length=0pt,% Länge der Untermarkierungen auf 0 setzen, sie also unterdrücken
     grid={both}% Gitterlinien sowohl durch die Positionen der Haupt- als auch Untermarkierungen
@@ -347,12 +338,13 @@ A system of inequalities is, like the name says, a set of inequalities e.g. $y<-
     \addlegendentry{$2x+1$}
     \addplot[mark=none, color=red]{(-1)*x+5};
     \addlegendentry{$-x+5$}
-    \addplot [fill=green, opacity=0.3] coordinates{(-1,-1) (1.333,3.666) (6,-1) (-1,-1)};
+    \addplot [fill=green, opacity=0.3] coordinates{(-1.5,-2) (1.333,3.666) (7,-2) (-1.5,-2)};
   \end{axis}
 \end{tikzpicture}
 \end{figure}
-The green area encompasses the solutions of the systems. We can see that for certain $y$-values only a handful $x$-values hold the inequalities. For example if $y$ has the value of $1$ then the inequalities only holds if $x\in ]0,4[$.\\
-To adapt this idea onto our problem we consider for an assertion $x:succ(k\lesseqgtr l$) all assertions $x:succ(i\lesseqgtr j)$ such that by increasing $l$ the cardinality $i$ or $j$ also increases. Then we translate the cardinality constraints into a set of inequalities. For our two example above we have:\\
+
+The green area encompasses the solutions of the systems which is the intersection of the solutions of both inequalities. We can see that for certain $y$-values only a handful $x$-values hold the inequalities. For example if $y=1$ then the inequalities only holds if $x\in ]0,4[$. \\
+To adapt this idea onto our problem we have to consider for an assertion $x:succ(k\lesseqgtr l$) all assertions $x:succ(i\lesseqgtr j)$ such that by increasing $l$ the cardinality $i$ or $j$ can also increases. Then we translate the cardinality constraints into a set of inequalities. For our two example above we have:
 \begin{figure}[H]
 \begin{minipage}[t]{.5\textwidth}
 \raggedright
@@ -390,10 +382,10 @@ By solving the system we get the following solution:
     \addlegendentry{$2x<y$}
     \addplot[mark=none, color=red,line width=2pt]{(1/3)*x};
     \addlegendentry{$3y<x$}
-    \addplot[mark=none, color=green,line width=2pt]{1};
+    \addplot[mark=none, color=green,line width=2pt] coordinates{(1,-1)(1,4)};
     \addlegendentry{$1\leq x$}
     \addplot[opacity=0.2, fill=blue] coordinates{(-.5,-1) (2,4) (-1,4) (-1,-1) (-0.5,-1)};
-    \addplot[fill=green, opacity=0.2] coordinates{(-1,1)(6,1)(6,4)(-1,4)(-1,1)};
+    \addplot[fill=green, opacity=0.2] coordinates{(1,-1) (1,4) (6,4) (6,-1) (1,-1)};
      \addplot[fill=red, opacity=0.2] coordinates{(-1,-0.333)(-1,-1)(6,-1)(6,2)(-1,-0.333)};
   \end{axis}
 \end{tikzpicture}
@@ -415,23 +407,25 @@ By solving the system we get the following solution:
     \addlegendentry{$x\leq 2y$}
     \addplot[mark=none, color=red,line width=2pt]{3*x};
     \addlegendentry{$y\leq 3x$}
-    \addplot[mark=none, color=green,line width=2pt]{1};
+    \addplot[mark=none, color=green,line width=2pt] coordinates{(1,-1)(1,4)};
     \addlegendentry{$1\leq x$}
     \addplot[opacity=0.2, fill=blue] coordinates{(-1,-0.5) (6,3) (6,4) (-1,4) (-1,-0.5)};
-    \addplot[fill=green, opacity=0.2] coordinates{(-1,1) (6,1) (6,4) (-1,4) (-1,1)};
+    \addplot[fill=green, opacity=0.2] coordinates {(1,-1) (1,4) (6,4) (6,-1) (1,-1)};
      \addplot[fill=red, opacity=0.2] coordinates{(-0.333,-1) (-1,-1) (-1,4) (1.333,4) (-0.333,-1)};
-     \addplot[pattern=crosshatch dots, opacity=0.2] coordinates{(-1,1) (0.333,1) (1.333,4) (-1,4) (-1,1)};
+     \addplot[pattern=crosshatch dots, opacity=0.2] coordinates{(1,3) (2,6) (1,4) (1,3)};
   \end{axis}
 \end{tikzpicture}
 \end{minipage}
 \end{figure}
-If the solution is the empty set then there is no solution and our algorithm must block any attempts of satisfying any of this assertion by certain set terms. Those selected set terms are added to $b(S,x)$ before the algorithm starts. If the
-solution is an interval then we have to look whether a natural number is existing in it.
-
-
-
- The increment depends on the non-blocked set term $u$ e.g. can not be formed from set terms in $b(S,x)$, for which we want to introduce a new variable $y$ and add $(x,y):u$ to $S$. To determine whether $u$ is \textit{safe} we count how often $u$ "appears" in $l$ and $k$. If it appears more often in $l$ than in $k$ then it is safe.
-\begin{mydef}[Safe \RM{1}]
+The left figure we see no area which is contains the solutions for all three inequalities, which means the system has no solution hence for our ABox it means that it is unsatisfiable. The right figure illustrate with the cross-hatched area the intersection of all three solution which denotes that the system has a solution. However not every solution of the system concludes a satisfiable ABox! Since we can only have natural numbers of variables, solutions which only contains only negative numbers and/or only rational numbers which can not be reduced to natural numbers also infer unsatisfiability of the ABox.\\
+For the transforming we want to accumulate all assertions to $S(l)$ first which are depending to each other.\\
+\textcolor{red}{algorithm for creating $S(l$) and transforming abox assertion into inequalities}\\
+We can gain the solution from a solver (black box). We then have to look up whether there is a solution with only natural numbers. If there is one then we do not block anything. Otherwise:
+\begin{mydef}[The blocking set $b(S,x)$ \RM{3} - Introducing variables]
+Let $x:succ(k\lesseqgtr l)$ be an assertion and $S(l)$ be a set of assertion. Transform $S(l)$ to a system of inequalities. If there is no natural number solution then $b(S,x)=b(S,x)\cup\{s_i|l=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$.
+\end{mydef}
+At the end we grab again the idea that for an assertion $x:succ(k\lesseqgtr l)$ we want to increases $l$ and want to avoid that $k$ increases faster then $l$. Hence we introduce the definition of \textit{safe}.
+\begin{mydef}[Safe]
 Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$. Let $u=t_1\cap\dots \cap t_j$ with $1\leq i\leq j$. If $n_k(u)<n_l(u)$ and $u$ is not blocked by $x$ then $u$ is called \textit{safe regarding $k\leq l$}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
 \begin{algorithm}[H] \caption{Compute $n_k(u)$}
 \begin{algorithmic}[l]
@@ -454,9 +448,20 @@ As example we look at
 S=\{x:succ(|r\cup s|<|r|+|s|)\}
 \end{align*}
 \end{ex}
-The set terms $r$ and $s$ are not blocked but still not safe because $n_{|r\cup s|}(r)=n_{|r|+|s|}(r)=1$ and $n_{|r\cup s|}(s)=n_{|r|+|s|}(s)=1$. However the set term $r\cap t$ is safe because $r\cap t\notin b(S,x)=\emptyset$ and $1=n_{|r\cup s|}(r\cap s)<n_{|r|+|s|}(r\cap s)=2$.\\
-For an ABox where $k\leq l$ 
-\subsection{Algorithm}
+The set terms $r$ and $s$ are not blocked but still not safe because $n_{|r\cup s|}(r)=n_{|r|+|s|}(r)=1$ and $n_{|r\cup s|}(s)=n_{|r|+|s|}(s)=1$. However the set term $r\cap t$ is safe because $r\cap t\notin b(S,x)=\emptyset$ and $1=n_{|r\cup s|}(r\cap s)<n_{|r|+|s|}(r\cap s)=2$.
+\section{Algorithm}
+For this algorithm it is important to consider the \textit{signs} of concept names and role names.
+\begin{mydef}[Positive and Negative Sign]
+Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.
+\end{mydef}
+All concept names in $\mathbf{C}$ and role names in $\mathbf{R}$ have a positive sign.\\
+We also loose a bit the property of a Tableau-algorithm that rules can be applied in any order: In case we add $(x,y):s$ to our ABox $S$ and $s$ is a (always finite) chain of disjunction and conjunction we want to add all assertions of $y$ first before applying any other rules. This way $y$ has all assertion we want to assign to it and hence avoid adding unnecessary variables which do not help to satisfy $S$ or, which is worse, can lead into a violation of other assertions. For example we have
+\begin{ex}\label{order}
+\begin{align*}
+S=\{x:succ(1\leq|r\cap (A\cup B)|),\,x:succ(1\leq |A|)\}
+\end{align*}
+\end{ex}
+In case we want to satisfy the first assertion we introduced $y$ and add $(x,y):r\cap (A\cup B)$ to $S$. If we do not consider the new assertion first we take away the possibility of $y$ being in $A$ and hence the second assertion is already satisfied. Therefore we would introduce a new variable $z$ again to satisfy the second assertion, which is a successor of $x$ and in $A$. If it happens that $y:A$ then the introduction of $z$ was unnecessary. If instead of $1$ there stands a higher number, we can end up with a good amount of unnecessary introduced variables. In a worse case where $S$ has additionally the assertion $x:succ(1\geq |A|)$ and for $y$ we conclude that it is also a successor in $A$, the assertion even becomes violated.\\
 Finally we can present the Tableau-algorithm to determine the satisfiability of an ABox in $\mathcal{ALCSCC}$.
 \begin{mydef}[Tableau]
 Let $S$ be a set of assertions in simplified $NNF$.
