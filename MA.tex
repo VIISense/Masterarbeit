@@ -64,8 +64,8 @@
 \section{Introduction}
 Traditional data bases where data are stored solely without any connection towards to themselves like many people would imagine are often not enough any more. The reason is that the data are stored without any semantics. However storing data with semantics can provide additional information. For example we have some data about two objects \textit{"Anna"} and \textit{"Beth"}. In a traditional data base if not explicitly stated, both data are not related to each other. Nethertheless Anna and Beth can have a relation, which also depends on who or what both are. For example both can be human and Anna is a teacher and Beth is a student. Both are in the same class. By adding solely those information in a traditional data base the information that Anna must teaches Beth is not given. One way to apply semantics to data objects is to use \textit{ontologies}. In biological and (bio)medical researches data bases are often based on ontologies \cite{bio}. Ontologies (in the computer science field) can be viewed as formal representation of a certain domain of interest. In data base they are collection of relation between the entities in the data base and are formulated as a fragment of first-order logic (FOL). These fragments of FOL are represented as \textit{Description Logic (DL)}, which is a family of knowledge representation system. DL are mainly built of concepts, which correspond to unary relations in FOL and is often represented by a capital letter, and relation between the concepts, which correspond to binary relations in FOL and is often represented by a lowercase letter. For more complex (compound) concepts operators like $\sqcap$, $\sqcup$,$\sqsubseteq$, $\exists$ and $\forall$, depending on the DL, are used. For example the statement "All Men and Women are Human" is formalize in FOL as $\forall x.Men(x)\vee Women(x)\rightarrow Human(x)$ and in DL as an \textit{axiom} $Men\,\sqcup\, Women\sqsubseteq Human$, where $Men$,$Women$ and $Human$ are concept names. The statement "All Humans, who have children, are parents" can be formalized in FOL as $\forall x \exists y. Human(x)\wedge hasChildren(x,y)\rightarrow Parent(x)$ and in DL as $Human\sqcap \exists hasChildren.\top \sqsubseteq Parent$, where $Human$ and $Parents$ are concept names and $hasChildren$ is a role name. Restriction with the operators $\exists$ and $\forall$ are called \textit{quantified} restrictions. The second statement can also be formalized with a \textit{qualified} restriction: $Human\sqcap \geq 1 hasChildren.\top\sqsubseteq Parent$. Each quantified restriction can be transformed into a qualified restriction.\\
 One big research field in DL is the determination of satisfiability of an \textit{knowledge base}, which is formulated in DL. A knowledge base normaly consists of a \textit{TBox}, which contains the axioms (rules), and of an \textit{ABox} which contains assertions of certain elements (objects). This DL allows conjunctions ($\sqcap$), disjunctions ($\sqcup$), negation $\neg C$ and qualifying number restriction ($\leq\,n\,r\, C$ and $\geq \, n\, r\, C$), where $n$ is a number, $r$ a role name, and $C$ a concept name. In \cite{1} a \textit{Tableau}-algorithm is presented for checking satisfiability for an ABox in the DL $\mathcal{ALCQ}$. A Tableau-algorithm applies \textit{completion rules} to a given \textit{set}(ABox) to decompose complex concepts and try satisfiying violated \textit{statements}(assertions). If the set concludes something unsatisfiable (clash) then the whole set is unsatisfiable. If no more rules are applicable and the set is not unsatisfiable, then it is otherwise. The satisfiability (of concepts) is stated in \cite{1} as PSPACE-hard problem (without TBox, with TBox it is EXPTime-hard \cite{4}. In \cite{pspace} a optimized Tableau-algorithm is presented which results in a PSPACE-problem. The optimization is that instead of keeping $n$ successors to satisfy a restriction $\geq\,n\,r.C$ like in \cite{1}, the algorithm saves the number of existing successors and by comparing the numbers detects possible clashes. This DL is more expressive than $\mathcal{ALCQ}$ because every qualified restriction $\leq\,n\,r.C$ and $\geq \, n\, r.C$ can be written in $\mathcal{ALCSCC}$ as $succ(|r.C|\leq 1)$ and $succ(|r.C|\geq 1)$. \\
-The expressive DL $\mathcal{ALCSCC}$ extends $\mathcal{ALCQ}$ with \textit{set constraint} and \textit{cardinality constrant}, which lays under the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic). As the name says we do not have quantifier. Instead we use set expression (Boolean Algebra part) and numerical constraint (Presburger Arithmetic) which is combined together with cardinality functions. For example $Human\sqcap \geq 1\,hasChildren.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChildren|\geq 1)\sqsubseteq Parent$. In \cite{4} a solution for the satisfiability problem (without TBox) is presented which has the complexity PSpace: For an ABox we guess the value (true or false) of the certain variables which can already lead to a \textit{false}-result or to constraints which is transformed into a $QFBAPA$ formula. Then another algorithm tries to find a solution for the formula.\\
-In this work we give another solution for the satisfiability problem with a Tableau-algorithm. As in previous work for other DLs we define completion rules which can be applied onto assertions in the ABox to determine whether $\perp$ can be concluded from it which states its unsatisfiability. If we can not apply any rules any more and we can not conclude $\perp$, then the ABox is satisfiable. The main difficulty is that unlike $\mathcal{ALCQ}$, where the bond of number of successor is fixed, in $\mathcal{ALCSCC}$ we can compare two cardinalities, which can vary during the algorithm. Hence we need an approach for counting successors and with it calculating the \textit{correct} cardinality, which is necessary to detect satisfied and violated constraint. For this we introduce \textit{induced interpretation} which can determine the cardinalities after each rule application. We want to make sure, that the variation of the cardinalities are in our favour and hence \textit{block} certain assertion from adding into the ABox.
+The expressive DL $\mathcal{ALCSCC}$ extends $\mathcal{ALCQ}$ with \textit{set constraint} and \textit{cardinality constrant}, which lays under the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic). As the name says we do not have quantifier. Instead we use set expression (Boolean Algebra part) and numerical constraint (Presburger Arithmetic) which is combined together with cardinality functions. For example $Human\sqcap \geq 1\,hasChildren.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChildren|\geq 1)\sqsubseteq Parent$. In \cite{4} a solution for the satisfiability problem (without TBox) is presented which has the complexity PSpace: For an ABox we guess the value (true or false) of the top-level variables which can already lead to a \textit{false}-result. If not then the constraint is formulated into a $QFBAPA$ formula, for which an algorithm determine by guessing a number $N$ of Venn-region to be non-empty whether the formula is satisfied or not.\\
+In this work we give another solution for the satisfiability problem with a Tableau-algorithm. As in previous work for other DLs we define completion rules which can be applied onto assertions in the ABox to determine whether $\perp$ can be concluded from it which states its unsatisfiability. If we can not apply any rules any more and we can not conclude $\perp$, then the ABox is satisfiable. The main difficulty is that unlike $\mathcal{ALCQ}$, where the bond of number of successor is fixed, in $\mathcal{ALCSCC}$ we can compare two cardinalities, which can vary during the algorithm. Hence we need an approach for counting successors and with it calculating the \textit{correct} cardinality, which is necessary to detect satisfied and violated constraint. For this we introduce \textit{induced interpretation} which can determine the cardinalities after each rule application. We want to make sure, that the variation of the cardinalities are in our favour and hence \textit{block} certain assertion from adding into the ABox. To determine which assertion needs to be blocked we apply the satisfiability algorithm from \cite{4}.
 \section{Preliminaries}
 In this work $\mathbf{C}$ denotes a set of concept names and $\mathbf{R}$ a set of role names, which are disjoint. Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like.
 \begin{mydef}[$QFBAPA$]
@@ -216,7 +216,6 @@ An ABox $S$ contains a \textit{clash} if
 \subsection{The form of the ABox}
 Like already mention a ABox $S$ in $\mathcal{ALCSCC}$ contains assertions of the form $x:C$ and $(x,y):C$ where $C$ is a $\mathcal{ALCSCC}$ concept and $x,y\in Var(S)$ are variables. We already define that all concepts are in $NNF$. To enhance the readability in this work and simplify the algorithm we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Hence it is sufficient to only consider the case $k\leq l$ and $k<l$ and "drop" the cases $l\geq k$ and $l>k$. Instead of $k=l$ we write $k\leq l$ and $l\leq k$ Therefore $k\lesseqgtr l$ can only represent $k\leq l$ or $k<l$ from now on. \\
 Therefore $c$ in an assertion $x:succ(c)$ can have only one of the following form:
-
 \begin{figure}[H]
 \begin{minipage}[t]{.3\textwidth}
 \raggedright
@@ -292,135 +291,14 @@ By merging variables assertion may become violated. To ensure the termination of
 &\quad\quad y_1:A,\,y_2:B,\,(x,y_1):t,\,(x,y_2):t\}
 \end{align*}
 \end{ex}
-We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. Hence the algorithm can run into a endless loop of adding and merging variables. Hence we want block any introduction of assertion, which increases $k$.
+We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution is to merge $y_1$ and $y_2$. This leads to $x:succ(|t|+|A\cup B|\geq 4)$ being violated. We can fix it by adding new successors. We can easily detect that adding a $t$-successor leads to a satisfied ABox. On the other hand a successor in $A\cup B$ leads to the initial state where $x:succ(|A\cup B|\leq 1)$ is violated. Hence the algorithm can run into a endless loop of adding and merging variables. Therefore we want block any introduction of assertion, which increases $|A\cup B|$.
 \begin{mydef}[Blocking Set $b(S,x)$ \RM{2} - Merging]
 Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merged into $y$ because of an assertion $x:succ(k\lesseqgtr l)$ then $b(S,x):=b(S,x)\cup\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$.
 \end{mydef}
 In our example after the merging the set term $A\cup B$ is added to $b(S,x)$ and hence this set term is blocked by $x$, which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. This blocking set is then used to determine whether a variable can be introduced or not.\\
-The last examples always compared a cardinality term with a fix number. However our DL is also capable of comparing two cardinality terms $k$ and $l$ as $k\lesseqgtr l$, where $k$ and $l$ can vary during the algorithm.\\ Intuitively for a assertion $x:succ(k\lesseqgtr l)$ we want to add variables, such that $l$ increases. However if both $k$ and $l$ can increase by a new variable, we have to avoid cases where $k$ increases faster then $l$. Another more crucial problem is when by adding successors not only $k^{\mathcal{I}(S)_x}$ and $l^{\mathcal{I}(S)_x}$ can differ, but also for some other assertion $x:succ(i\lesseqgtr j)$ also $i^{\mathcal{I}(S)_x}$ and $j^{\mathcal{I}(S)_x}$ may differ. And if $i^{\mathcal{I}(S)_x}$ and $j^{\mathcal{I}(S)_x}$ can differ then it can also become violated and hence we would try to fix it. However then it is possible that for another assertion $x:succ(e\lesseqgtr f)$ also $e^{\mathcal{I}(S)_x}$ and $f^{\mathcal{I}(S)_x}$ can differ and so on.\\
-We look onto two ABoxes:
-\begin{figure}[H]
-\begin{minipage}[t]{.5\textwidth}
-\raggedright
-\begin{align*}
-&S=\{x:succ(2\cdot|A|\leq |B|, \\
-&x:succ(3\cdot|B|\leq |A|), \\
-&x:succ(1\leq |A|)\}
-\end{align*}
-\end{minipage}%
-\begin{minipage}[t]{.5\textwidth}
-\raggedright
-\begin{align*}
-&S=\{x:succ(|A|\leq 2\cdot|B|, \\
-&x:succ(|B|\leq 3\cdot|A|), \\
-&x:succ(1\leq |A|)\}
-\end{align*}
-\end{minipage}
-\end{figure}
-We can easily see that the left one is unsatisfiable whereas the right one is satisfiable. The problem on the left one is that by fixing either the first or second assertion the other assertion respectively becomes violated. Since $\lesseqgtr$ can only express $\leq$ and $<$ we can map this problem to a \textit{system of inequalities}.\\
-A system of inequalities is, like the name says, a set of inequalities e.g. $y<-x+5$ and $y<2x +1$. The main idea to calculate the solution for a system of inequalities is to intersect the solutions of all inequalities in the set. The solution for those two inequalities can be illustrated in the following:
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-  \begin{axis}[standard,
-    xmin=-1,xmax=6,
-    ymin=-1,ymax=4,
-    x=1cm,
-    y=1cm,
-    xlabel={x},
-    ylabel={y},
-    domain=-2:8,
-    minor tick num=1,% zwischen zwei Haupt-Achsmarkierungen jeweils einen Untermarkierungen einfügen
-    minor tick length=0pt,% Länge der Untermarkierungen auf 0 setzen, sie also unterdrücken
-    grid={both}% Gitterlinien sowohl durch die Positionen der Haupt- als auch Untermarkierungen
-    ]
-    \addplot[mark=none, color=blue]{2*x+1};
-    \addlegendentry{$2x+1$}
-    \addplot[mark=none, color=red]{(-1)*x+5};
-    \addlegendentry{$-x+5$}
-    \addplot [fill=green, opacity=0.3] coordinates{(-1.5,-2) (1.333,3.666) (7,-2) (-1.5,-2)};
-  \end{axis}
-\end{tikzpicture}
-\end{figure}
-
-The green area encompasses the solutions of the systems which is the intersection of the solutions of both inequalities. We can see that for certain $y$-values only a handful $x$-values hold the inequalities. For example if $y=1$ then the inequalities only holds if $x\in ]0,4[$. \\
-To adapt this idea onto our problem we have to consider for an assertion $x:succ(k\lesseqgtr l$) all assertions $x:succ(i\lesseqgtr j)$ such that by increasing $l$ the cardinality $i$ or $j$ can also increases. Then we translate the cardinality constraints into a set of inequalities. For our two example above we have:
-\begin{figure}[H]
-\begin{minipage}[t]{.5\textwidth}
-\raggedright
-\begin{align*}
-&2x\leq y\\
-&3y\leq x\\
-&1\leq x
-\end{align*}
-\end{minipage}%
-\begin{minipage}[t]{.5\textwidth}
-\raggedright
-\begin{align*}
-&x\leq 2y \\
-&y\leq 3x \\
-&1\leq x
-\end{align*}
-\end{minipage}
-\end{figure}
-By solving the system we get the following solution:
-\begin{figure}[H]
-\begin{minipage}[t]{.5\textwidth}
-\raggedright
-\centering
-\begin{tikzpicture}[scale=0.8]
-  \begin{axis}[
-    xmin=-1,xmax=6,
-    ymin=-1,ymax=4,
-    x=1cm,
-    y=1cm,
-    domain=-1:6,
-    minor tick num=1,
-    minor tick length=0pt,
-    grid={both}]
-    \addplot[mark=none, color=blue,line width=2pt]{2*x};
-    \addlegendentry{$2x<y$}
-    \addplot[mark=none, color=red,line width=2pt]{(1/3)*x};
-    \addlegendentry{$3y<x$}
-    \addplot[mark=none, color=green,line width=2pt] coordinates{(1,-1)(1,4)};
-    \addlegendentry{$1\leq x$}
-    \addplot[opacity=0.2, fill=blue] coordinates{(-.5,-1) (2,4) (-1,4) (-1,-1) (-0.5,-1)};
-    \addplot[fill=green, opacity=0.2] coordinates{(1,-1) (1,4) (6,4) (6,-1) (1,-1)};
-     \addplot[fill=red, opacity=0.2] coordinates{(-1,-0.333)(-1,-1)(6,-1)(6,2)(-1,-0.333)};
-  \end{axis}
-\end{tikzpicture}
-\end{minipage}%
-\begin{minipage}[t]{.5\textwidth}
-\raggedright
-\centering
-\begin{tikzpicture}[scale=0.8]
-  \begin{axis}[
-    xmin=-1,xmax=6,
-    ymin=-1,ymax=4,
-    x=1cm,
-    y=1cm,
-    domain=-1:6,
-    minor tick num=1,
-    minor tick length=0pt,
-    grid={both}]
-    \addplot[mark=none, color=blue,line width=2pt]{0.5*x};
-    \addlegendentry{$x\leq 2y$}
-    \addplot[mark=none, color=red,line width=2pt]{3*x};
-    \addlegendentry{$y\leq 3x$}
-    \addplot[mark=none, color=green,line width=2pt] coordinates{(1,-1)(1,4)};
-    \addlegendentry{$1\leq x$}
-    \addplot[opacity=0.2, fill=blue] coordinates{(-1,-0.5) (6,3) (6,4) (-1,4) (-1,-0.5)};
-    \addplot[fill=green, opacity=0.2] coordinates {(1,-1) (1,4) (6,4) (6,-1) (1,-1)};
-     \addplot[fill=red, opacity=0.2] coordinates{(-0.333,-1) (-1,-1) (-1,4) (1.333,4) (-0.333,-1)};
-     \addplot[pattern=crosshatch dots, opacity=0.2] coordinates{(1,3) (2,6) (1,4) (1,3)};
-  \end{axis}
-\end{tikzpicture}
-\end{minipage}
-\end{figure}
-The left figure we see no area which is contains the solutions for all three inequalities, which means the system has no solution hence for our ABox it means that it is unsatisfiable. The right figure illustrate with the cross-hatched area the intersection of all three solution which denotes that the system has a solution. However not every solution of the system concludes a satisfiable ABox! Since we can only have natural numbers of variables, solutions which only contains only negative numbers and/or only rational numbers which can not be reduced to natural numbers also infer unsatisfiability of the ABox.\\
-For the transforming we want to accumulate all assertions to $S(l)$ first which are depending to each other.\\
-\textcolor{red}{algorithm for creating $S(l$) and transforming abox assertion into inequalities}\\
-We can gain the solution from a solver (black box). We then have to look up whether there is a solution with only natural numbers. If there is one then we do not block anything. Otherwise:
+The last examples always compared a cardinality term with a fix number. However our DL is also capable of comparing two cardinality terms $k$ and $l$ as $k\lesseqgtr l$, where $k$ and $l$ can vary during the algorithm.\\
+Intuitively for a assertion $x:succ(k\lesseqgtr l)$ we want to add variables, such that $l$ increases. However if both $k$ and $l$ can increase by a new variable, we have to avoid cases where $k$ increases faster then $l$. Another more crucial problem is when by adding successors not only $k^{\mathcal{I}(S)_x}$ and $l^{\mathcal{I}(S)_x}$ can increases, but also for some other assertion $x:succ(i\lesseqgtr j)$ the cardinalities $i^{\mathcal{I}(S)_x}$ or $j^{\mathcal{I}(S)_x}$. For that we proceed as follows:
+First we gather for an assertion $x:succ(k\leq l)$ all assertions, which are \textit{depended} to each other, into a set $\mathcal{A}$, formulate a $QFBAPA$ formula $\phi$ of the constraints and then apply the algorithm of \cite{4}. If the algorithm states that $\phi$ is unsatisfiable then we want to block any set terms which occurs semantically in $\mathcal{A}$.\\
 \begin{mydef}[The blocking set $b(S,x)$ \RM{3} - Introducing variables]
 Let $x:succ(k\lesseqgtr l)$ be an assertion and $S(l)$ be a set of assertion. Transform $S(l)$ to a system of inequalities. If there is no natural number solution then $b(S,x)=b(S,x)\cup\{s_i|l=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$.
 \end{mydef}
