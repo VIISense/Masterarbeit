@@ -214,29 +214,23 @@ An ABox $S$ contains a \textit{clash} if
 \end{itemize}
 \end{mydef}
 \subsection{The form of the ABox}
-Like already mention a ABox $S$ in $\mathcal{ALCSCC}$ contains assertions of the form $x:C$ and $(x,y):C$ where $C$ is a $\mathcal{ALCSCC}$ concept and $x,y\in Var(S)$ are variables. We already define that all concepts are in $NNF$. To enhance the readability in this work and simplify the algorithm we write $k\leq l$ instead of $l\geq k$ and $k<l$ instead of $l>k$. Hence it is sufficient to only consider the case $k\leq l$ and $k<l$ and "drop" the cases $l\geq k$ and $l>k$. Instead of $k=l$ we write $k\leq l$ and $l\leq k$ Therefore $k\lesseqgtr l$ can only represent $k\leq l$ or $k<l$ from now on. \\
-Therefore $c$ in an assertion $x:succ(c)$ can have only one of the following form:
+Like already mention a ABox $S$ in $\mathcal{ALCSCC}$ contains assertions of the form $x:C$ and $(x,y):C$ where $C$ is a $\mathcal{ALCSCC}$ concept and $x,y\in Var(S)$ are variables. We already define that all concepts are in $NNF$. To enhance the readability in this work and simplify the algorithm we write $k\leq l$ instead of $l\geq k$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Therefore $k\lesseqgtr l$ can only represent $k\leq l$ from now on. \\
+Hence $c$ in an assertion $x:succ(c)$ can have only one of the following form:
 \begin{figure}[H]
-\begin{minipage}[t]{.3\textwidth}
+\begin{minipage}[t]{.5\textwidth}
 \raggedright
-\begin{itemize}
-\item $k<l$
-\end{itemize}
-\end{minipage}% <---------------- Note the use of "%"
-\begin{minipage}[t]{.3\textwidth}
-\raggedleft
 \begin{itemize}
 \item $k\leq l$
 \end{itemize}
-\end{minipage}%
-\begin{minipage}[t]{.3\textwidth}
+\end{minipage}% <---------------- Note the use of "%"
+\begin{minipage}[t]{.5\textwidth}
 \raggedleft
 \begin{itemize}
 \item $n\,dvd\, l$
 \end{itemize}
 \end{minipage}
 \end{figure}
-where $k,l$ are in $NNF$.\\
+where $k,l$ are in $NNF$ and $n$ is an integer.\\
 Our desired form for the ABox is gained by the following algorithm.
 \begin{algorithm}[H] \caption{Transforming ABox}
 \begin{algorithmic}[l]
@@ -249,7 +243,10 @@ Our desired form for the ABox is gained by the following algorithm.
 \State $c:=(|s_1^\neg\cap s_2|\leq 0)$; return;
 \EndIf
 \If{$c$ is $l>k$}
-\State $c:=k< l$; return;
+\State $c:=k +1\leq l$; return;
+\EndIf
+\If{$c$ is $k<l$}
+\State $c:=k +1\leq l$; return;
 \EndIf
 \If{$c$ is $l\geq k$}
 \State $c:=k\leq l$; return;
@@ -272,7 +269,7 @@ For blocking we introduce a blocking set $b(S,x)$ which contains set terms which
 \begin{mydef}[Blocking Set $b(S,x)$ \RM{1}]
 The blocking set $b(S,x)$ denotes all set terms such that for a variable $y$ we can not add $(x,y):u$ to $S$ if $u=n_1\cdot|s_1|+\dots+n_j\cdot|s_j|$ and $s_i\cup u\in b(S,x)$, $1\leq i\leq j$. We say $u$ is blocked for $x$ in $S$.
 \end{mydef}
-Which set term needs to be blocked is explained in this section. We explain based on examples how we select set terms and why we select them.\\
+Which set term needs to be blocked is explained in this section. We explain based on examples how we select set terms.\\
 First we look into \textit{merging}. For that we consider this example:
 \begin{ex}\label{mergeex1}
 \begin{align*}
@@ -296,12 +293,36 @@ We see that the assertion $x:succ(|A\cup B|\leq 1)$ is violated and a solution i
 Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merged into $y$ because of an assertion $x:succ(k\lesseqgtr l)$ then $b(S,x):=b(S,x)\cup\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$.
 \end{mydef}
 In our example after the merging the set term $A\cup B$ is added to $b(S,x)$ and hence this set term is blocked by $x$, which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. This blocking set is then used to determine whether a variable can be introduced or not.\\
-The last examples always compared a cardinality term with a fix number. However our DL is also capable of comparing two cardinality terms $k$ and $l$ as $k\lesseqgtr l$, where $k$ and $l$ can vary during the algorithm.\\
+The last examples always compared a cardinality term with a fix number. However our DL is also capable of comparing two cardinality terms as in $k\lesseqgtr l$, where $k$ and $l$ can vary during the algorithm.\\
 Intuitively for a assertion $x:succ(k\lesseqgtr l)$ we want to add variables, such that $l$ increases. However if both $k$ and $l$ can increase by a new variable, we have to avoid cases where $k$ increases faster then $l$. Another more crucial problem is when by adding successors not only $k^{\mathcal{I}(S)_x}$ and $l^{\mathcal{I}(S)_x}$ can increases, but also for some other assertion $x:succ(i\lesseqgtr j)$ the cardinalities $i^{\mathcal{I}(S)_x}$ or $j^{\mathcal{I}(S)_x}$. For that we proceed as follows:
-First we gather for an assertion $x:succ(k\leq l)$ all assertions, which are \textit{depended} to each other, into a set $\mathcal{A}$, formulate a $QFBAPA$ formula $\phi$ of the constraints and then apply the algorithm of \cite{4}. If the algorithm states that $\phi$ is unsatisfiable then we want to block any set terms which occurs semantically in $\mathcal{A}$.\\
+First we gather all assertions, which are \textit{depended} to each other, into a set $\mathcal{A}$, formulate a $QFBAPA$ formula $\phi$ of the constraints and then apply the algorithm of \cite{4}. If the algorithm states that $\phi$ is unsatisfiable then we want to block any set terms which occurs semantically in $\mathcal{A}$.
 \begin{mydef}[The blocking set $b(S,x)$ \RM{3} - Introducing variables]
-Let $x:succ(k\lesseqgtr l)$ be an assertion and $S(l)$ be a set of assertion. Transform $S(l)$ to a system of inequalities. If there is no natural number solution then $b(S,x)=b(S,x)\cup\{s_i|l=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j\}$.
+Let $\mathcal{A}$ be a set of assertion of the form $x:succ(k\leq l)$. If $\mathcal{A}$ is unsatisfiable then
+\begin{align*}
+&b(S,x)=b(S,x)\cup\\
+&\{s_i|k=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j,\, x:succ(k\leq l)\in\mathcal{A}\}\cup\\
+&\{s_i|l=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j,\, x:succ(k\leq l)\in\mathcal{A}\}
+\end{align*}
 \end{mydef}
+So before the Tableau-algorithm start, we want to divide all assertions of the form $x:succ(k\leq l)$ into \textit{depending} sets (similar to deep breath search):
+\begin{algorithm}[H] \caption{Dividing assertions into depending sets}
+\begin{algorithmic}[l]
+\State ABox $S$
+\ForEach{assertion $x:succ(k\leq l)\in S$}
+\State create a new set $\mathcal{A}=\{x:succ(k\leq l)\}$
+\State remove $x:succ(k\leq l)$ from $S$
+\ForEach{assertion $x:succ(k\leq l)\in \mathcal{A}$}
+\ForEach{assertion $x:succ(i\leq j)\in \mathcal{S}$}
+\If{$l$ occurs semantically in $i$ or $j$}
+\State remove $x:succ(i\leq j)$ from $S$
+\State $\mathcal{A}=\mathcal{A}\cup\{x:succ(i\leq j)\}$
+\EndIf
+\EndFor
+\EndFor
+\EndFor\\
+\Return all $\mathcal{A}$
+\end{algorithmic}
+\end{algorithm}
 At the end we grab again the idea that for an assertion $x:succ(k\lesseqgtr l)$ we want to increases $l$ and want to avoid that $k$ increases faster then $l$. Hence we introduce the definition of \textit{safe}.
 \begin{mydef}[Safe]
 Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$. Let $u=t_1\cap\dots \cap t_j$ with $1\leq i\leq j$. If $n_k(u)<n_l(u)$ and $u$ is not blocked by $x$ then $u$ is called \textit{safe regarding $k\leq l$}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
