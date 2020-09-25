@@ -150,6 +150,7 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \end{itemize} 
 $\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
+We say a set term $t$ occurs semantically in a cardinality term $k=n_0+n_1\cdot |s_1|+\dots +n_j\cdot|s_j|$ if for a $i\in\{1,\dots ,j\}$ we have $s_i=t\cup t_{rest}$.
 \section{Prearrangement}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
 To help the algorithm we want to avoid nested negation e.g. $\neg(\neg(\neg(A\cup B)))$. Hence we consider all concepts in \textit{negated normal form (NNF)}.
@@ -295,7 +296,7 @@ Let $y_1$ and $y_2$ be successors of a variable $x$. If $y_1$ and $y_2$ are merg
 In our example after the merging the set term $A\cup B$ is added to $b(S,x)$ and hence this set term is blocked by $x$, which means that to satisfy $x:succ(|t|+|A\cup B|\geq 4)$ we can only add a $t$-successor. This blocking set is then used to determine whether a variable can be introduced or not.\\
 The last examples always compared a cardinality term with a fix number. However our DL is also capable of comparing two cardinality terms as in $k\lesseqgtr l$, where $k$ and $l$ can vary during the algorithm.\\
 Intuitively for a assertion $x:succ(k\lesseqgtr l)$ we want to add variables, such that $l$ increases. However if both $k$ and $l$ can increase by a new variable, we have to avoid cases where $k$ increases faster then $l$. Another more crucial problem is when by adding successors not only $k^{\mathcal{I}(S)_x}$ and $l^{\mathcal{I}(S)_x}$ can increases, but also for some other assertion $x:succ(i\lesseqgtr j)$ the cardinalities $i^{\mathcal{I}(S)_x}$ or $j^{\mathcal{I}(S)_x}$. For that we proceed as follows:
-First we gather all assertions, which are \textit{depended} to each other, into a set $\mathcal{A}$, formulate a $QFBAPA$ formula $\phi$ of the constraints and then apply the algorithm of \cite{4}. If the algorithm states that $\phi$ is unsatisfiable then we want to block any set terms which occurs semantically in $\mathcal{A}$.
+First we gather all assertions, which are \textit{depended} to each other, into a set $\mathcal{A}$, formulate a $QFBAPA$ formula of the constraints and then let a $QFBAPA$ solver determine whether the formula and hence $\mathcal{A}$ is satisfiable. If the solver states that the formula is unsatisfiable then we want to block any set terms which occurs semantically in any cardinality term in $\mathcal{A}$.
 \begin{mydef}[The blocking set $b(S,x)$ \RM{3} - Introducing variables]
 Let $\mathcal{A}$ be a set of assertion of the form $x:succ(k\leq l)$. If $\mathcal{A}$ is unsatisfiable then
 \begin{align*}
@@ -304,7 +305,7 @@ Let $\mathcal{A}$ be a set of assertion of the form $x:succ(k\leq l)$. If $\math
 &\{s_i|l=n_0+n_1\cdot|s_1|+\dots+n_j\cdot|n_j|,\,\forall i:1\leq i\leq j,\, x:succ(k\leq l)\in\mathcal{A}\}
 \end{align*}
 \end{mydef}
-So before the Tableau-algorithm start, we want to divide all assertions of the form $x:succ(k\leq l)$ into \textit{depending} sets (similar to deep breath search):
+So before the Tableau-algorithm start, we want to divide all assertions of the form $x:succ(k\leq l)$ into sets:
 \begin{algorithm}[H] \caption{Dividing assertions into depending sets}
 \begin{algorithmic}[l]
 \State ABox $S$
@@ -312,10 +313,11 @@ So before the Tableau-algorithm start, we want to divide all assertions of the f
 \State create a new set $\mathcal{A}=\{x:succ(k\leq l)\}$
 \State remove $x:succ(k\leq l)$ from $S$
 \ForEach{assertion $x:succ(k\leq l)\in \mathcal{A}$}
-\ForEach{assertion $x:succ(i\leq j)\in \mathcal{S}$}
-\If{$l$ occurs semantically in $i$ or $j$}
-\State remove $x:succ(i\leq j)$ from $S$
-\State $\mathcal{A}=\mathcal{A}\cup\{x:succ(i\leq j)\}$
+\State $l=n_0+n_1\cdot|l_1|+\dots+n_j\cdot|l_j|$
+\ForEach{assertion $x:succ(p\leq q)\in \mathcal{S}$}
+\If{$\exists i\in\{1,\dots,j\}: l_i$ occurs semantically in $p$ or $q$}
+\State remove $x:succ(p\leq q)$ from $S$
+\State $\mathcal{A}=\mathcal{A}\cup\{x:succ(p\leq q)\}$
 \EndIf
 \EndFor
 \EndFor
@@ -323,6 +325,15 @@ So before the Tableau-algorithm start, we want to divide all assertions of the f
 \Return all $\mathcal{A}$
 \end{algorithmic}
 \end{algorithm}
+We then convert each assertion into $QFBAPA$ formulas by
+\begin{itemize}
+\item drop $x:succ$
+\item replacing each role name $r\in\mathbf{R}$ in the assertion by a variable $X_r$ and each concept name $C\in\mathbf{C}$ by $X_C$
+\item connect formulas with $\wedge$
+\end{itemize}
+Note in case of $r^\neg$ or $\neg C$ we have in the formula $X_r^\neg$ and $X_C^\neg$.\\ 
+The $QFBAPA$ formula for Example 1 would be $1\geq |X_A\cup X_B|\wedge 1\leq |X_A|\wedge 1\leq |X_B|$.\\
+We then let a $QFBAPA$ solver determine whether the formula has a solution or not.
 At the end we grab again the idea that for an assertion $x:succ(k\lesseqgtr l)$ we want to increases $l$ and want to avoid that $k$ increases faster then $l$. Hence we introduce the definition of \textit{safe}.
 \begin{mydef}[Safe]
 Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$. Let $u=t_1\cap\dots \cap t_j$ with $1\leq i\leq j$. If $n_k(u)<n_l(u)$ and $u$ is not blocked by $x$ then $u$ is called \textit{safe regarding $k\leq l$}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
