@@ -101,7 +101,7 @@ where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
 \end{mydef}
 For readability we use $\lesseqgtr$ to address the comparison symbols $=,\,\leq,\,\geq,\,<,\,>$. The negation $\not\lesseqgtr$ address the symbols $\neq,\,>,\,<,\,\geq,\,\leq$ respectively.\\
-Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$.
+Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. 
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
@@ -150,7 +150,7 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \end{itemize} 
 $\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
-We say a set term $t$ occurs semantically in a cardinality term $k=n_0+n_1\cdot |s_1|+\dots +n_j\cdot|s_j|$ if for a $i\in\{1,\dots ,j\}$ we have $s_i=t\cup t_{rest}$.
+We say a set term $t$ occurs semantically in a cardinality term $k=n_0+n_1\cdot |s_1|+\dots +n_j\cdot|s_j|$ if for a $i\in\{1,\dots ,j\}$ we have $s_i=t\cup t_{rest}$, where $t_{rest}$ is a set term. Note that a set term $t$ does not occurs semantically in the cardinality term$|t^\neg|$.
 \section{Prearrangement}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
 To help the algorithm we want to avoid nested negation e.g. $\neg(\neg(\neg(A\cup B)))$. Hence we consider all concepts in \textit{negated normal form (NNF)}.
@@ -333,7 +333,7 @@ We then convert each assertion into $QFBAPA$ formulas by
 \end{itemize}
 Note in case of $r^\neg$ or $\neg C$ we have in the formula $X_r^\neg$ and $X_C^\neg$.\\ 
 The $QFBAPA$ formula for Example 1 would be $1\geq |X_A\cup X_B|\wedge 1\leq |X_A|\wedge 1\leq |X_B|$.\\
-We then let a $QFBAPA$ solver determine whether the formula has a solution or not.
+We then let a $QFBAPA$ solver determine whether the formula has a solution or not.\\
 At the end we grab again the idea that for an assertion $x:succ(k\lesseqgtr l)$ we want to increases $l$ and want to avoid that $k$ increases faster then $l$. Hence we introduce the definition of \textit{safe}.
 \begin{mydef}[Safe]
 Let $x:succ(k\lesseqgtr l)$ be an assertion in $S$. Let $u=t_1\cap\dots \cap t_j$ with $1\leq i\leq j$. If $n_k(u)<n_l(u)$ and $u$ is not blocked by $x$ then $u$ is called \textit{safe regarding $k\leq l$}. The number $n_k(u)$ (and $n_l(u)$ respectively) is computed as followed:
@@ -372,6 +372,8 @@ S=\{x:succ(1\leq|r\cap (A\cup B)|),\,x:succ(1\leq |A|)\}
 \end{align*}
 \end{ex}
 In case we want to satisfy the first assertion we introduced $y$ and add $(x,y):r\cap (A\cup B)$ to $S$. If we do not consider the new assertion first we take away the possibility of $y$ being in $A$ and hence the second assertion is already satisfied. Therefore we would introduce a new variable $z$ again to satisfy the second assertion, which is a successor of $x$ and in $A$. If it happens that $y:A$ then the introduction of $z$ was unnecessary. If instead of $1$ there stands a higher number, we can end up with a good amount of unnecessary introduced variables. In a worse case where $S$ has additionally the assertion $x:succ(1\geq |A|)$ and for $y$ we conclude that it is also a successor in $A$, the assertion even becomes violated.\\
+Now we can start with the algorithm:\\
+First we do the prearrangement: transforming the ABox into the desired form and determining whether some set of assertions $\mathcal{A}$ is satisfiable or not and if needed fill the blocking sets for each variable in $Var(S)$.\\
 Finally we can present the Tableau-algorithm to determine the satisfiability of an ABox in $\mathcal{ALCSCC}$.
 \begin{mydef}[Tableau]
 Let $S$ be a set of assertions in simplified $NNF$.
@@ -525,7 +527,7 @@ The following proof is sectioned by the definition of obtaining a derived set.
 \begin{enumerate}
 \item $S^\prime$ is obtained by the application of rule \ref{cap} on $x:C\sqcap D$:\\
 The first component remains the same because $size(C)<size(C\sqcup D)$ and $size(D)<size(C\sqcap D)$. The second component decreases because rule \ref{cap} can not be applied on $x:C\sqcap D$ any more meaning that the corresponding entry in the multiset is removed. If $C$ (or $D$) happens to be a disjunction ($C^\prime\sqcup D^\prime$) or a conjunction ($C^\prime\sqcap D^\prime$) then the second component also becomes smaller because $size(C^\prime)$ and $size(D^\prime)$ are always smaller than the disjunction or conjunction of them and therefore also smaller than $size(C\sqcap D)$. Hence the entry for $size(C\sqcap D)$ can be replace by the smaller $size(C^\prime\sqcup D^\prime)$ or $size(C^\prime\sqcap D^\prime)$.\\
-Consider now a tuple $\psi_S(y)$ such that $x\neq y$. $\psi_S(y)$ can only be affected if $x$ is a successor of $y$. The first and second component of $\psi_S(y)$ remain unaffected because both are independent from $x$. The third component of can never in creases because we do not add any new successors. If at all it can decreases because it may happen that by adding assertions regarding $x$ rule \ref{choose} can not be applied any more on some assertion $y:succ(k\lesseqgtr l)$. The fourth component does not change because we do not add any new successor. The fifth component can also only decrease but never increase: It can only increases if there is an assertion $y:succ(k\lesseqgtr l)$ and by adding $x:C$ or $x:D$ to $S$ we have $k^(\mathcal{I}(S^\prime)_y)-k^(\mathcal{I}(S)_y)>l^(\mathcal{I}(S^\prime)_y)-l^(\mathcal{I}(S)_y)$, which denotes that $k$'s increment was higher than $l$'s increment. However this 
+Consider now a tuple $\psi_S(y)$ such that $x\neq y$. $\psi_S(y)$ can only be affected if $x$ is a successor of $y$. The first and second component of $\psi_S(y)$ remain unaffected because both are independent from $x$. The third component of can never in creases because we do not add any new successors. If at all it can decreases because it may happen that by adding assertions regarding $x$ rule \ref{choose} can not be applied any more on some assertion $y:succ(k\lesseqgtr l)$. The fourth component does not change because we do not add any new successor. The fifth component can also only decrease but never increase: It can only increases if there is an assertion $y:succ(k\lesseqgtr l)$ and by adding $x:C$ or $x:D$ to $S$ we have $k^{\mathcal{I}(S^\prime)_y}-k^{\mathcal{I}(S)_y}>l^{\mathcal{I}(S^\prime)_y}-l^{\mathcal{I}(S)_y}$, which denotes that $k$'s increment was higher than $l$'s increment. However this 
 This means that we can obtain $\Psi(S^\prime)$ from $\Psi(S)$ by replacing $\psi_S(x)$ with the smaller tuple $\psi_{S^\prime}(x)$. 
 \item $S^\prime$ is obtained by the application of rule \ref{cup} on $x:C\sqcup D$:\\
 similar to above
