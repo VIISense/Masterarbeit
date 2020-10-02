@@ -100,7 +100,15 @@ where $s,t$ are set terms
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
 \end{mydef}
-Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.
+Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.\\
+A $QFBAPA$ formula with the restriction from above has the following grammar (see \cite{pa})
+\begin{itemize}
+\item[] $F\rightarrow \quad C\mid F\wedge F\mid F\vee F\mid  \neg F$
+\item[] $C\rightarrow \quad K\leq K\mid N\,dvd\, K$
+\item[] $K\rightarrow \quad N\mid K+K\mid N\cdot K\mid |S|$
+\item[] $S\rightarrow \quad\emptyset\mid\mathcal{U}\mid S\cap S\mid S\cup S\mid S^\neg\mid x$
+\item[] $N\rightarrow \quad 0\mid 1\mid\dots$
+\end{itemize}
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
@@ -260,15 +268,28 @@ Our desired form for the ABox is gained by the following algorithm.
 \end{algorithmic}
 \end{algorithm}
 The first part of the transformation runs in worst case in polynomial time: If any of the first four conditions holds, we only replace $c$ which runs in constant time.  The complexity of a removing function depends on the implementation: If we have direct access to the elements in the ABox the remove function has a constant (runtime) complexity. If we have some kind of sorting then the (runtime) complexity is logarithm. In worst case if we the ABox is stored as a simple list, then the (runtime) complexity is linear. Hence in worse cast the first part runs in polynomial time. The second part always runs in polynomial time because each transformation into $NNF$ runs in linear time. Hence our desired form of the ABox can be obtained in a polynomial time.
-\subsection{Transforming a ABox into a $QFBAPA$ formula}
-Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ solver. We want to use it whenever we want to add successors for a variable $x$. For that we want to collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula:
+\subsection{Transforming a ABox into a \textit{QFBAPA} formula}
+Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ solver. We want to use it whenever we want to add successors for a variable $x$. For that we want to collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula.
 \begin{itemize}
 \item drop $x:succ$
 \item replace all role names $r$ with $X_r$
-\item replace all concepts $C$ with $X_C$
+\item replace all concepts names $C$ with $X_C$
+\item replace all $succ(c)$ with $X_{c}$
 \item connect all formulas with $\wedge$
 \item include the conjunct $\mathcal{U}=X_{r_1}\cup\dots\cup X_{r_n}$, $r_1,\dots, r_n\in\mathbf{R}$
 \end{itemize}
+As an example we look at
+\begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
+\begin{align*}
+S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C\}
+\end{align*}
+\end{ex}
+The $QFBAPA$ formula for that would be
+\begin{ex}[Transformed $QFBAPA$ formula]
+\begin{align*}
+1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|)\wedge X_C\wedge \mathcal{U}=\{X_r\}
+\end{align*}
+\end{ex}
 \subsection{Algorithm}
 Finally we can present the Tableau-algorithm to determine the satisfiability of an ABox in $\mathcal{ALCSCC}$.
 \begin{mydef}[Tableau]
