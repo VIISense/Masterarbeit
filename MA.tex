@@ -100,7 +100,8 @@ where $s,t$ are set terms
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
 \end{mydef}
-Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.\\
+Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.
+\begin{mydef}[$QFBAPA$ formula]
 A $QFBAPA$ formula with the restriction from above has the following grammar (see \cite{pa})
 \begin{itemize}
 \item[] $F\rightarrow \quad C\mid F\wedge F\mid F\vee F\mid  \neg F$
@@ -109,6 +110,7 @@ A $QFBAPA$ formula with the restriction from above has the following grammar (se
 \item[] $S\rightarrow \quad\emptyset\mid\mathcal{U}\mid S\cap S\mid S\cup S\mid S^\neg\mid x$
 \item[] $N\rightarrow \quad 0\mid 1\mid\dots$
 \end{itemize}
+\end{mydef}
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
@@ -215,7 +217,7 @@ Let $S$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and 
 \end{itemize} 
 where $n\in\mathbb{N}$.
 \end{mydef}
-Like already mentioned an ABox is unsatisfiable if all choices ends in a clash. A clash in a ABox $S$ implies that $\perp$ can be derived from $S$.
+Like already mentioned an ABox is unsatisfiable if all choices ends in a clash.
 \begin{mydef}[Clash]
 An ABox $S$ contains a \textit{clash} if
 \begin{itemize}
@@ -226,11 +228,6 @@ An ABox $S$ contains a \textit{clash} if
 \item $\{x:succ(c)\}\subseteq S$ violated and no more rules are applicable
 \end{itemize}
 \end{mydef}
-For the algorithm it is also important to consider the \textit{signs} of concept names and role names.
-\begin{mydef}[Positive and Negative Sign]
-Let $(x,y):s$ be an arbitrary assertion with $x,y\in Var(S)$ and $s$ being a set term in $NNF$. A concept name $C$ has a \textit{positive sign} in $s$ if no negation sign appears immediately in front of $C$. It has a \textit{negative sign} otherwise. A role name $r$ has a \textit{positive sign} if no negation sign appears above it. It has a \textit{negative sign} otherwise.
-\end{mydef}
-All concept names in $\mathbf{C}$ and role names in $\mathbf{R}$ have a positive sign.
 \subsection{The form of the ABox}
 Like already mention a ABox $S$ in $\mathcal{ALCSCC}$ contains assertions of the form $x:C$ and $(x,y):C$ where $C$ is a $\mathcal{ALCSCC}$ concept and $x,y\in Var(S)$ are variables. Like already discussed we want constraints to be in $NNF$ and for an assertion $x:succ(c)$ that $c$ is either $k\leq l$ or $n\,dvd\,l$.
 Our desired form for the ABox is gained by the following algorithm.
@@ -283,99 +280,40 @@ As an example we look at
 \begin{align*}
 S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C\}
 \end{align*}
-\end{ex}
 The $QFBAPA$ formula for that would be
-\begin{ex}[Transformed $QFBAPA$ formula]
 \begin{align*}
 1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|)\wedge X_C\wedge \mathcal{U}=\{X_r\}
 \end{align*}
 \end{ex}
 \subsection{Algorithm}
-Finally we can present the Tableau-algorithm to determine the satisfiability of an ABox in $\mathcal{ALCSCC}$.
+Finally we can present the Tableau-algorithm to determine the satisfiability of an ABox in $\mathcal{ALCSCC}$. We divide the algorithm in two parts: a boolean part, where the decomposing of concept happens,  and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
 \begin{mydef}[Tableau]
 Let $S$ be a set of assertions in simplified $NNF$.
-\begin{enumerate}
+Boolean part:
+\begin{itemize}
 \item\label{cap} $\sqcap$-rule: $S$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
-\item\label{choose}$choose$-rule: $S$ contains
-\begin{itemize}
-\item $x:succ(k\leq l)$
-\item $(x,y):k^\prime$, $k=n\cdot|k^\prime\cup u_1|+m\cdot|k^\prime\cap u_2|+s$, $n,m\in\mathbb{N}_0$, $u_1,u_2$ are set terms and $s$ a cardinality term
-\item but neither $(x,y):k$ nor $(x,y):k^\neg$
 \end{itemize}
-$\rightarrow$ either $S:=S\cup\{(x,y):k\}$ or $S:=S\cup\{(x,y):k^\neg\}$. Then jump to rule \ref{repeat}
-\item\label{chooserole}$choose$-$a$-$role$-rule: $S$ contains $(x,y):s$ but for any $r\in\mathbf{R}$: $(x,y):r\notin S$\\
-$\rightarrow$ choose $r\in\mathbf{R}$, such that $(x,y):r^\neg\notin S$ and $S:=S\cup\{(x,y):r\}$. Then jump to rule \ref{repeat}
-\item\label{dvd}$divide$-rule: $S$ contains 
+Numerical part:
 \begin{itemize}
-\item $x:succ(n\,dvd\,l)$, which is violated
-\item there is a set term $s=s_1\cap \dots \cap s_i$, $l=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|+\dots+n_j\cdot|s_j|$, such that $s$ is not blocked for $x$ in $S$
-\end{itemize}
-$\rightarrow$ introduce a new variable $y$ and $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{leq}$\leq$-rule: $S$ contains 
+\item\label{succ} $successor$-rule: $S$ contains for an unmarked variable $x$ at least one assertion of the form $x:succ(c)$:
 \begin{itemize}
-\item $x:succ(k\leq l)$, which is violated, $l=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|+\dots+n_j\cdot|s_j|$
-\item there is a set term $s:=|s_1\cap \dots \cap s_i|$, which is safe to introduce
+\item gather all assertion of the form $x:succ(c)$ into a set $\mathcal{A}$
+\item transform $\mathcal{A}$ into a $QFBAPA$ formula
 \end{itemize}
-$\rightarrow$ introduce a new variable $y$ $S:=S\cup\{(x,y):s\}$. Then jump to rule \ref{repeat}
-\item\label{exceeded}$merge$-rule: $S$ contains
+If a $QFBAPA$ solver returns \textit{unsatisfiable} then $S=S\cup\{x:\perp\}$\\
+If a $QFBAPA$ solver returns \textit{satisfiable} then
+for each element $e$ we introduce a new variable $y$ and
 \begin{itemize}
-\item $x:succ(k\leq n)$, which is violated
-\item $(x,y_1):s_1$ and $(x,y_2):s_2$, such that $y_1\neq y_2$ and $k=n\cdot|s_1\cup s_2\cup t|+u$, where $u$ is a cardinality term, $t$ a set terms, $n\in\mathbb{N}$
-\item $y_1$ and $y_2$ are safe to merge
+\item for each $e\in X_C$ we have $S=S\cup\{y:C\}$
+\item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $S=S\cup\{y:succ(c)\}$
+\item for each $e\in X_r$, $r\in\mathbf{R}$, we have $S=S\cup\{(x,y):r\}$
+\item mark $x$
 \end{itemize}
-$\rightarrow$ merge $y_1$ and $y_2$ 
-\item\label{s}$\leq 0$-rule: $S$ contains 
-\begin{itemize}
-\item $x:succ(|s_1\cap\dots\cap s_j|\leq 0)$
-\item $(x,y):s_1$, $\dots$, $(x,y):s_i$, $1\leq i<j$
-\item but not $y:s_{i+1}$, $\dots$, $y:s_j$
 \end{itemize}
-$\rightarrow$ choose $n\in\{i+1,\dots, j\}$, extend $S:=S\cup\{(x,y):s_n^\neg\}$ and then jump to rule \ref{repeat}
-\item\label{repeat} $set.term$-rule (Repeat until inapplicable): In $S$ is $(x,y):s$ and
-\begin{enumerate}
-\item\label{setterm1} $s=s_1\cap s_2$ but $\{(x,y):s_1,\,(x,y):s_2\}\not\subseteq S$\\
-$\rightarrow$ $S:=S\cup \{(x,y):s_1,\,(x,y):s_2\}$ 
-\item\label{setterm2} $s=s_1\cup s_2$ and neither $\{(x,y):s_1\}\subseteq S$ nor $S\{(x,y):s_2\}\subset S$\\
-$\rightarrow$ either $S:=S\cup \{(x,y):s_1\}$ or $S:=S\cup \{(x,y):s_2\}$ 
-\item\label{setterm3} $s=C$ and $y:C\notin S$, where $C$ is an $\mathcal{ALCSCC}$ concepts\\
-$\rightarrow$ $S:=S\cup\{y:C\}$
-\end{enumerate}
-\end{enumerate}
 \end{mydef}
-We now explain the rules of the Tableau-algorithm and their intention.\\
-The first rule decompose the conjunction and the second rule adds non-deterministically the right assertion.\\
-The $choose$-rule is important because we need to know of every successor what kind of role successors and in which concepts they are. For an assertion $x:succ(k\leq l$ it is important that $k^{\mathcal{I}(S)_x}$ and $l^{\mathcal{I}(S)_x}$ counts the successors correctly. In the following case the successor $y$ is not counted in $l^{\mathcal{I}(S)_x}:=(|r\cap s|^{\mathcal{I}(S)_x})$ while $x:succ(k\leq l)$ is violated.
-\begin{ex}
-\begin{align*}
-S=\{x:succ(1\leq|r\cap s|), (x,y):r\}
-\end{align*}
-\end{ex}
-There might be an model $\mathcal{I^\prime}$ where $y$ is also a $s$-successor of $x$ and hence $l^{\mathcal{I}(S)_x}<l^{\mathcal{I}^\prime(S)_x}$, which means that the assertion is in $\mathcal{I}^\prime$ satisfied, but in $\mathcal{I}(S)$ not. However the Tableau-algorithm should be able to construct every model of $S$ if $S$ is consistent. Therefore this rule adds non-deterministically either $(x,y):s$ or $(x,y):s^\neg$ which are the only two possibilities. This way we are also able to construct $\mathcal{I^\prime}$.\\
-The $choose$-$a$-$role$-rule is necessary because in a ABox we may have assertions, which state that $x$ must have a successor but there are no assertions, which states what kind of successor it is. Hence we have to pick the \textit{right} role name. As example we have
-\begin{ex}
-\begin{align*}
-&\mathbf{R}=\{r,s\}\\
-&S=\{x:succ(|r^\neg|\leq 1)\}
-\end{align*} 
-\end{ex}
-It states that $x$ have at least one successor which is not a $r$-successor. Since $\mathbf{R}$ only contains $r$ and $s$ we know that the successors must be an $s$-successor. First we apply rule \ref{leq} to actually add a successor. Therefore $y$ is introduced and $(x,y):r^\neg$ is added to $S$. Now no more rules are applicable except for the $choose$-$a$-$role$-rule. With that rule we can not pick $r$ because $r^\neg$ occurs in the assertion. Therefore we have to pick $s$. Another more simple but not so significant example is
-\begin{ex}
-\begin{align*}
-&\mathbf{R}=\{r,s\}\\
-&S=\{x:succ(|A|\geq 1)\}
-\end{align*} 
-\end{ex}
-We know that $x$ must have a successor in $A$ but we still need to assign a role. In this case we can choose between $r$ and $s$.
-\\
-The $divide$-rule is straightforward: We choose one set term $s=s_1\cap\dots\cap s_i$ such that $l=n_1\cdot|s_1|+\dots+n_i\cdot|s_i|+\dots+n_j\cdot|s_j|$ and introduce a new variable $y$ and add $(x,y):s$ to $S$. For any $x:succ(n\,dvd\,l)$ we know that the chain of this rule application is finite because in worst case we have to introduce $n$ new variables with the same set term.
-\\
-The main idea of the $\leq$-rule is simple: We want to increase $l$ until the constraint is satisfied. By the condition it has to be safe we know that $l$ increases faster than $k$ and that we do not end in a endless loop of adding and merging variables.\\
-For the $merge$- rule we restrict the merging to the left hand side of cardinality constraints $k\leq l$: It can be reasonable for the right hand side if by merging $l$ increases, for example $x:succ(1\leq |r\cap t|)$ with $(x,y_1):r$ and $(x,y_2):t$. However the easiest solution is just to add an $r\cap t$-successor. In case it is important to also restrict the number of $r\cap t$-successor e.g. $x:succ(|r\cap t|<2)$ we can define with the $choose$-rule whether $y_1$ and $y_2$ are also $r\cap t$-successor. And then with the assertion $x:succ(|r\cap t|<2)$ we can merge $y_1$ and $y_2$.\\
-The $\leq 0$-rule deal with an assertion with a set constraint $s_1\subseteq s_2$, which is written here as cardinality constraint $|s_1\cap s_2^\neg|\leq 0$. Those cardinality constraint can not be dealt with the other rules. In case the left side has at least three set term  e.g. $|s_1\cap s_2\cap s_3|$ we have can have multiple possible solutions e.g. $(x,y):s_1\cap s_2\cap s_3^\neg$, $(x,y):s_1\cap s_2^\neg\cap s_3$ and $(x,y):s_1\cap s_2^\neg\cap s_3^\neg$. Hence we let the algorithm choose and backtrack if needed.\\
-The $set.term$-rules are applied immediately after a new assertions $(x,y):s$ is added to $S$. The reason for that is, that we want to add all needed assertions for $y$ and hence update all $k^{\mathcal{I}(S)_x}$ correctly. We know that the number of this application is finite because an ABox is finite and hence the number of concept names and role names occurring in this ABox is also finite. Since the constraints are in $NNF$ set terms can never be infinite and hence this rule applies only a finite times.
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
@@ -475,7 +413,7 @@ If the Tableau-algorithm terminates without a clash then $S$ is satisfiable
 Again the proof is sectioned by the obtained derived sets.\\
 Let $\mathcal{I}(S^\prime)$ be the induced interpretation of the ABox $S^\prime$ created by the Tableau-algorithm from $S$. We show that $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.\\
 We start with the simple assertions $x:C$ and $(x,y):r$ for $C\in\mathbf{C}$ and $r\in\mathbf{R}$ (induction base): By the definition of induced interpretation we assign $\pi_{\mathcal{I}(S^\prime)}(x):=x^{\mathcal{I}(S^\prime)}\in C^{\mathcal{I}(S^\prime)}$. Also by the definition of induced interpretation for every $(x,y):r\in S^\prime$ we have $(\pi_{\mathcal{I}(S^\prime)}(x),\pi_{\mathcal{I}(S^\prime)}(y)):=(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})\in r^{\mathcal{I}(S^\prime)}$.\\
-Let $S$ be an ABox and $\pi_{\mathcal{I}(S)}$ be an assignment which satisfies $S$ (induction hypothesis).\par
+Let $S$ be an ABox and $\pi_{\mathcal{I}(S)}$ be an assignment which satisfies $S$ (induction hypothesis).
 \begin{enumerate}
 \item If we can apply rule \ref{cap} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcap C_2\in S$. By the definition of induced interpretation and by the hypothesis we already have $\pi_{\mathcal{I}(S^\prime)}(x)\in C_1^{\mathcal{I}(S^\prime)}$ and $\pi_{\mathcal{I}(S^\prime)}(x)\in C_2^{\mathcal{I}(S^\prime)}$. By adding $x:C_1$ and $x:C_2$ we do not change $\mathcal{I}(S)$. Hence $\mathcal{I}(S^\prime):=\mathcal{I}(S)$ and $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
 \item If we can apply rule \ref{cup} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcup C_2\in S$. Like above by the definition of the induced interpretation we have $\pi_{\mathcal{I}(S^\prime)}(x):=x^{\mathcal{I}(S^\prime)}$. We also know that $x^{\mathcal{I}(S^\prime)}$ is in $C_1^{\mathcal{I}(S^\prime)}\cup C_2^{\mathcal{I}(S^\prime)}$. By adding either $x:C_1$ or $x:C_2$ we do not change $\mathcal{I}(S)$. Hence $\mathcal{I}(S^\prime):=\mathcal{I}(S)$ and $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
