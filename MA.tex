@@ -265,30 +265,31 @@ Our desired form for the ABox is gained by the following algorithm.
 \end{algorithmic}
 \end{algorithm}
 The first part of the transformation runs in worst case in polynomial time: If any of the first four conditions holds, we only replace $c$ which runs in constant time.  The complexity of a removing function depends on the implementation: If we have direct access to the elements in the ABox the remove function has a constant (runtime) complexity. If we have some kind of sorting then the (runtime) complexity is logarithm. In worst case if we the ABox is stored as a simple list, then the (runtime) complexity is linear. Hence in worse cast the first part runs in polynomial time. The second part always runs in polynomial time because each transformation into $NNF$ runs in linear time. Hence our desired form of the ABox can be obtained in a polynomial time.
-\subsection{Transforming a ABox into a \textit{QFBAPA} formula}
-Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ solver. We want to use it whenever we want to add successors for a variable $x$. For that we want to collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula.
+\subsection{Transforming an ABox into a formula}
+Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ s. We want to use it whenever we want to add successors for a variable $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula for one \textit{nested level}. As example we look at
+\begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
+\begin{align*}
+S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C\}
+\end{align*}
+\end{ex}
+We see that we need to decompose our ABox first into $S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}$. Then we can transform it into a formula by doing the following steps:
 \begin{itemize}
-\item drop $x:succ$
+\item drop all $x:succ$
 \item replace all role names $r$ with $X_r$
 \item replace all concepts names $C$ with $X_C$
 \item replace all $succ(c)$ with $X_{c}$
 \item connect all formulas with $\wedge$
 \item include the conjunct $\mathcal{U}=X_{r_1}\cup\dots\cup X_{r_n}$, $r_1,\dots, r_n\in\mathbf{R}$
 \end{itemize}
-As an example we look at
-\begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
+We replace (possible compound) concepts and role names with variables, for which a solver can assign elements to it. We only replace concepts on one \textit{nested level}. In the example the first assertion tells that $x$ must have at least one successor $y$ which has more successors in $B\cap r$ than in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} then $succ(|A|\leq |B|)$. The next step would be to introduce variables and the assignments according to the solution the solver gives us. Hence we also introduced variables for the nested $succ$-assertion. Then we can do the procedure from above again for the new variables.\\
+The $QFBAPA$ formula for Example 1 is
 \begin{align*}
-S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C\}
+1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge X_C\wedge \mathcal{U}=\{X_r\}
 \end{align*}
-The $QFBAPA$ formula for that would be
-\begin{align*}
-1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|)\wedge X_C\wedge \mathcal{U}=\{X_r\}
-\end{align*}
-\end{ex}
 \subsection{Algorithm}
-Finally we can present the Tableau-algorithm to determine the satisfiability of an ABox in $\mathcal{ALCSCC}$. We divide the algorithm in two parts: a boolean part, where the decomposing of concept happens,  and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
+Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
 \begin{mydef}[Tableau]
-Let $S$ be a set of assertions in simplified $NNF$.
+Let $S$ be a set of assertions in simplified $NNF$.\\
 Boolean part:
 \begin{itemize}
 \item\label{cap} $\sqcap$-rule: $S$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
@@ -378,6 +379,7 @@ max\{size(C)\mid x:C\in S\}>max\{size(D)\mid y:D \in S\}
 \item By the second fact we know that $x$ is the only predecessor of $y$. When $y$ is introduced by applying \ref{leq} on a assertion $x:succ(k\leq l)$ then we have $y:C$ for every concept $C$ occurring in $l$ (for $\neg C$ we have $y:\neg C$). We know that $size(succ(k\leq l))$ is greater then $size(C)$ therefore Lemma 1.3 holds. A new assertion $y:D$ can occur either because rule \ref{cap} or \ref{cup} are applicable on $y:C$ with $C=D\sqcap D^\prime$ or $C=D\sqcup D^\prime$, which neither raise $max\{size(D)\mid y:D \in S\}$, or because rule \ref{choose} is applicable but that also does not raise $max\{size(D)\mid y:D \in S\}$: If rule \ref{choose} is applicable on $x:succ(k\leq l)$ then for every added assertion $y:D$ the concept $D$ must occur in $k$ and therefore $size(succ(k\leq l))>size(D)$. If $y$ gets merged together with another variable $z$, then $y$ and $z$ must have the same predecessor which means that all concept sizes regarding $z$ are also smaller then $max\{size(C)\mid x:C\in S\}$. 
 \end{enumerate}
 \end{proof}
+\iffalse
 From the next Lemma we can conclude that the Tableau-algorithm terminates.
 \begin{mylem}
 If $S^\prime$ is a derived set obtained from the derived set $S$, then $\Psi(S^\prime)\prec\Psi(S)$
@@ -405,7 +407,6 @@ The first two components again remains unchanged. \textcolor{red}{lol}
 The first two components remains unchanged. The third and fourth component can only decrease because we have one less successor. Furthermore if rule \ref{choose} (or \ref{chooserole} is applicable on at least one of the two variables then by merging we can gain a new variable, on which the rule is inapplicable. Therefore those four component can not increase. The fifth component also can not increase: Since we can apply rule \ref{exceeded} on $x:succ(k\leq l)$ we know that this assertion is violated, hence $k^{\mathcal{I}(S)_x}>l^{\mathcal{I}(S)_x}$. By applying this rule \textcolor{red}{help}....
 \end{enumerate}
 \end{proof}
-\iffalse
 \begin{mylem}
 If the Tableau-algorithm terminates without a clash then $S$ is satisfiable
 \end{mylem}
