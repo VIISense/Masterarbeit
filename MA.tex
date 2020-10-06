@@ -269,10 +269,11 @@ The first part of the transformation runs in worst case in polynomial time: If a
 Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ s. We want to use it whenever we want to add successors for a variable $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula for one \textit{nested level}. As example we look at
 \begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
 \begin{align*}
-S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C\}
+S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C, (x,y):B\cap r\}
 \end{align*}
 \end{ex}
-We see that we need to decompose our ABox first into $S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}$. Then we can transform it into a formula by doing the following steps:
+with $\mathbf{C}=\{A,B,C\}$ and $\mathbf{R}=\{r\}$
+We decompose our ABox first into $S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C, (x,y):B\cap r\}$. Then we gather all $succ$-assertion regarding $x$ together and transform it into a formula by doing the following steps:
 \begin{itemize}
 \item drop all $x:succ$
 \item replace all role names $r$ with $X_r$
@@ -281,11 +282,19 @@ We see that we need to decompose our ABox first into $S=\{x:succ(1\leq|succ(|A|\
 \item connect all formulas with $\wedge$
 \item include the conjunct $\mathcal{U}=X_{r_1}\cup\dots\cup X_{r_n}$, $r_1,\dots, r_n\in\mathbf{R}$
 \end{itemize}
-We replace (possible compound) concepts and role names with variables, for which a solver can assign elements to it. We only replace concepts on one \textit{nested level}. In the example the first assertion tells that $x$ must have at least one successor $y$ which has more successors in $B\cap r$ than in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} then $succ(|A|\leq |B|)$. The next step would be to introduce variables and the assignments according to the solution the solver gives us. Hence we also introduced variables for the nested $succ$-assertion. Then we can do the procedure from above again for the new variables.\\
+We replace (possible compound) concepts and role names with set variables, for which a solver can assign elements to them. We only replace concepts on one \textit{nested level}. In the example the first assertion tells that $x$ must have at least one successor $y$ which has more successors in $B\cap r$ than in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} then $succ(|A|\leq |B|)$. The next step would be to introduce variables and the assignments according to the solution the solver gives us. Hence we also introduced variables for the nested $succ$-assertion. Then we can do the procedure from above again for the new variables.\\
+If $x$ has already successors in $S$ we have to apply the following steps additionally.\\
+For each successor $y$ introduce a new element $e$:
+\begin{itemize}
+\item for each $(x,y):s$: transform $s$ into a conjunction and disjunction of set variables and add $e$ to it
+\item for each $y:C$ add $e$ to $X_C$
+\item for each $y:succ(c)$ add $e$ to $X_{c}$
+\end{itemize}
 The $QFBAPA$ formula for Example 1 is
 \begin{align*}
-1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge X_C\wedge \mathcal{U}=\{X_r\}
+1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}
 \end{align*}
+with $e\in X_B\cap X_r$.
 \subsection{Algorithm}
 Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
 \begin{mydef}[Tableau]
@@ -306,15 +315,17 @@ Numerical part:
 \end{itemize}
 If a $QFBAPA$ solver returns \textit{unsatisfiable} then $S=S\cup\{x:\perp\}$\\
 If a $QFBAPA$ solver returns \textit{satisfiable} then
-for each element $e$ we introduce a new variable $y$ and
+for each new element $e$ in the solution we introduce a new variable $y$ and
 \begin{itemize}
 \item for each $e\in X_C$ we have $S=S\cup\{y:C\}$
 \item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $S=S\cup\{y:succ(c)\}$
 \item for each $e\in X_r$, $r\in\mathbf{R}$, we have $S=S\cup\{(x,y):r\}$
 \item mark $x$
 \end{itemize}
+and for each old element $e$ we add the remaining assertion according to above to $S$
 \end{itemize}
 \end{mydef}
+We pick up Example 1 again: We are able to apply the boolean rules and hence we apply them first and decompose the example like already shown into $S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C, (x,y):B\cap r\}$. Then we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{A}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the $QFBAPA$ formula $1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}$. Since $x$ also have the successor $y$ we have to introduce an element $e$ with $e\in X_B\cap X_r$. Then we let a solver gives as a possible assignment if possible. In this case we see that the formula is satisfiable is satisfiable with $X_{|A|\leq|B\cap r|}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$. That means that every successor is connected to its predecessor by a role name and in our example every successor is a $r$-successor. We then add the assertion $y:X_B$ and $(x,y):r$ and introduce for $f$ a new variable $z$ and add $z:succ(|A|\leq|B\cap r|)$ and $(x,z):r$ to $S$. Then for $z$ we apply the $successor$-rule again.
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
