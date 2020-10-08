@@ -134,7 +134,7 @@ $\mathcal{ALCSCC}$ concepts are defined inductively:
 \end{itemize}
 \end{itemize}
 \end{mydef}
-An ABox $S$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALSCSS}$ concept, $r\in\mathbf{R}$ and $x,y$ are variables. The set $Var(S)$ is the set of variables occurring in $S$. 
+An ABox $S$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are variables. The set $Var(S)$ is the set of variables occurring in $S$. 
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an ABox $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
@@ -158,13 +158,15 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \end{itemize} 
 $\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
 \end{mydef}
+\textcolor{red}{
 We say a set term $t$ occurs semantically in a cardinality term $k=n_0+n_1\cdot |s_1|+\dots +n_j\cdot|s_j|$ if for a $i\in\{1,\dots ,j\}$ we have $s_i=t\cup t_{rest}$, where $t_{rest}$ is a set term. Note that a set term $t$ does not occurs semantically in the cardinality term$|t^\neg|$.\\
 For the Tableau-algorithm we can apply rules for decomposing concepts, introducing variables, adding assertion and merging variables.
 \begin{mydef}[Merge]
 \textit{Merging} two variables $y_1$ and $y_2$ in an ABox $S$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$ in $S$. 
-\end{mydef}
+\end{mydef}}
 \section{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
+We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not and if it satisfiable we want to create a satisfied ABox from $x:C$.\\
 To help the algorithm we want to avoid nested negation e.g. $\neg(\neg(\neg(A\cup B)))$. Hence we consider all concepts in \textit{negated normal form (NNF)}.
 \begin{mydef}[Negation Normal Form]
 A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary $\mathcal{ALCSCC}$ concept. With $NNF(C)$ we denote the concept which is obtained by applying the rules below on $C$ until none is applicable any more.
@@ -223,10 +225,11 @@ An ABox $S$ contains a \textit{clash} if
 \item $\{x:\perp\}\subseteq S$ or
 \item $\{x:A,\,x:\neg A\}\subseteq S$ or
 \item $\{x:succ(n\,\neg dvd\,l),x:succ(m\,dvd\,l)\}\subseteq S$, with $n\,dvd\,m$ or $m\,dvd\,n$, or
-\item $\{(x,y):s,\,(x,y):s^\neg\}\subseteq S$ or
+\item $\{(x,y):r,\,(x,y):r^\neg\}\subseteq S$ or
 \item $\{x:succ(c)\}\subseteq S$ violated and no more rules are applicable
 \end{itemize}
 \end{mydef}
+\iffalse
 \subsection{The form of the ABox}
 Like already mention a ABox $S$ in $\mathcal{ALCSCC}$ contains assertions of the form $x:C$ and $(x,y):C$ where $C$ is a $\mathcal{ALCSCC}$ concept and $x,y\in Var(S)$ are variables. Like already discussed we want constraints to be in $NNF$ and for an assertion $x:succ(c)$ that $c$ is either $k\leq l$ or $n\,dvd\,l$.
 Our desired form for the ABox is gained by the following algorithm.
@@ -264,11 +267,12 @@ Our desired form for the ABox is gained by the following algorithm.
 \end{algorithmic}
 \end{algorithm}
 The first part of the transformation runs in worst case in polynomial time: If any of the first four conditions holds, we only replace $c$ which runs in constant time.  The complexity of a removing function depends on the implementation: If we have direct access to the elements in the ABox the remove function has a constant (runtime) complexity. If we have some kind of sorting then the (runtime) complexity is logarithm. In worst case if we the ABox is stored as a simple list, then the (runtime) complexity is linear. Hence in worse cast the first part runs in polynomial time. The second part always runs in polynomial time because each transformation into $NNF$ runs in linear time. Hence our desired form of the ABox can be obtained in a polynomial time.
+\fi
 \subsection{Transforming an ABox into a formula}
 Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ s. We want to use it whenever we want to add successors for a variable $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula for one \textit{nested level}. As example we look at
 \begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
 \begin{align*}
-S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C, (x,y):B\cap r\}
+S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}
 \end{align*}
 \end{ex}
 with $\mathbf{C}=\{A,B,C\}$ and $\mathbf{R}=\{r\}$
@@ -282,18 +286,6 @@ We first gather all $succ$-assertion regarding $x$ together and transform it int
 \item include the conjunct $\mathcal{U}=X_{r_1}\cup\dots\cup X_{r_n}$, $r_1,\dots, r_n\in\mathbf{R}$
 \end{itemize}
 We replace (possible compound) concepts and role names with set variables, for which a solver can assign elements to them. We only replace concepts on one \textit{nested level}. In the example the first assertion tells that $x$ must have at least one successor $y$ which has more successors in $B\cap r$ than in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} then $succ(|A|\leq |B|)$. The next step would be to introduce variables and the assignments according to the solution the solver gives us. Hence we also introduced variables for the nested $succ$-assertion. Then we can do the procedure from above again for the new variables.\\
-If $x$ has already successors in $S$ we have to apply the following steps additionally.\\
-For each successor $y$ introduce a new element $e$:
-\begin{itemize}
-\item for each $(x,y):r$, $r\in\mathbf{R}$:  add $e$ to $X_r$
-\item for each $y:C$, $C\in\mathbf{C}$ add $e$ to $X_C$
-\item for each $y:succ(c)$ add $e$ to $X_{c}$
-\end{itemize}
-The $QFBAPA$ formula for Example 1 is
-\begin{align*}
-1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}
-\end{align*}
-with $e\in X_B\cap X_r$.
 \subsection{Algorithm}
 Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
 \begin{mydef}[Tableau]
@@ -304,12 +296,6 @@ Boolean part:
 $\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
-\item\label{set} $set$-rule: $S$ contains $(x,y):s$ and
-\begin{itemize}
-\item $s=s_1\cup s_2$ and either $(x,y):s_1\notin S$ or $(x,y):s_2\notin S$ $\rightarrow$ $S:=S\cup\{(x,y):s_1,(x,y):s_2\}$
-\item $s=s_1\cup s_2$ and neither $(x,y):s_1\in S$ nor $(x,y):s_2\in S$ $\rightarrow$ $S:=S\cup\{(x,y):s_1\}$ or $S:=S\cup\{(x,y):s_2\}$
-\item $s=C$, $C$ is a $\mathcal{ALCSCC}$ concept $\rightarrow$ $S:=S\{y:C\}$
-\end{itemize}
 \end{itemize}
 Numerical part:
 \begin{itemize}
@@ -334,11 +320,7 @@ We pick up Example 1 again but in a form where it is not decomposed yet:
 \begin{align*}
 S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C, (x,y):B\cap r\}
 \end{align*}
-We are able to apply the boolean rules and hence we apply them first and decompose into Example 1. It is also possible to start with the $set$rule and decompose $(x,y):B\cap r$. When no more rules from the boolean part are applicable we have
-\begin{align*}
-S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C, (x,y):B\cap r, (x,y):B, (x,y):r, y:B\}
-\end{align*}
-Then we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{A}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the $QFBAPA$ formula $1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}$. Since $x$ also have the successor $y$ we have to introduce an element $e$ with $e\in X_B\cap X_r$. Then we let a solver gives as a possible assignment if possible. In this case we see that the formula is satisfiable is satisfiable with $X_{|A|\leq|B\cap r|}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$. That means that every successor is connected to its predecessor by a role name and in our example every successor is a $r$-successor. We then add the assertion $y:X_B$ and $(x,y):r$ and introduce for $f$ a new variable $z$ and add $z:succ(|A|\leq|B\cap r|)$ and $(x,z):r$ to $S$. Then for $z$ we apply the $successor$-rule again.
+We are able to apply the boolean rules and hence we apply them first and decompose into Example 1. Then we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{A}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the $QFBAPA$ formula $1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}$. Then we let a solver returns an assignment if possible. In this case we see that the formula is satisfiable with $X_{|A|\leq|B\cap r|}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$. That means that every successor is connected to its predecessor by a role name and in our example every successor is a $r$-successor. We then introduce for $e$ ans $f$ two variables $y$ and $z$ and the assertion $y:X_B$, $(x,y):r$, $z:succ(|A|\leq|B\cap r|)$ and $(x,z):r$ to $S$. Then for $z$ we have to apply the $successor$-rule again.
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
