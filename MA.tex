@@ -99,18 +99,28 @@ where $s,t$ are set terms
 \end{itemize}
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
+A $QFBABA$ formula are disjunction ($\vee$) and conjunction ($\wedge$) of (also possible negated) cardinality constraints
 \end{mydef}
-Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.
-\begin{mydef}[$QFBAPA$ formula]
-A $QFBAPA$ formula with the restriction from above has the following grammar (see \cite{pa})
+Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.\\
+The semantic of $QFBAPA$ is define as follows:
+\begin{mydef}[Interpretation of $QFBAPA$]
+Let $\Delta^\mathcal{I}$ be a set and $\sigma$ a mapping which maps
 \begin{itemize}
-\item[] $F\rightarrow \quad C\mid F\wedge F\mid F\vee F\mid  \neg F$
-\item[] $C\rightarrow \quad K\leq K\mid N\,dvd\, K$
-\item[] $K\rightarrow \quad N\mid K+K\mid N\cdot K\mid |S|$
-\item[] $S\rightarrow \quad\emptyset\mid\mathcal{U}\mid S\cap S\mid S\cup S\mid S^\neg\mid x$
-\item[] $N\rightarrow \quad 0\mid 1\mid\dots$
+\item every symbol $a$ in $T$ to $\sigma(a)$
+\item $\emptyset$ to $\sigma(\emptyset)$
+\item $\mathcal{U}$ to $\sigma(\mathcal{U})\subseteq \Delta^\mathcal{I}$
+\item $\sigma(s\cap t):= \sigma(s)\cap \sigma(t)$, $\sigma(s\cup t):= \sigma(s)\cup \sigma(t)$
+\item $\sigma(s^\neg):=\sigma(\mathcal{U})\backslash \sigma(s)$
+\item $\sigma(|s|):=|\sigma(s)|$
+\item $\sigma(k+l):=\sigma(k)+\sigma(l)$, $\sigma(n\cdot k):= n\cdot \sigma(k)$
+\end{itemize}
+The mappings satisfies for the cardinality terms $k,l$
+\begin{itemize}
+\item $k\leq l$ iff $\sigma(k)\leq \sigma(l)$
+\item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = \sigma(l)$
 \end{itemize}
 \end{mydef}
+Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
@@ -124,12 +134,10 @@ $\mathcal{ALCSCC}$ concepts are defined inductively:
 \end{itemize}
 \end{itemize}
 \end{mydef}
-An ABox $S$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):s$, where $C$ is a $\mathcal{ALSCSS}$ concept, $s$ a set term and $x,y$ variables. The set $Var(S)$ is the set of variables occurring in $S$. 
+An ABox $S$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALSCSS}$ concept, $r\in\mathbf{R}$ and $x,y$ are variables. The set $Var(S)$ is the set of variables occurring in $S$. 
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an ABox $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
-\item $\emptyset$ to $\emptyset^\mathcal{I}$
-\item $\mathcal{U}$ to $\mathcal{U}^\mathcal{I}\subseteq \Delta^\mathcal{I}$
 \item each variable $x\in Var(S)$ to $x^\mathcal{I}\in \Delta^\mathcal{I}$
 \item every concept names $A\in\mathbf{C}$ to $A^\mathcal{I}\subseteq \Delta^\mathcal{I}$
 \item every role name $r\in\mathbf{R}$ to $r^\mathcal{I}\subseteq\Delta^\mathcal{I}\times\Delta^\mathcal{I}$, such that every element in $\Delta^\mathcal{I}$ has a finite number of successors.
@@ -140,18 +148,9 @@ For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as
 \item $\top^\mathcal{I}=\Delta^\mathcal{I}$ and $\perp^\mathcal{I}=\emptyset^\mathcal{I}$
 \item $(C\sqcap D)^\mathcal{I}:=C^\mathcal{I}\cap D^\mathcal{I}$, $(C\sqcup D)^\mathcal{I}:=C^\mathcal{I}\cup D^\mathcal{I}$
 \item $(\neg C)^\mathcal{I}:=\Delta^\mathcal{I}\backslash C^\mathcal{I}$
-\item $(s\cap t)^\mathcal{I}:= s^\mathcal{I}\cap t^\mathcal{I}$, $(s\cup t)^\mathcal{I}:= s^\mathcal{I}\cup t^\mathcal{I}$
-\item $(s^\neg)^\mathcal{I}:=\mathcal{U}^\mathcal{I}\backslash s^\mathcal{I}$
-\item $|s|^\mathcal{I}:=|s^\mathcal{I}|$
-\item $(k+l)^\mathcal{I}:=(k^\mathcal{I}+l^\mathcal{I})$, $(n\cdot k)^\mathcal{I}:= n\cdot k^\mathcal{I}$
 \item $succ(c)^\mathcal{I}=\{x\in \Delta^\mathcal{I}|$the mapping $\cdot^{\mathcal{I}_x}$ satisfies $c\}$
 \end{itemize}
 The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{I}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}(x)$.\\
-The mappings satisfies for the cardinality terms $k,l$
-\begin{itemize}
-\item $k\leq l$ iff $k^\mathcal{I}\leq l^\mathcal{I}$
-\item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = l^\mathcal{I}$
-\end{itemize}
 The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ satisfies
 \begin{itemize}
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
