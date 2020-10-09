@@ -134,11 +134,11 @@ $\mathcal{ALCSCC}$ concepts are defined inductively:
 \end{itemize}
 \end{itemize}
 \end{mydef}
-An ABox $S$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are variables. The set $Var(S)$ is the set of variables occurring in $S$. 
+An ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are variables. The set $Var(\mathcal{A})$ is the set of variables occurring in $\mathcal{A}$. 
 \begin{mydef}[Interpretation]
-An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an ABox $S$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
+An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
-\item each variable $x\in Var(S)$ to $x^\mathcal{I}\in \Delta^\mathcal{I}$
+\item each variable $x\in Var(\mathcal{A})$ to $x^\mathcal{I}\in \Delta^\mathcal{I}$
 \item every concept names $A\in\mathbf{C}$ to $A^\mathcal{I}\subseteq \Delta^\mathcal{I}$
 \item every role name $r\in\mathbf{R}$ to $r^\mathcal{I}\subseteq\Delta^\mathcal{I}\times\Delta^\mathcal{I}$, such that every element in $\Delta^\mathcal{I}$ has a finite number of successors.
 \end{itemize}
@@ -156,14 +156,8 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
 \item $(x,y):s$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in s^\mathcal{I}$
 \end{itemize} 
-$\pi_\mathcal{I}$ satisfies an ABox $S$ if $\pi_\mathcal{I}$ satisfies every assertion in $S$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $S$.
+$\pi_\mathcal{I}$ satisfies an ABox $\mathcal{A}$ if $\pi_\mathcal{I}$ satisfies every assertion in $\mathcal{A}$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $\mathcal{A}$.
 \end{mydef}
-\textcolor{red}{
-We say a set term $t$ occurs semantically in a cardinality term $k=n_0+n_1\cdot |s_1|+\dots +n_j\cdot|s_j|$ if for a $i\in\{1,\dots ,j\}$ we have $s_i=t\cup t_{rest}$, where $t_{rest}$ is a set term. Note that a set term $t$ does not occurs semantically in the cardinality term$|t^\neg|$.\\
-For the Tableau-algorithm we can apply rules for decomposing concepts, introducing variables, adding assertion and merging variables.
-\begin{mydef}[Merge]
-\textit{Merging} two variables $y_1$ and $y_2$ in an ABox $S$ results in one variable $y$: replace all occurrence of $y_1$ and $y_2$ with $y$ in $S$. 
-\end{mydef}}
 \section{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
 We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not and if it satisfiable we want to create a satisfied ABox from $x:C$.\\
@@ -200,33 +194,33 @@ The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a resul
 The first five rules on the left hand side can be applied in linear time \cite{1},\cite{6}. The first four rules on the right hand side, $C^\neg\rightarrow \neg C$ and $\neg succ(c)\rightarrow succ(\neg c)$ can also be applied in linear time since we only shift the negation sign. the rule $(s^\neg)^\neg\rightarrow s$ works similarly to $\neg\neg C\rightarrow C$ and the rules $(s\cap t)^\neg\rightarrow s^\neg\cup t^\neg$ and $(s\cup t)^\neg\rightarrow s^\neg \cap t^\neg$ works the similarly to $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and can also be applied in linear time.\\
 Next we introduce \textit{induced interpretation} with which we can count successors of variables after any rule application.
 \begin{mydef}[Induced Interpretation]
-An interpretation $\mathcal{I}(S)$ can be induced from an ABox $S$ by the following steps:
+An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $S$ by the following steps:
 \begin{itemize}
-\item for each variable $x\in Var(S)$ we introduce $x^{\mathcal{I}(S)}$ and add it to $\Delta^{\mathcal{I}(S)}$
-\item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}(S)}$ to $C^{\mathcal{I}(S)}$
-\item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ to $r^{\mathcal{I}(S)}$
+\item for each variable $x\in Var(\mathcal{A})$ we introduce $x^{\mathcal{I}(S)}$ and add it to $\Delta^{\mathcal{I}(\mathcal{A})}$
+\item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}(\mathcal{A})}$ to $C^{\mathcal{I}(\mathcal{A})}$
+\item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(\mathcal{A})},y^{\mathcal{I}(\mathcal{A})})$ to $r^{\mathcal{I}(\mathcal{A})}$
 \end{itemize}
 \end{mydef}
 Since we can now denote the number of successor of a variable $x$ we can determine which assertion of the form $x:succ(c)$ are violated.
 \begin{mydef}[Violated assertion]
-Let $S$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion is \textit{violated} if
+Let $\mathcal{A}$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion is \textit{violated} if
 \begin{itemize}
-\item $x:succ(n\leq l)$ and $n\not\leq l^{\mathcal{I}(S)_x}$
-\item $x:succ(k\leq n)$ and $k^{\mathcal{I}(S)_x}\not\leq n$
-\item $x:succ(k\leq l)$ and $k^{\mathcal{I}(S)_x}\not\leq l^{\mathcal{I}(S)_x}$
+\item $x:succ(n\leq l)$ and $n\not\leq l^{\mathcal{I}(\mathcal{A})_x}$
+\item $x:succ(k\leq n)$ and $k^{\mathcal{I}(\mathcal{A})_x}\not\leq n$
+\item $x:succ(k\leq l)$ and $k^{\mathcal{I}(\mathcal{A})_x}\not\leq l^{\mathcal{I}(S)_x}$
 \item $x:succ(n\,dvd\,k)$ and $mod(k^{\mathcal{I}(S)_x},n)\neq 0$
 \end{itemize} 
 where $n\in\mathbb{N}$.
 \end{mydef}
 Like already mentioned an ABox is unsatisfiable if all choices ends in a clash.
 \begin{mydef}[Clash]
-An ABox $S$ contains a \textit{clash} if
+An ABox $\mathcal{A}$ contains a \textit{clash} if
 \begin{itemize}
-\item $\{x:\perp\}\subseteq S$ or
-\item $\{x:A,\,x:\neg A\}\subseteq S$ or
-\item $\{x:succ(n\,\neg dvd\,l),x:succ(m\,dvd\,l)\}\subseteq S$, with $n\,dvd\,m$ or $m\,dvd\,n$, or
-\item $\{(x,y):r,\,(x,y):r^\neg\}\subseteq S$ or
-\item $\{x:succ(c)\}\subseteq S$ violated and no more rules are applicable
+\item $\{x:\perp\}\subseteq \mathcal{A}$ or
+\item $\{x:A,\,x:\neg A\}\subseteq \mathcal{A}$ or
+\item $\{x:succ(n\,\neg dvd\,l),x:succ(m\,dvd\,l)\}\subseteq \mathcal{A}$, with $n\,dvd\,m$ or $m\,dvd\,n$, or
+\item $\{(x,y):r,\,(x,y):r^\neg\}\subseteq \mathcal{A}$ or
+\item $\{x:succ(c)\}\subseteq \mathcal{A}$ violated and no more rules are applicable
 \end{itemize}
 \end{mydef}
 \iffalse
@@ -272,7 +266,7 @@ The first part of the transformation runs in worst case in polynomial time: If a
 Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ s. We want to use it whenever we want to add successors for a variable $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula for one \textit{nested level}. As example we look at
 \begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
 \begin{align*}
-S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}
+\mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}
 \end{align*}
 \end{ex}
 with $\mathbf{C}=\{A,B,C\}$ and $\mathbf{R}=\{r\}$
@@ -289,28 +283,28 @@ We replace (possible compound) concepts and role names with set variables, for w
 \subsection{Algorithm}
 Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
 \begin{mydef}[Tableau]
-Let $S$ be a set of assertions in simplified $NNF$.\\
+Let $\mathcal{A}$ be a set of assertions in $NNF$.\\
 Boolean part:
 \begin{itemize}
-\item\label{cap} $\sqcap$-rule: $S$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
-$\rightarrow$ $S:=S\cup\{x:C_1, x:C_2\}$
-\item\label{cup} $\sqcup$-rule: $S$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
-$\rightarrow$ $S:=S\cup\{x:C_1\}$ or $S:=S\cup\{x:C_2\}$
+\item\label{cap} $\sqcap$-rule: $\mathcal{A}$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
+$\rightarrow$ $\mathcal{A}:=\mathcal{A}\cup\{x:C_1, x:C_2\}$
+\item\label{cup} $\sqcup$-rule: $\mathcal{A}$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
+$\rightarrow$ $\mathcal{A}:=\mathcal{A}\cup\{x:C_1\}$ or $\mathcal{A}:=\mathcal{A}\cup\{x:C_2\}$
 \end{itemize}
 Numerical part:
 \begin{itemize}
-\item\label{succ} $successor$-rule: $S$ contains for an unmarked variable $x$ at least one assertion of the form $x:succ(c)$:
+\item\label{succ} $successor$-rule: $\mathcal{A}$ contains for an unmarked variable $x$ at least one assertion of the form $x:succ(c)$:
 \begin{itemize}
-\item gather all assertion of the form $x:succ(c)$ into a set $\mathcal{A}$
-\item transform $\mathcal{A}$ into a $QFBAPA$ formula
+\item gather all assertion of the form $x:succ(c)$ into a set $\mathcal{S}$
+\item transform $\mathcal{S}$ into a $QFBAPA$ formula
 \end{itemize}
-If a $QFBAPA$ solver returns \textit{unsatisfiable} then $S=S\cup\{x:\perp\}$\\
+If a $QFBAPA$ solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
 If a $QFBAPA$ solver returns \textit{satisfiable} then
 for each new element $e$ in the solution we introduce a new variable $y$ and
 \begin{itemize}
-\item for each $e\in X_C$ we have $S=S\cup\{y:C\}$
-\item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $S=S\cup\{y:succ(c)\}$
-\item for each $e\in X_r$, $r\in\mathbf{R}$, we have $S=S\cup\{(x,y):r\}$
+\item for each $e\in X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:C\}$
+\item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
+\item for each $e\in X_r$, $r\in\mathbf{R}$, we have $\mathcal{A}=\mathcal{A}\cup\{(x,y):r\}$
 \item mark $x$
 \end{itemize}
 and for each old element $e$ we add the remaining assertion according to above to $S$
@@ -318,119 +312,29 @@ and for each old element $e$ we add the remaining assertion according to above t
 \end{mydef}
 We pick up Example 1 again but in a form where it is not decomposed yet:
 \begin{align*}
-S=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C, (x,y):B\cap r\}
+\mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C, (x,y):B\cap r\}
 \end{align*}
-We are able to apply the boolean rules and hence we apply them first and decompose into Example 1. Then we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{A}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the $QFBAPA$ formula $1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}$. Then we let a solver returns an assignment if possible. In this case we see that the formula is satisfiable with $X_{|A|\leq|B\cap r|}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$. That means that every successor is connected to its predecessor by a role name and in our example every successor is a $r$-successor. We then introduce for $e$ ans $f$ two variables $y$ and $z$ and the assertion $y:X_B$, $(x,y):r$, $z:succ(|A|\leq|B\cap r|)$ and $(x,z):r$ to $S$. Then for $z$ we have to apply the $successor$-rule again.
+We are able to apply the boolean rules and hence we apply them first and decompose into Example 1. Then we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{S}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the $QFBAPA$ formula $1\leq X_{|A|\leq|B\cap r|}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}$. Then we let a solver returns an assignment if possible. In this case we see that the formula is satisfiable with $X_{|A|\leq|B\cap r|}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$. That means that every successor is connected to its predecessor by a role name and in our example every successor is a $r$-successor. We then introduce for $e$ ans $f$ two variables $y$ and $z$ and the assertion $y:X_B$, $(x,y):r$, $z:succ(|A|\leq|B\cap r|)$ and $(x,z):r$ to $S$. Then for $z$ we have to apply the $successor$-rule again.
 \section{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
+\item If no more rules are applicable on a clash-free ABox $\mathcal{A}$ then $\mathcal{A}$ is satisfiable
+\item If $\mathcal{A}$ is satisfiable then the Tableau-algorithm terminates without a clash
 \item For every input the Tableau-algorithm terminates
-\item If no more rules are applicable on a clash-free ABox $S$ then $S$ is satisfiable
-\item If $S$ is satisfiable then the Tableau-algorithm terminates without a clash
 \end{itemize}
-First we prove that the tableau algorithm terminates. 
-\begin{mypro}
-Let $C$ be a concept in simplified $CNNF$. Then there is no infinite chain of applications of any tableau rules issuing from $\{x:C\}$. 
-\end{mypro}
-\begin{mydef}[Derived Set]
-A \textit{derived set} is an ABox $S^\prime$ where rule \ref{repeat} is not applicable.
-\end{mydef}
-In order words a derived set is an ABox on which we applied a rule completely e.g. every time we add a new assertion $(x,y):s$ we add all assertion concluded by it to $S$ (rule \ref{repeat}) first.\\
-To prove this we map any derived set $S$ to an element $\Psi(S)$ from a set $Q$. We then show that the elements in $Q$ can be ordered by a well-founded relation $\prec$. A well-founded relation says that there is no infinite decreasing chain. If we can show that by obtaining a derived set $S^\prime$ from another set $S$ we have $\Psi(S^\prime)\prec\Psi(S)$ then the algorithm terminates.\\
-The elements in $Q$ are finite multisets of septuples and the elements of the septuples are either integers or mutlisets of integers. For two septuples $q=(q_1,\dots,q_7)$ and $q^\prime=(q^\prime_1,\dots,q^\prime_7)$ it holds $q\prec q^\prime$ if for the first $i,\, 1\leq i\leq 7$, for which $q_i$ and $q_i^\prime$ differs it holds that $q_i\prec q_i^\prime$ (also called lexicographical ordering). For two mutlisets of integers $q_i$ and $q_i^\prime$ it holds $q_i^\prime\prec q_i$ if $q_i^\prime$ can be obtained from $q_i$ by replacing an integer $c$ in $q_i^\prime$ by a finite number of integers which are all smaller than $c$. The relation $\prec$ for those multisets is well-founded because we work with integers. That means from a multiset $\{0,\,\dots\,,0\}$ the smallest multiset which can be obtain is $\{\}$ by removing all $0$s.\\
-For a concept $C$ its size $size(C)$ is inductively defined as
-\begin{itemize}
-\item $0$, if $C$ is $\perp$
-\item $1$, if $C$ is a concept name of $\mathbf{C}$
-\item $size(\neg C)= 1+size(C)$
-\item $size(succ(c))= 1 + \sum_{C\text{ in c}} size(C)$
-\item $size(C\sqcap D)=size(C\sqcup D)=size(C)+size(D)$
-\end{itemize}
-The asymmetrical difference of two numbers $n,m$ is denoted by 
-\begin{equation*}
-n\unlhd m \begin{cases}
-n-m& \text{if } n> m\\
-0 & \text{if } n\leq m
-\end{cases}
-\end{equation*}
-The septuples in $Q$ are defined as follows
-\begin{mydef}
-Let $S$ be an ABox. The multiset $\Psi(S)$ consist of septuples $\psi_S(x)$ for each variable $x$. The component of the septuples are structured as follows
-\begin{itemize}
-\item the first component is a non-negative integer $max\{size(C)\mid x:C\in S\}$
-\item the second component is a multiset of integers containing for each $x:C\sqcap D$, on which the $\sqcap$-rule is applicable, the non-negative integer $size(C\sqcap D)$ (respectively for $C\sqcup D$)
-\item the third component is the number of $x$'s successors on which rule \ref{chooserole} is applicable
-\item the fourth component is a multiset of integers containing for each $x:succ(k\leq n)\in S$ the number of all successors $y$ of $x$ on which rule \ref{choose} is applicable
-\item the fifth component is a multiset which denotes for every $x:succ(k\leq l)$ and $x:succ(n\,dvd\,l)$ the integer $k^{\mathcal{I}(S)_x}\unlhd l^{\mathcal{I}(S)_x}$ and $n\unlhd l^{\mathcal{I}(S)_x}$ respectively
-\item the sixth component denotes the number of all successors of $x$.
-\item the seventh component is a multiset which denotes for each $x:succ(k\leq 0)$ the number of successors on which the rule \ref{leq} is applicable
-\end{itemize}
-\end{mydef}
+In all proves we assume that the $QFBAPA$ solver is correct. First we prove that the algorithm works correctly e.g. we prove the first two points. 
 \begin{mylem}
-The following properties hold
-\begin{enumerate}
-\item For any concept $C$ we have $size(C)\geq size(NNF(\neg C))$
- \item Any variable $y$ in a derived set $S$ has at most one predecessor $x$ in $S$
-\item If $(x,y):r\in S$ for a $r\in\mathbf{R}$ (and $y$ is a introduced variable) then 
-\begin{align*}
-max\{size(C)\mid x:C\in S\}>max\{size(D)\mid y:D \in S\}
-\end{align*}
-\end{enumerate}
-\end{mylem}
-\begin{proof}$ $\\
-\vspace*{-5mm}
-\begin{enumerate}
-\item By induction over the number of applications to compute the negation normal form we have $size(C)=size(NNF(\neg C))$. Because $\neg succ(0\leq k)$ can be replace by $\perp$ which is $smaller$, we have $size(C)\geq size(NNF(\neg C))$. This can be done because $\neg succ(0\leq k)= succ(k<0)$ which is impossible to satisfy and therefore $\neg succ(0\leq k)=\perp$.
-\item If $y$ is a newly introduced variable, then it can only be introduced by exactly one variable $x$ which is $y$'s only predecessor. If two variables are merged together by rule \ref{exceeded} then both variables must have the same predecessor $x$ by the condition of that rule.
-\item By the second fact we know that $x$ is the only predecessor of $y$. When $y$ is introduced by applying \ref{leq} on a assertion $x:succ(k\leq l)$ then we have $y:C$ for every concept $C$ occurring in $l$ (for $\neg C$ we have $y:\neg C$). We know that $size(succ(k\leq l))$ is greater then $size(C)$ therefore Lemma 1.3 holds. A new assertion $y:D$ can occur either because rule \ref{cap} or \ref{cup} are applicable on $y:C$ with $C=D\sqcap D^\prime$ or $C=D\sqcup D^\prime$, which neither raise $max\{size(D)\mid y:D \in S\}$, or because rule \ref{choose} is applicable but that also does not raise $max\{size(D)\mid y:D \in S\}$: If rule \ref{choose} is applicable on $x:succ(k\leq l)$ then for every added assertion $y:D$ the concept $D$ must occur in $k$ and therefore $size(succ(k\leq l))>size(D)$. If $y$ gets merged together with another variable $z$, then $y$ and $z$ must have the same predecessor which means that all concept sizes regarding $z$ are also smaller then $max\{size(C)\mid x:C\in S\}$. 
-\end{enumerate}
-\end{proof}
-\iffalse
-From the next Lemma we can conclude that the Tableau-algorithm terminates.
-\begin{mylem}
-If $S^\prime$ is a derived set obtained from the derived set $S$, then $\Psi(S^\prime)\prec\Psi(S)$
+If the Tableau-algorithm terminates without a clash then $\mathcal{A}$ is satisfiable
 \end{mylem}
 \begin{proof}
-The following proof is sectioned by the definition of obtaining a derived set.
+Let $\mathcal{I}(\mathcal{A})$ be the induced interpretation of the clash-free ABox $\mathcal{A}$ after the algorithm terminated. If $\pi_{\mathcal{I}(\mathcal{A})}$ satisfies $\mathcal{A}$ then $\mathcal{A}$ is satisfiable.\\
+We start with the simple assertions $x:C$ and $(x,y):r$ for $C\in\mathbf{C}$ and $r\in\mathbf{R}$ (induction base): By the definition of induced interpretation we assign $\pi_{\mathcal{I}(\mathcal{A})}(x):=x^{\mathcal{I}(\mathcal{A})}\in C^{\mathcal{I}(\mathcal{A})}$. Also by the definition of induced interpretation for every $(x,y):r\in \mathcal{A}$ we have $(\pi_{\mathcal{I}(\mathcal{A})}(x),\pi_{\mathcal{I}(\mathcal{A})}(y)):=(x^{\mathcal{I}(\mathcal{A})},y^{\mathcal{I}(\mathcal{A})})\in r^{\mathcal{I}(\mathcal{A})}$.\\
+Let $\mathcal{A}^\prime$ be an ABox and $\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ be an assignment which satisfies $\mathcal{A}^\prime$ (induction hypothesis).
+Let $\mathcal{I}(\mathcal{A})$ be the induced interpretation of the ABox $\mathcal{A}$ created after one rule of the Tableau-algorithm from $\mathcal{A}^\prime$ (induction step).\\
 \begin{enumerate}
-\item $S^\prime$ is obtained by the application of rule \ref{cap} on $x:C\sqcap D$:\\
-The first component remains the same because $size(C)<size(C\sqcap D)$ and $size(D)<size(C\sqcap D)$. The second component decreases because rule \ref{cap} can not be applied on $x:C\sqcap D$ any more meaning that the corresponding entry in the multiset is removed. If $C$ (or $D$) happens to be a disjunction ($C^\prime\sqcup D^\prime$) or a conjunction ($C^\prime\sqcap D^\prime$) then the second component also becomes smaller because $size(C^\prime)$ and $size(D^\prime)$ are always smaller than the disjunction or conjunction of them and therefore also smaller than $size(C\sqcap D)$. Hence the entry for $size(C\sqcap D)$ can be replace by the smaller $size(C^\prime\sqcup D^\prime)$ or $size(C^\prime\sqcap D^\prime)$.\\
-Consider now a tuple $\psi_S(y)$ such that $x\neq y$. $\psi_S(y)$ can only be affected if $x$ is a successor of $y$. The first and second component of $\psi_S(y)$ remain unaffected because both are independent from $x$. The third and fourth component of can never in creases because we do not add any new successors. If at all the components can decreases because it may happen that by adding assertions regarding $x$ rule \ref{choose} (or rule \ref{chooserole}) can not be applied any more on some assertion $y:succ(k\leq l)$. The same goes for the fifth component: If there is an assertion $y:succ(k\leq l)$ and by adding $x:C$ and $x:D$ to $S$ neither $k^{\mathcal{I}(S^\prime)_y}$ nor $l^\mathcal{I}(S)_y$ change because by the definition of $\mathcal{I}(S)$ we have $x\in (C\sqcap D)^{\mathcal{I}(S)_y}=C^{\mathcal{I}(S)_y}\sqcap D^{\mathcal{I}(S)_y}\subseteq C^{\mathcal{I}(S)_y}$ and $\subseteq D^{\mathcal{I}(S)_y}$. This means that $x$ is not added to any further extension in $\mathcal{I}(S^\prime)$ and hence $k^{\mathcal{I}(S^\prime)_y}$ nor $l^{\mathcal{I}(S)_y}$ remain the same. The sixth component also do not change: From the beginning we have $x:C\sqcap D$, which means that if rule \ref{leq} is not applicable then it stays inapplicable after $x:C$ or $y:D$ is added. We can conclude that the tuple $\psi_S(y)$ remains in total unchanged or decreases.\\
-This means that we can obtain $\Psi(S^\prime)$ from $\Psi(S)$ by replacing $\psi_S(x)$ with the smaller tuple $\psi_{S^\prime}(x)$ and, if needed, $\psi_S(y)$ with a smaller tuple $\psi_{S^\prime}(y)$. 
-\item $S^\prime$ is obtained by the application of rule \ref{cup} on $x:C\sqcup D$:\\
-similar to above
-\item $S^\prime$ is obtained by the application of rule \ref{choose} on $x:succ(k\leq l)$ for a successor $y$ and of rule \ref{repeat}:\\
-The first and second component of $\psi_S(x)$ do not change because this step only adds assertion regarding $y$. The third component can not increase: If rule \ref{chooserole} is applicable then there is a change that by adding the new assertion $(x,y):k$ we also add $(x,y):r,r\in\mathbf{R}$ (by rule \ref{repeat}), which leads to the fact that rule \ref{chooserole} is not applicable any more and hence the tuple becomes smaller. The fourth component becomes smaller because rule \ref{choose} can not be applied any more on $y$ and hence the corresponding number in the multiset decreases which lead to a smaller tuple $\psi_{S^\prime}(x)$.\\
-We consider now a tuple $\psi_S(z)$ such that $y\neq z$ and $x\neq z$. The tuple $\psi_S(z)$ can only be affected if $z$ is the predecessor of $y$. However by Lemma 1.2 a variable can only have one predecessor and hence $z$ must be $x$.\\
-This means that we can obtain $\Psi(S^\prime)$ from $\Psi(S)$ by replacing $\psi_S(x)$ with the smaller tuple $\psi_{S^\prime}(x)$. 
-\item $S^\prime$ is obtained by the application of rule \ref{chooserole} on a successor $y$ and of rule \ref{repeat}:\\
-The first two component remains unchanged. The third component always decreases because the number of $x$'s successor on which rule \ref{chooserole} is applicable decreases.\\
-We consider now a tuple $\psi_S(z)$ such that $y\neq z$ and $x\neq z$. The tuple $\psi_S(z)$ can only be affected if $z$ is the predecessor of $y$. However by Lemma 1.2 a variable can only have one predecessor and hence $z$ must be $x$.\\
-This means that we can obtain $\Psi(S^\prime)$ from $\Psi(S)$ by replacing $\psi_S(x)$ with the smaller tuple $\psi_{S^\prime}(x)$. 
-\item $S^\prime$ is obtained by the application of rule \ref{dvd} on a assertion $x:succ(n\,dvd\,l)$ and of rule \ref{repeat}:\\
-The first two components again remains unchanged. \textcolor{red}{lol}
-\item $S^\prime$ is obtained by the application of rule \ref{exceeded} on an assertion $x:succ(k\leq l)$:\\
-The first two components remains unchanged. The third and fourth component can only decrease because we have one less successor. Furthermore if rule \ref{choose} (or \ref{chooserole} is applicable on at least one of the two variables then by merging we can gain a new variable, on which the rule is inapplicable. Therefore those four component can not increase. The fifth component also can not increase: Since we can apply rule \ref{exceeded} on $x:succ(k\leq l)$ we know that this assertion is violated, hence $k^{\mathcal{I}(S)_x}>l^{\mathcal{I}(S)_x}$. By applying this rule \textcolor{red}{help}....
-\end{enumerate}
-\end{proof}
-\begin{mylem}
-If the Tableau-algorithm terminates without a clash then $S$ is satisfiable
-\end{mylem}
-\begin{proof}$ $\\
-Again the proof is sectioned by the obtained derived sets.\\
-Let $\mathcal{I}(S^\prime)$ be the induced interpretation of the ABox $S^\prime$ created by the Tableau-algorithm from $S$. We show that $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.\\
-We start with the simple assertions $x:C$ and $(x,y):r$ for $C\in\mathbf{C}$ and $r\in\mathbf{R}$ (induction base): By the definition of induced interpretation we assign $\pi_{\mathcal{I}(S^\prime)}(x):=x^{\mathcal{I}(S^\prime)}\in C^{\mathcal{I}(S^\prime)}$. Also by the definition of induced interpretation for every $(x,y):r\in S^\prime$ we have $(\pi_{\mathcal{I}(S^\prime)}(x),\pi_{\mathcal{I}(S^\prime)}(y)):=(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})\in r^{\mathcal{I}(S^\prime)}$.\\
-Let $S$ be an ABox and $\pi_{\mathcal{I}(S)}$ be an assignment which satisfies $S$ (induction hypothesis).
-\begin{enumerate}
-\item If we can apply rule \ref{cap} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcap C_2\in S$. By the definition of induced interpretation and by the hypothesis we already have $\pi_{\mathcal{I}(S^\prime)}(x)\in C_1^{\mathcal{I}(S^\prime)}$ and $\pi_{\mathcal{I}(S^\prime)}(x)\in C_2^{\mathcal{I}(S^\prime)}$. By adding $x:C_1$ and $x:C_2$ we do not change $\mathcal{I}(S)$. Hence $\mathcal{I}(S^\prime):=\mathcal{I}(S)$ and $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
-\item If we can apply rule \ref{cup} and obtain $S^\prime$ then there must be an assignment $x:C_1\sqcup C_2\in S$. Like above by the definition of the induced interpretation we have $\pi_{\mathcal{I}(S^\prime)}(x):=x^{\mathcal{I}(S^\prime)}$. We also know that $x^{\mathcal{I}(S^\prime)}$ is in $C_1^{\mathcal{I}(S^\prime)}\cup C_2^{\mathcal{I}(S^\prime)}$. By adding either $x:C_1$ or $x:C_2$ we do not change $\mathcal{I}(S)$. Hence $\mathcal{I}(S^\prime):=\mathcal{I}(S)$ and $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
-\item If we can apply rule \ref{choose} and obtain $S^\prime$ then we have an assertion $x:succ(k\leq l)$ and a successor $y$ such that $(x,y):k^\prime\in S$, $k^\prime$ occurs in $k$. We then choose between $(x,y):s$ and $(x,y):s^\neg$ for all $|s|$ in $k$ then apply rule \ref{repeat} until this rule is inapplicable. That means at the end we might add several assertions of the form $x:C$ and $(x,y):r$. In case we add $x:C$ we also add $x^{\mathcal{I}(S^\prime)}$ to $C^{\mathcal{I}(S^\prime)}$. Therefore in this case $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$. In case we add $(x,y):r$ we also add $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ to $r^{\mathcal{I}(S^\prime)}$. Hence $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.
-\item If we can apply rule \ref{chooserole} and obtain $S^\prime$ then we have an assertion $(x,y):k$ but for every role name $r$ we do not have $(x,y):r\in S$, where $r$ has a positive sign in this assertion. After adding $(x,y):r$, $r\in\mathbf{R}$, to $S^\prime$ the element $(x^{\mathcal{I}(S)},y^{\mathcal{I}(S)})$ is also added to $r^{\mathcal{I}(S^\prime)}$. Hence $\pi_{\mathcal{I}(S^\prime)}$ satisfies $S^\prime$.
-\item If we can apply rule \ref{leq} and obtain $S^\prime$ then we have an assertion $x:succ(c)$ such that it is violated regarding $x$.\\
-We introduce $y$ and add $(x,y):l$ to $S$ and then apply rule \ref{repeat} until this rule is inapplicable. When we introduce $y$ we also add a new element $y^{\mathcal{I}(S^\prime)}$ to $\mathcal{I}(S^\prime)$. For each $y:C$ we add $y^{\mathcal{I}(S^\prime)}$ to $C^{\mathcal{I}(S^\prime)}$ and for each $(x,y):r$, $r\in\mathbf{R}$, we add $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ to $r^{\mathcal{I}(S^\prime)}$. Therefore let $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}\cup \{y\mapsto y^{\mathcal{I}(S^\prime)}\}$.
-\item If we can apply rule \ref{leq} and obtain $S^\prime$ then we have an assertion $x:succ(k<l)$ or $x:succ(k\leq l)$ such that it is violated regarding $x$. We also have two successors $y_1$ and $y_2$ for which $(x,y):s$ and $(x,y):s$ are in $S$.\\
-If we merge both together to $y$ we also have to merge $y_1^{\mathcal{I}(S)}$ and $y_2^{\mathcal{I}(S)}$ to one element $y^{\mathcal{I}(S^\prime)}$. For each $y_i:C\in S$, $i\in\{1,2\}$ we have $y_i^{\mathcal{I}(S)}\in C^{\mathcal{I}(S)}$ and for each $(x,y_i):r$, $r\in\mathbf{R}$ we have $(x^{\mathcal{I}_S},y_i^{\mathcal{I}(S)})\in r^{\mathcal{I}(S)}$ due to the hypothesis. That means that by merging both elements the element $y^{\mathcal{I}(S^\prime)}$ must be in $C^{\mathcal{I}(S^\prime)}$ for every $y_i^{\mathcal{I}(S)}\in C^{\mathcal{I}(S)}$ and the element $(x^{\mathcal{I}(S^\prime)},y^{\mathcal{I}(S^\prime)})$ must be in $r^{\mathcal{I}(S^\prime)}$ for every $(x^{\mathcal{I}(S)},y_i^{\mathcal{I}(S)})\in r^{\mathcal{I}(S)}$. Therefore let $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}\backslash\{y_1\mapsto y_1^{\mathcal{I}(S)}, y_2\mapsto y_2^{\mathcal{I}(S)}\}\cup\{y\mapsto y^{\mathcal{I}(S)}\}$ which satisfies $S^\prime$.
-\item If we can apply rule \ref{s} and obtain $S^\prime$ then we have an assertion $x:succ(c_1\subseteq c_2)$ and a successor $y$ such that $(x,y):c_1\in S$ but $(x,y):c_2\notin S$. By adding $(x,y):c_2$ to $S$ we have also to add $y:C$ for every concept $C$ in $c_2$ and $(x,y):r$ for every role name $r$ in $c_2$. That means that $x^{\mathcal{I}(S)}$ is added to every $C^{\mathcal{I}(S)}$ and that $(x^{\mathcal{I}(S)},x^{\mathcal{I}(S)})$ is added to every $r^{\mathcal{I}(S)}$. Therefore the assignment $\pi_{\mathcal{I}(S^\prime)}:=\pi_{\mathcal{I}(S)}$ satisfies $S^\prime$.
+\item $\sqcap$-rule was applied to create $\mathcal{A}$: Since we could apply this rule, we have $x:C_1\sqcap C_2\in\mathcal{A}^\prime$. Since $\mathcal{A}^\prime$ is satisfiable we have $\pi_{\mathcal{I}(\mathcal{A}^\prime)}(x)\in (C_1\sqcap C_2)^{\mathcal{I}(\mathcal{A}^\prime)}=C_1^{\mathcal{I}(\mathcal{A}^\prime)}\cap C_2^{\mathcal{I}(\mathcal{A}^\prime)}$. By adding $x:C_1$ and $x:C_2$ to $\mathcal{A}$ we do not change $\mathcal{I}(\mathcal{A}^\prime)$. Therefore $\pi_{\mathcal{I}(\mathcal{A})}:=\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ satisfies $\mathcal{A}$.
+\item $\sqcup$-rule was applied to create $\mathcal{A}$ (Analogue to above): Since we could apply this rule, we have $x:C_1\sqcup C_2\in\mathcal{A}^\prime$. Since $\mathcal{A}^\prime$ is satisfiable we have $\pi_{\mathcal{I}(\mathcal{A}^\prime)}(x)\in (C_1\sqcup C_2)^{\mathcal{I}(\mathcal{A}^\prime)}=C_1^{\mathcal{I}(\mathcal{A}^\prime)}\cup C_2^{\mathcal{I}(\mathcal{A}^\prime)}$. By adding $x:C_1$ or $x:C_2$ to $\mathcal{A}$ we do not change $\mathcal{I}(\mathcal{A}^\prime)$. Therefore $\pi_{\mathcal{I}(\mathcal{A})}:=\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ satisfies $\mathcal{A}$.
+\item $succ$-rule was applied to create $\mathcal{A}$: Since this rule was applicable neither the $\sqcap$-rule nor the $\sqcup$-rule was applicable.
 \end{enumerate}
 \end{proof}
 \begin{mylem}
@@ -438,7 +342,6 @@ If $S$ is satisfiable then the Tableau-algorithm terminates without a clash.
 \end{mylem}
 \begin{proof}
 \end{proof}
-\fi
 \normalem
 \bibliographystyle{abbrv}
 \bibliography{ref}
