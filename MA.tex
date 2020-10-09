@@ -99,7 +99,7 @@ where $s,t$ are set terms
 \end{itemize}
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
-A $QFBABA$ formula are disjunction ($\vee$) and conjunction ($\wedge$) of (also possible negated) cardinality constraints
+A $QFBABA$ formula are disjunction ($\vee$) and conjunction ($\wedge$) of (also possible negated) cardinality constraints set variables.
 \end{mydef}
 Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.\\
 The semantic of $QFBAPA$ is define as follows:
@@ -120,6 +120,7 @@ The mappings satisfies for the cardinality terms $k,l$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = \sigma(l)$
 \end{itemize}
 \end{mydef}
+A solution $\phi$ for a $QFBAPA$ formula is denoted as assignments of elements $e$ to intersections and/or unions of set variables: $\phi(e)=X_1\cup\dots\cup X_n\cap\dots\cap X_m$. The set $E(\phi)$ denotes the elements, which are assigned from $\phi$.\\
 Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
@@ -293,21 +294,19 @@ $\rightarrow$ $\mathcal{A}:=\mathcal{A}\cup\{x:C_1\}$ or $\mathcal{A}:=\mathcal{
 \end{itemize}
 Numerical part:
 \begin{itemize}
-\item\label{succ} $successor$-rule: $\mathcal{A}$ contains for an unmarked variable $x$ at least one assertion of the form $x:succ(c)$:
+\item\label{succ} $successor$-rule: $\mathcal{A}$ contains for a variable $x$ at least one violated assertion of the form $x:succ(c)$:
 \begin{itemize}
 \item gather all assertion of the form $x:succ(c)$ into a set $\mathcal{S}$
 \item transform $\mathcal{S}$ into a $QFBAPA$ formula
 \end{itemize}
 If a $QFBAPA$ solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
-If a $QFBAPA$ solver returns \textit{satisfiable} then
-for each new element $e$ in the solution we introduce a new variable $y$ and
+If a $QFBAPA$ solver returns \textit{satisfiable} and a solution $\phi$ then for each $e\in E(\phi)$ in the solution we introduce a new variable $y$ and
 \begin{itemize}
 \item for each $e\in X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:C\}$
 \item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
 \item for each $e\in X_r$, $r\in\mathbf{R}$, we have $\mathcal{A}=\mathcal{A}\cup\{(x,y):r\}$
-\item mark $x$
 \end{itemize}
-and for each old element $e$ we add the remaining assertion according to above to $S$
+
 \end{itemize}
 \end{mydef}
 We pick up Example 1 again but in a form where it is not decomposed yet:
@@ -334,7 +333,7 @@ Let $\mathcal{I}(\mathcal{A})$ be the induced interpretation of the ABox $\mathc
 \begin{enumerate}
 \item $\sqcap$-rule was applied to create $\mathcal{A}$: Since we could apply this rule, we have $x:C_1\sqcap C_2\in\mathcal{A}^\prime$. Since $\mathcal{A}^\prime$ is satisfiable we have $\pi_{\mathcal{I}(\mathcal{A}^\prime)}(x)\in (C_1\sqcap C_2)^{\mathcal{I}(\mathcal{A}^\prime)}=C_1^{\mathcal{I}(\mathcal{A}^\prime)}\cap C_2^{\mathcal{I}(\mathcal{A}^\prime)}$. By adding $x:C_1$ and $x:C_2$ to $\mathcal{A}$ we do not change $\mathcal{I}(\mathcal{A}^\prime)$. Therefore $\pi_{\mathcal{I}(\mathcal{A})}:=\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ satisfies $\mathcal{A}$.
 \item $\sqcup$-rule was applied to create $\mathcal{A}$ (Analogue to above): Since we could apply this rule, we have $x:C_1\sqcup C_2\in\mathcal{A}^\prime$. Since $\mathcal{A}^\prime$ is satisfiable we have $\pi_{\mathcal{I}(\mathcal{A}^\prime)}(x)\in (C_1\sqcup C_2)^{\mathcal{I}(\mathcal{A}^\prime)}=C_1^{\mathcal{I}(\mathcal{A}^\prime)}\cup C_2^{\mathcal{I}(\mathcal{A}^\prime)}$. By adding $x:C_1$ or $x:C_2$ to $\mathcal{A}$ we do not change $\mathcal{I}(\mathcal{A}^\prime)$. Therefore $\pi_{\mathcal{I}(\mathcal{A})}:=\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ satisfies $\mathcal{A}$.
-\item $succ$-rule was applied to create $\mathcal{A}$: Since this rule was applicable neither the $\sqcap$-rule nor the $\sqcup$-rule was applicable.
+\item $succ$-rule was applied to create $\mathcal{A}$: Since this rule was applicable neither the $\sqcap$-rule nor the $\sqcup$-rule was applicable. We know that there is at least one violated $x:succ(c)$. Together with all other $succ$-assertion of $x$ we create a $QFBAPA$ formula and obtain a solution from a $QFBAPA$ solver. Since the solver works correctly the next step, where we add variables to $\mathcal{A}$ accordingly to $\phi$, we know that $\mathcal{A}$ remains clash free. That means, we can obtain an induced interpretation $\mathcal{I}(\mathcal{A})$ by introducing a new element $y^{\mathcal{I}(\mathcal{A})}$ for each $e\in E(\phi)$ (and hence for each newly introduced variable $y$ in $\mathcal{A}$) and add it to $C^{\mathcal{I}(\mathcal{A})}$ for each $e\in X_C$ and add $(x^\mathcal{I}(\mathcal{A}),y^\mathcal{I}(\mathcal{A}))$ to $r^\mathcal{I}(\mathcal{A})$ for each $e\in X_r$. We update the assignment $\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ as follows: $\pi_{\mathcal{I}(\mathcal{A})}\cup\{y\mapsto y^\mathcal{I}(\mathcal{A})|y$ was freshly introduced in this step$\}$.
 \end{enumerate}
 \end{proof}
 \begin{mylem}
