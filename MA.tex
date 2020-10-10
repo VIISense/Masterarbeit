@@ -157,7 +157,7 @@ The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ sa
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
 \item $(x,y):s$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in s^\mathcal{I}$
 \end{itemize} 
-$\pi_\mathcal{I}$ satisfies an ABox $\mathcal{A}$ if $\pi_\mathcal{I}$ satisfies every assertion in $\mathcal{A}$. If $\pi_\mathcal{I}$ satisfies $S$ then $\mathcal{I}$ is a model of $\mathcal{A}$.
+$\pi_\mathcal{I}$ satisfies an ABox $\mathcal{A}$ if $\pi_\mathcal{I}$ satisfies every assertion in $\mathcal{A}$. If $\pi_\mathcal{I}$ satisfies $\mathcal{A}$ then $\mathcal{I}$ is a model of $\mathcal{A}$.
 \end{mydef}
 \section{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
@@ -333,13 +333,29 @@ Let $\mathcal{I}(\mathcal{A})$ be the induced interpretation of the ABox $\mathc
 \begin{enumerate}
 \item $\sqcap$-rule was applied to create $\mathcal{A}$: Since we could apply this rule, we have $x:C_1\sqcap C_2\in\mathcal{A}^\prime$. Since $\mathcal{A}^\prime$ is satisfiable we have $\pi_{\mathcal{I}(\mathcal{A}^\prime)}(x)\in (C_1\sqcap C_2)^{\mathcal{I}(\mathcal{A}^\prime)}=C_1^{\mathcal{I}(\mathcal{A}^\prime)}\cap C_2^{\mathcal{I}(\mathcal{A}^\prime)}$. By adding $x:C_1$ and $x:C_2$ to $\mathcal{A}$ we do not change $\mathcal{I}(\mathcal{A}^\prime)$. Therefore $\pi_{\mathcal{I}(\mathcal{A})}:=\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ satisfies $\mathcal{A}$.
 \item $\sqcup$-rule was applied to create $\mathcal{A}$ (Analogue to above): Since we could apply this rule, we have $x:C_1\sqcup C_2\in\mathcal{A}^\prime$. Since $\mathcal{A}^\prime$ is satisfiable we have $\pi_{\mathcal{I}(\mathcal{A}^\prime)}(x)\in (C_1\sqcup C_2)^{\mathcal{I}(\mathcal{A}^\prime)}=C_1^{\mathcal{I}(\mathcal{A}^\prime)}\cup C_2^{\mathcal{I}(\mathcal{A}^\prime)}$. By adding $x:C_1$ or $x:C_2$ to $\mathcal{A}$ we do not change $\mathcal{I}(\mathcal{A}^\prime)$. Therefore $\pi_{\mathcal{I}(\mathcal{A})}:=\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ satisfies $\mathcal{A}$.
-\item $succ$-rule was applied to create $\mathcal{A}$: Since this rule was applicable neither the $\sqcap$-rule nor the $\sqcup$-rule was applicable. We know that there is at least one violated $x:succ(c)$. Together with all other $succ$-assertion of $x$ we create a $QFBAPA$ formula and obtain a solution from a $QFBAPA$ solver. Since the solver works correctly the next step, where we add variables to $\mathcal{A}$ accordingly to $\phi$, we know that $\mathcal{A}$ remains clash free. That means, we can obtain an induced interpretation $\mathcal{I}(\mathcal{A})$ by introducing a new element $y^{\mathcal{I}(\mathcal{A})}$ for each $e\in E(\phi)$ (and hence for each newly introduced variable $y$ in $\mathcal{A}$) and add it to $C^{\mathcal{I}(\mathcal{A})}$ for each $e\in X_C$ and add $(x^\mathcal{I}(\mathcal{A}),y^\mathcal{I}(\mathcal{A}))$ to $r^\mathcal{I}(\mathcal{A})$ for each $e\in X_r$. We update the assignment $\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ as follows: $\pi_{\mathcal{I}(\mathcal{A})}\cup\{y\mapsto y^\mathcal{I}(\mathcal{A})|y$ was freshly introduced in this step$\}$.
+\item $succ$-rule was applied to create $\mathcal{A}$: Since this rule was applicable neither the $\sqcap$-rule nor the $\sqcup$-rule was applicable. We know that there is at least one violated $x:succ(c)$. Together with all other $succ$-assertion of $x$ we create a $QFBAPA$ formula and obtain a solution from a $QFBAPA$ solver. Since the solver works correctly we know that in the next step, where we add variables to $\mathcal{A}$ accordingly to $\phi$, $\mathcal{A}$ remains clash free. That means, we can obtain an induced interpretation $\mathcal{I}(\mathcal{A})$ by introducing a new element $y^{\mathcal{I}(\mathcal{A})}$ for each $e\in E(\phi)$ (and hence for each newly introduced variable $y$ in $\mathcal{A}$) and add it to $C^{\mathcal{I}(\mathcal{A})}$ for each $e\in X_C$ and add $(x^\mathcal{I}(\mathcal{A}),y^\mathcal{I}(\mathcal{A}))$ to $r^\mathcal{I}(\mathcal{A})$ for each $e\in X_r$. We update the assignment $\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ as follows: $\pi_{\mathcal{I}(\mathcal{A})}\cup\{y\mapsto y^\mathcal{I}(\mathcal{A})|y$ was freshly introduced in this step$\}$.
 \end{enumerate}
 \end{proof}
 \begin{mylem}
-If $S$ is satisfiable then the Tableau-algorithm terminates without a clash.
+If $\mathcal{A}:=\{x:C\}$ is satisfiable then the Tableau-algorithm terminates without a clash.
 \end{mylem}
 \begin{proof}
+The termination without clashes can be describe as follows:\\
+There exists a chain of of ABoxes $\mathcal{A}=\{x:C\},\mathcal{A}_1,\dots,\mathcal{A}_n$ such that
+\begin{itemize}
+\item $\mathcal{A}{i+1}$ can be obtained from $\mathcal{A}_i$
+\item every ABox in this chain is satisfiable
+\item $\mathcal{A}_n$ contains no clash
+\end{itemize}
+Since $\mathcal{A}$ is satisfiable the induced interpretation is satisfied by $\pi_{\mathcal{I}(\mathcal{A})}=C^{\mathcal{I}(\mathcal{A})}$ (induction base).\\
+We assume that a already obtained $\mathcal{A}_i$ is satisfiable (induction hypothesis).\\
+We apply now the rules to $\mathcal{A}_i$ to obtain $\mathcal{A}_{i+1}$ (induction step):
+\begin{itemize}
+\item we apply the $\sqcap$-rule: We know that for $\mathcal{A}_i$ we have in induced interpretation such that $\pi_{\mathcal{I}(\mathcal{A}_i)}$ satisfies $\mathcal{A}_i$. If the $\sqcap$-rule was applied then $\pi_{\mathcal{I}(\mathcal{A}_i)}$ also satisfies $\mathcal{A}_{i+1}$.
+\item we apply the $\sqcup$-rule: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_1\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_2\}$ is satisfiable, $x:C_1\sqcup C_2\in\mathcal{A}_i$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfiable and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=(C_1\sqcup C_2)^\mathcal{I}(\mathcal{A}_i)$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_1\}$ and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=C_1^{\mathcal{I}(\mathcal{A}_{i+1})}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_2\}$ and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=C_2^{\mathcal{I}(\mathcal{A}_{i+1})}$. In both cases $\pi_{\mathcal{I}(\mathcal{A}_i)}$ satisfies $\mathcal{A}_{i+1}$.
+\item we apply the $succ$-rule: If we apply this rule, all boolean rules are in applicable. Because $\mathcal{A}_i$ is satisfiable, we know that a subset of $\mathcal{A}_i$ is also satisfiable \textcolor{red}{maybe i need a proof for that?} and hence also the subset of all $succ$-assertion of $x$, which is translated to a $QFBAPA$ formula. Therefore the $QFBAPA$ solver return a solution $\phi$. Accordingly to the solution we introduce successors for $x$ and possible add assertion of the form $y:C$, $y:succ(c)$, $(x,y):r$, with $y\in Var(\mathcal{A}_{i+1})\backslash Var(\mathcal{A}_i)$. $\mathcal{A}_{i+1}$ remains satisfiable, because we the $QFBAPA$ solver returns a satisfiable solution.
+\end{itemize}
+Since $\mathcal{A}$ is a finite set and we can not have infinite nested levels, the algorithm can not introduce infinite successors. Together with every Abox in the chain being satisfiable, the algorithm ends with a satisfiable Abox $\mathcal{A}_n$
 \end{proof}
 \normalem
 \bibliographystyle{abbrv}
