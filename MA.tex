@@ -126,13 +126,13 @@ Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names,
 $\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
 \item all concept names
-\item $succ(c)$ if $c$ is a cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \item if $C,D$ are concepts then:
 \begin{itemize}
 \item $\neg C$
 \item $C\sqcup D$
 \item $C\sqcap D$
 \end{itemize}
+\item $succ(c)$ if $c$ is a cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \end{itemize}
 \end{mydef}
 An ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are variables. The set $Var(\mathcal{A})$ is the set of variables occurring in $\mathcal{A}$. 
@@ -349,14 +349,23 @@ There exists a chain of of ABoxes $\mathcal{A}=\{x:C\},\mathcal{A}_1,\dots,\math
 \end{itemize}
 Since $\mathcal{A}$ is satisfiable the induced interpretation is satisfied by $\pi_{\mathcal{I}(\mathcal{A})}=C^{\mathcal{I}(\mathcal{A})}$ (induction base).\\
 We assume that a already obtained $\mathcal{A}_i$ is satisfiable (induction hypothesis).\\
-We apply now the rules to $\mathcal{A}_i$ to obtain $\mathcal{A}_{i+1}$ (induction step):
+We apply a rule to $\mathcal{A}_i$ to obtain $\mathcal{A}_{i+1}$ (induction step):
 \begin{itemize}
 \item we apply the $\sqcap$-rule: We know that for $\mathcal{A}_i$ we have in induced interpretation such that $\pi_{\mathcal{I}(\mathcal{A}_i)}$ satisfies $\mathcal{A}_i$. If the $\sqcap$-rule was applied then $\pi_{\mathcal{I}(\mathcal{A}_i)}$ also satisfies $\mathcal{A}_{i+1}$.
 \item we apply the $\sqcup$-rule: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_1\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_2\}$ is satisfiable, $x:C_1\sqcup C_2\in\mathcal{A}_i$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfiable and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=(C_1\sqcup C_2)^\mathcal{I}(\mathcal{A}_i)$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_1\}$ and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=C_1^{\mathcal{I}(\mathcal{A}_{i+1})}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_2\}$ and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=C_2^{\mathcal{I}(\mathcal{A}_{i+1})}$. In both cases $\pi_{\mathcal{I}(\mathcal{A}_i)}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule: If we apply this rule, all boolean rules are in applicable. Because $\mathcal{A}_i$ is satisfiable, we know that a subset of $\mathcal{A}_i$ is also satisfiable \textcolor{red}{maybe i need a proof for that?} and hence also the subset of all $succ$-assertion of $x$, which is translated to a $QFBAPA$ formula. Therefore the $QFBAPA$ solver return a solution $\phi$. Accordingly to the solution we introduce successors for $x$ and possible add assertion of the form $y:C$, $y:succ(c)$, $(x,y):r$, with $y\in Var(\mathcal{A}_{i+1})\backslash Var(\mathcal{A}_i)$. $\mathcal{A}_{i+1}$ remains satisfiable, because we the $QFBAPA$ solver returns a satisfiable solution.
+\item we apply the $succ$-rule: If we apply this rule, all boolean rules are in applicable. Because $\mathcal{A}_i$ is satisfiable, we know that a subset of $\mathcal{A}_i$ is also satisfiable and hence also the subset of all $succ$-assertion of $x$, which is translated to a $QFBAPA$ formula. Therefore the $QFBAPA$ solver return a solution $\phi$. Accordingly to the solution we introduce successors for $x$ and possible add assertion of the form $y:C$, $y:succ(c)$, $(x,y):r$, with $y\in Var(\mathcal{A}_{i+1})\backslash Var(\mathcal{A}_i)$. $\mathcal{A}_{i+1}$ remains satisfiable, because we the $QFBAPA$ solver returns a satisfiable solution.
 \end{itemize}
 Since $\mathcal{A}$ is a finite set and we can not have infinite nested levels, the algorithm can not introduce infinite successors. Together with every Abox in the chain being satisfiable, the algorithm ends with a satisfiable Abox $\mathcal{A}_n$
 \end{proof}
+We know that a subset of a satisfiable ABox $\mathcal{A}$ is also satisfiable because the induced interpretation $\mathcal{I}(\mathcal{A})$, which satisfies $\mathcal{A}$, satisfies all subsets of $\mathcal{A}$.\\
+We now prove that the algorithm terminates. For that we define first the depth \textcolor{red}{and size?} of a concept $C$:
+\begin{align*}
+depth(C):=\begin{cases}
+1+depth(c) & C=succ(c) \\
+0 & \, \text{otherwise}
+\end{cases}
+\end{align*}
+This function is well-define because by Definition 3 our concepts are inductively defined from concept names, hence the $depth$-function always returns an integer.
 \normalem
 \bibliographystyle{abbrv}
 \bibliography{ref}
