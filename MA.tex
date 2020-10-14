@@ -152,12 +152,11 @@ For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as
 \item $succ(c)^\mathcal{I}=\{x\in \Delta^\mathcal{I}|$the mapping $\cdot^{\mathcal{I}_x}$ satisfies $c\}$
 \end{itemize}
 The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{I}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}(x)$.\\
-The \textit{assignment} $\pi_\mathcal{I}:Var(S)\rightarrow\Delta^\mathcal{I}$ satisfies
+$\mathcal{I}$ is a model of $\mathcal{A}$ iff
 \begin{itemize}
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
 \item $(x,y):s$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in s^\mathcal{I}$
 \end{itemize} 
-$\pi_\mathcal{I}$ satisfies an ABox $\mathcal{A}$ if $\pi_\mathcal{I}$ satisfies every assertion in $\mathcal{A}$. If $\pi_\mathcal{I}$ satisfies $\mathcal{A}$ then $\mathcal{I}$ is a model of $\mathcal{A}$.
 \end{mydef}
 \section{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
@@ -323,18 +322,19 @@ For the correctness proof of the Tableau-algorithm we have to show that
 \end{itemize}
 In all proves we assume that the $QFBAPA$ solver is correct. First we prove that the algorithm works correctly e.g. we prove the first two points. 
 \begin{mylem}
-If the Tableau-algorithm terminates without a clash then $\mathcal{A}$ is satisfiable
+If the Tableau-algorithm applied on an ABox $\mathcal{A}=\{x:C\}$ terminates without a clash then $\mathcal{A}$ is satisfiable
 \end{mylem}
 \begin{proof}
-Let $\mathcal{I}(\mathcal{A})$ be the induced interpretation of the clash-free ABox $\mathcal{A}$ after the algorithm terminated. If $\pi_{\mathcal{I}(\mathcal{A})}$ satisfies $\mathcal{A}$ then $\mathcal{A}$ is satisfiable.\\
-We start with the simple assertions $x:C$ and $(x,y):r$ for $C\in\mathbf{C}$ and $r\in\mathbf{R}$ (induction base): By the definition of induced interpretation we assign $\pi_{\mathcal{I}(\mathcal{A})}(x):=x^{\mathcal{I}(\mathcal{A})}\in C^{\mathcal{I}(\mathcal{A})}$. Also by the definition of induced interpretation for every $(x,y):r\in \mathcal{A}$ we have $(\pi_{\mathcal{I}(\mathcal{A})}(x),\pi_{\mathcal{I}(\mathcal{A})}(y)):=(x^{\mathcal{I}(\mathcal{A})},y^{\mathcal{I}(\mathcal{A})})\in r^{\mathcal{I}(\mathcal{A})}$.\\
-Let $\mathcal{A}^\prime$ be an ABox and $\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ be an assignment which satisfies $\mathcal{A}^\prime$ (induction hypothesis).
-Let $\mathcal{I}(\mathcal{A})$ be the induced interpretation of the ABox $\mathcal{A}$ created after one rule of the Tableau-algorithm from $\mathcal{A}^\prime$ (induction step).\\
-\begin{enumerate}
-\item $\sqcap$-rule was applied to create $\mathcal{A}$: Since we could apply this rule, we have $x:C_1\sqcap C_2\in\mathcal{A}^\prime$. Since $\mathcal{A}^\prime$ is satisfiable we have $\pi_{\mathcal{I}(\mathcal{A}^\prime)}(x)\in (C_1\sqcap C_2)^{\mathcal{I}(\mathcal{A}^\prime)}=C_1^{\mathcal{I}(\mathcal{A}^\prime)}\cap C_2^{\mathcal{I}(\mathcal{A}^\prime)}$. By adding $x:C_1$ and $x:C_2$ to $\mathcal{A}$ we do not change $\mathcal{I}(\mathcal{A}^\prime)$. Therefore $\pi_{\mathcal{I}(\mathcal{A})}:=\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ satisfies $\mathcal{A}$.
-\item $\sqcup$-rule was applied to create $\mathcal{A}$ (Analogue to above): Since we could apply this rule, we have $x:C_1\sqcup C_2\in\mathcal{A}^\prime$. Since $\mathcal{A}^\prime$ is satisfiable we have $\pi_{\mathcal{I}(\mathcal{A}^\prime)}(x)\in (C_1\sqcup C_2)^{\mathcal{I}(\mathcal{A}^\prime)}=C_1^{\mathcal{I}(\mathcal{A}^\prime)}\cup C_2^{\mathcal{I}(\mathcal{A}^\prime)}$. By adding $x:C_1$ or $x:C_2$ to $\mathcal{A}$ we do not change $\mathcal{I}(\mathcal{A}^\prime)$. Therefore $\pi_{\mathcal{I}(\mathcal{A})}:=\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ satisfies $\mathcal{A}$.
-\item $succ$-rule was applied to create $\mathcal{A}$: Since this rule was applicable neither the $\sqcap$-rule nor the $\sqcup$-rule was applicable. We know that there is at least one violated $x:succ(c)$. Together with all other $succ$-assertion of $x$ we create a $QFBAPA$ formula and obtain a solution from a $QFBAPA$ solver. Since the solver works correctly we know that in the next step, where we add variables to $\mathcal{A}$ accordingly to $\phi$, $\mathcal{A}$ remains clash free. That means, we can obtain an induced interpretation $\mathcal{I}(\mathcal{A})$ by introducing a new element $y^{\mathcal{I}(\mathcal{A})}$ for each $e\in E(\phi)$ (and hence for each newly introduced variable $y$ in $\mathcal{A}$) and add it to $C^{\mathcal{I}(\mathcal{A})}$ for each $e\in X_C$ and add $(x^\mathcal{I}(\mathcal{A}),y^\mathcal{I}(\mathcal{A}))$ to $r^\mathcal{I}(\mathcal{A})$ for each $e\in X_r$. We update the assignment $\pi_{\mathcal{I}(\mathcal{A}^\prime)}$ as follows: $\pi_{\mathcal{I}(\mathcal{A})}\cup\{y\mapsto y^\mathcal{I}(\mathcal{A})|y$ was freshly introduced in this step$\}$.
-\end{enumerate}
+Let $\mathcal{A}^\prime$ be the result after the algorithm terminated. Since we do not remove any assertion during the algorithm we have $\mathcal{A}\subseteq\mathcal{A}^\prime$. Hence if an interpretation $\mathcal{I}$ satisfies $\mathcal{A}^\prime$ then it also satisfies $\mathcal{A}$. Let $\mathcal{I}(\mathcal{A}^\prime)$ be the induced interpretation of $\mathcal{A}^\prime$. We show that $\mathcal{I}(\mathcal{A}^\prime)$ indeed satisfies $\mathcal{A}^\prime$ by induction over concepts:\\
+For each concept name $C\in\mathbf{C}$ such that $x:C\in\mathcal{A}^\prime$, we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$ by the definition of induced interpretation. (induction base)\\
+We consider $x:C$ where $C$ is a compound concepts (induction step):
+\begin{itemize}
+\item $C=\neg D$: Since $\mathcal{A}^\prime$ does not contain a clash, $x:C\in A$ implies $x:D\notin A$. $D$ must be a concept name, because $\mathcal{A}^\prime$ is in $NNF$. Therefore by definition of induced interpretation and $x:D\notin A$ we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\notin D^{\mathcal{I}(\mathcal{A}^\prime)}$ which implies $x^{\mathcal{I}(\mathcal{A}^\prime)}\in \Delta^{\mathcal{I}(\mathcal{A}^\prime)}\backslash D^{\mathcal{I}(\mathcal{A}^\prime)}=C^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=D\sqcap E$: Since the algorithm terminated, the $\sqcap$-rule is not applicable any more. That means that there is a variable $x$, such that $\{x:D, x:E\}\subseteq \mathcal{A}^\prime$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ and $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cap D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcap D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=D\sqcup E$: Since the algorithm terminated, the $\sqcup$-rule is not applicable any more. That means that there is a variable $x$, such that $\{x:D, x:E\}\cap \mathcal{A}^\prime\neq \emptyset$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ or $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cup D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcup D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the $QFBAPA$ solver must have returned a solution. If the solution is empty, then no variables are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty then the induced interpretation is updated by introducing a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in E(\phi)$ and hence also for each freshly introduced variable $y$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have for a predecessor $x$ $(x,y):r$. By the induction hypothesis $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})$ must be in $r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_c$, $c$ is a cardinality constraint, we have $y:succ(c)$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\end{itemize}
+Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\prime$ and that $\mathcal{A}\subseteq \mathcal{A}^\prime$, $\mathcal{I}(\mathcal{A}^\prime)$ also satisfies $\mathcal{A}$.
 \end{proof}
 \begin{mylem}
 If $\mathcal{A}:=\{x:C\}$ is satisfiable then the Tableau-algorithm terminates without a clash.
@@ -366,6 +366,12 @@ depth(C):=\begin{cases}
 \end{cases}
 \end{align*}
 This function is well-define because by Definition 3 our concepts are inductively defined from concept names, hence the $depth$-function always returns an integer.
+\begin{mylem}
+The Tableau-algorithm always terminate for an ABox $\mathcal{A}=\{x:C\}$
+\end{mylem}
+\begin{proof}
+???
+\end{proof}
 \normalem
 \bibliographystyle{abbrv}
 \bibliography{ref}
