@@ -67,7 +67,7 @@ One big research field in DL is the determination of satisfiability of an \texti
 The expressive DL $\mathcal{ALCSCC}$ extends $\mathcal{ALCQ}$ with \textit{set constraint} and \textit{cardinality constrant}, which lays under the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic). As the name says we do not have quantifier. Instead we use set expression (Boolean Algebra part) and numerical constraint (Presburger Arithmetic) which is combined together with cardinality functions. For example $Human\sqcap \geq 1\,hasChildren.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChildren|\geq 1)\sqsubseteq Parent$. In \cite{4} a solution for the satisfiability problem (without TBox) is presented which has the complexity PSpace: For an ABox we guess the value (true or false) of the top-level variables which can already lead to a \textit{false}-result. If not then the constraint is formulated into a $QFBAPA$ formula, for which an algorithm determine by guessing a number $N$ of Venn-region to be non-empty whether the formula is satisfied or not.\\
 In this work we give another solution for the satisfiability problem with a Tableau-algorithm. As in previous work for other DLs we define completion rules which can be applied onto assertions in the ABox to determine whether $\perp$ can be concluded from it which states its unsatisfiability. If we can not apply any rules any more and we can not conclude $\perp$, then the ABox is satisfiable. The main difficulty is that unlike $\mathcal{ALCQ}$, where the bond of number of successor is fixed, in $\mathcal{ALCSCC}$ we can compare two cardinalities, which can vary during the algorithm. Hence we need an approach for counting successors and with it calculating the \textit{correct} cardinality, which is necessary to detect satisfied and violated constraint. For this we introduce \textit{induced interpretation} which can determine the cardinalities after each rule application. Further more to deal with the numerical arithmetic of $\mathcal{ALCSCC}$ we use a $QFBAPA$ solver. We transform a subset of the ABox into a $QFBAPA$ formula and then let a solver determine whether the formula is satisfiable or not. If not we end with a clash. If it returns a solution, then we add variables according to it to our ABox.
 \section{Preliminaries}
-In this work $\mathbf{C}$ denotes a set of concept names and $\mathbf{R}$ a set of role names, which are disjoint. Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like.
+Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like.
 \begin{mydef}[$QFBAPA$]
 Let $T$ be a set of symbols
 \begin{itemize}
@@ -99,7 +99,7 @@ where $s,t$ are set terms
 \end{itemize}
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
-A $QFBABA$ formula are disjunction ($\vee$) and conjunction ($\wedge$) of (also possible negated) cardinality constraints set variables.
+A $QFBABA$ formula are disjunction ($\vee$) and conjunction ($\wedge$) of (also possible negated) cardinality constraints, where every set symbol is represented as a set variable.
 \end{mydef}
 Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.\\
 The semantic of $QFBAPA$ is define as follows:
@@ -137,7 +137,7 @@ $\mathcal{ALCSCC}$ concepts are defined inductively:
 \end{mydef}
 An ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are variables. The set $Var(\mathcal{A})$ is the set of variables occurring in $\mathcal{A}$. 
 \begin{mydef}[Interpretation]
-An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I},\pi_\mathcal{I})$ over an ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$, an assignment $\pi_\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
+An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ over an ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
 \item each variable $x\in Var(\mathcal{A})$ to $x^\mathcal{I}\in \Delta^\mathcal{I}$
 \item every concept names $A\in\mathbf{C}$ to $A^\mathcal{I}\subseteq \Delta^\mathcal{I}$
@@ -155,7 +155,7 @@ The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$,
 $\mathcal{I}$ is a model of $\mathcal{A}$ iff
 \begin{itemize}
 \item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
-\item $(x,y):s$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in s^\mathcal{I}$
+\item $(x,y):r$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in r^\mathcal{I}$
 \end{itemize} 
 \end{mydef}
 \section{Tableau for $\mathcal{ALCSCC}$}
@@ -194,32 +194,23 @@ The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a resul
 The first five rules on the left hand side can be applied in linear time \cite{1},\cite{6}. The first four rules on the right hand side, $C^\neg\rightarrow \neg C$ and $\neg succ(c)\rightarrow succ(\neg c)$ can also be applied in linear time since we only shift the negation sign. the rule $(s^\neg)^\neg\rightarrow s$ works similarly to $\neg\neg C\rightarrow C$ and the rules $(s\cap t)^\neg\rightarrow s^\neg\cup t^\neg$ and $(s\cup t)^\neg\rightarrow s^\neg \cap t^\neg$ works the similarly to $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and can also be applied in linear time.\\
 Next we introduce \textit{induced interpretation} with which we can count successors of variables after any rule application.
 \begin{mydef}[Induced Interpretation]
-An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $S$ by the following steps:
+An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $\mathcal{A}$ by the following steps:
 \begin{itemize}
-\item for each variable $x\in Var(\mathcal{A})$ we introduce $x^{\mathcal{I}(S)}$ and add it to $\Delta^{\mathcal{I}(\mathcal{A})}$
+\item for each variable $x\in Var(\mathcal{A})$ we introduce $x^{\mathcal{I}(\mathcal{A})}$ and add it to $\Delta^{\mathcal{I}(\mathcal{A})}$
 \item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}(\mathcal{A})}$ to $C^{\mathcal{I}(\mathcal{A})}$
 \item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(\mathcal{A})},y^{\mathcal{I}(\mathcal{A})})$ to $r^{\mathcal{I}(\mathcal{A})}$
 \end{itemize}
 \end{mydef}
 Since we can now denote the number of successor of a variable $x$ we can determine which assertion of the form $x:succ(c)$ are violated.
 \begin{mydef}[Violated assertion]
-Let $\mathcal{A}$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion is \textit{violated} if
-\begin{itemize}
-\item $x:succ(n\leq l)$ and $n\not\leq l^{\mathcal{I}(\mathcal{A})_x}$
-\item $x:succ(k\leq n)$ and $k^{\mathcal{I}(\mathcal{A})_x}\not\leq n$
-\item $x:succ(k\leq l)$ and $k^{\mathcal{I}(\mathcal{A})_x}\not\leq l^{\mathcal{I}(S)_x}$
-\item $x:succ(n\,dvd\,k)$ and $mod(k^{\mathcal{I}(S)_x},n)\neq 0$
-\end{itemize} 
-where $n\in\mathbb{N}$.
+Let $\mathcal{A}$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion $x:succ(c)$ is \textit{violated} if $x^{\mathcal{I}(\mathcal{A})}\notin succ(c)^{\mathcal{I}(\mathcal{A})}$.
 \end{mydef}
 Like already mentioned an ABox is unsatisfiable if all choices ends in a clash.
 \begin{mydef}[Clash]
 An ABox $\mathcal{A}$ contains a \textit{clash} if
 \begin{itemize}
 \item $\{x:\perp\}\subseteq \mathcal{A}$ or
-\item $\{x:A,\,x:\neg A\}\subseteq \mathcal{A}$ or
-\item $\{x:succ(n\,\neg dvd\,l),x:succ(m\,dvd\,l)\}\subseteq \mathcal{A}$, with $n\,dvd\,m$ or $m\,dvd\,n$, or
-\item $\{(x,y):r,\,(x,y):r^\neg\}\subseteq \mathcal{A}$ or
+\item $\{x:C,\,x:\neg C\}\subseteq \mathcal{A}$ or
 \item $\{x:succ(c)\}\subseteq \mathcal{A}$ violated and no more rules are applicable
 \end{itemize}
 \end{mydef}
@@ -279,7 +270,11 @@ We first gather all $succ$-assertion regarding $x$ together and transform it int
 \item connect all formulas with $\wedge$
 \item include the conjunct $\mathcal{U}=X_{r_1}\cup\dots\cup X_{r_n}$, $r_1,\dots, r_n\in\mathbf{R}$
 \end{itemize}
-We replace (possible compound) concepts and role names with set variables, for which a solver can assign elements to them. We only replace concepts on one \textit{nested level}. In the example the first assertion tells that $x$ must have at least one successor $y$ which has more successors in $B\cap r$ than in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} then $succ(|A|\leq |B|)$. The next step would be to introduce variables and the assignments according to the solution the solver gives us. Hence we also introduced variables for the nested $succ$-assertion. Then we can do the procedure from above again for the new variables.\\
+We replace (possible compound) concepts and role names with set variables, for which a solver can assign elements to them. The last bullet point is important because sometimes it is not explicitly stated, what kind of successor a variable has. The $QFBAPA$ formula for Example 1 is 
+\begin{align*}
+1\leq X_{|A|\leq |B\cap r|}\wedge |X_A|\leq |X_B|\wedge X_C\wedge \mathcal{U}=X_r
+\end{align*}
+We only replace concepts on one \textit{nested level}. In the example the first assertion tells that $x$ must have at least one successor $y$ which has more successors in $B\cap r$ than in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} then $succ(|A|\leq |B|)$. According to one solution of the solver we can introduce variables and assertion. Also $x$ has more successor in $B$ than in $A$. By the last conjunction we give the information, that every successor must be an $r$-successor. Then in the upcoming steps, we can gather all $succ$-assertion of the new variables again and repeat this step.
 \subsection{Algorithm}
 Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
 \begin{mydef}[Tableau]
@@ -299,15 +294,15 @@ Numerical part:
 \item transform $\mathcal{S}$ into a $QFBAPA$ formula
 \end{itemize}
 If a $QFBAPA$ solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
-If a $QFBAPA$ solver returns \textit{satisfiable} and a solution $\phi$ then for each $e\in E(\phi)$ in the solution we introduce a new variable $y$ and
+If a $QFBAPA$ solver returns \textit{satisfiable} then select one solution $\phi$ then for each $e\in E(\phi)$ in the solution we introduce a new variable $y$ and
 \begin{itemize}
 \item for each $e\in X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:C\}$
 \item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
 \item for each $e\in X_r$, $r\in\mathbf{R}$, we have $\mathcal{A}=\mathcal{A}\cup\{(x,y):r\}$
 \end{itemize}
-
 \end{itemize}
 \end{mydef}
+A \textit{complete} ABox is an ABox, on which no more rules of the Tableau-algorithm are applicable.\\
 We pick up Example 1 again but in a form where it is not decomposed yet:
 \begin{align*}
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C, (x,y):B\cap r\}
@@ -340,22 +335,15 @@ Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\pri
 If $\mathcal{A}:=\{x:C\}$ is satisfiable then the Tableau-algorithm terminates without a clash.
 \end{mylem}
 \begin{proof}
-The termination without clashes can be describe as follows:\\
-There exists a chain of of ABoxes $\mathcal{A}=\{x:C\},\mathcal{A}_1,\dots,\mathcal{A}_n$ such that
+Since $\mathcal{A}$ is satisfiable it does not contain a clash. Let $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ be an interpretation, which satisfies $\mathcal{A}$. We show, that if $\mathcal{A}_i$ does not contain a clash and $\mathcal{I}$ satisfies $\mathcal{A}_i$, then $\mathcal{A}_{i+1}$ can be obtained from $\mathcal{A}_i$ by applying a rule while maintaining clash-free and satisfied by $\mathcal{I}$.\\
+We already stated that $\mathcal{I}$ satisfies the clash-free $\mathcal{A}=:\mathcal{A}_{0}$. (induction base).
+Let $\mathcal{A}_i$ be a clash-free ABox, which is satisfied by $\mathcal{I}$. (induction hypothesis).
+We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obtain $\mathcal{A}_{i+1}$ (induction step):
 \begin{itemize}
-\item $\mathcal{A}{i+1}$ can be obtained from $\mathcal{A}_i$
-\item every ABox in this chain is satisfiable
-\item $\mathcal{A}_n$ contains no clash
+\item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}:=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
+\item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ and hence $x^\mathcal{I}\in C^\mathcal{I}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ and hence $x^\mathcal{I}\in D^\mathcal{I}$. In both cases $x^\mathcal{I}\in C^\mathcal{I}\cup D^\mathcal{I}=(C\sqcup D)^\mathcal{I}$ and hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
+\item we apply the $succ$-rule on $x:succ(c)$: 
 \end{itemize}
-Since $\mathcal{A}$ is satisfiable the induced interpretation is satisfied by $\pi_{\mathcal{I}(\mathcal{A})}=C^{\mathcal{I}(\mathcal{A})}$ (induction base).\\
-We assume that a already obtained $\mathcal{A}_i$ is satisfiable (induction hypothesis).\\
-We apply a rule to $\mathcal{A}_i$ to obtain $\mathcal{A}_{i+1}$ (induction step):
-\begin{itemize}
-\item we apply the $\sqcap$-rule: We know that for $\mathcal{A}_i$ we have in induced interpretation such that $\pi_{\mathcal{I}(\mathcal{A}_i)}$ satisfies $\mathcal{A}_i$. If the $\sqcap$-rule was applied then $\pi_{\mathcal{I}(\mathcal{A}_i)}$ also satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $\sqcup$-rule: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_1\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_2\}$ is satisfiable, $x:C_1\sqcup C_2\in\mathcal{A}_i$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfiable and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=(C_1\sqcup C_2)^\mathcal{I}(\mathcal{A}_i)$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_1\}$ and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=C_1^{\mathcal{I}(\mathcal{A}_{i+1})}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C_2\}$ and hence $\pi_{\mathcal{I}(\mathcal{A}_i)}(x)=C_2^{\mathcal{I}(\mathcal{A}_{i+1})}$. In both cases $\pi_{\mathcal{I}(\mathcal{A}_i)}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule: If we apply this rule, all boolean rules are in applicable. Because $\mathcal{A}_i$ is satisfiable, we know that a subset of $\mathcal{A}_i$ is also satisfiable and hence also the subset of all $succ$-assertion of $x$, which is translated to a $QFBAPA$ formula. Therefore the $QFBAPA$ solver return a solution $\phi$. Accordingly to the solution we introduce successors for $x$ and possible add assertion of the form $y:C$, $y:succ(c)$, $(x,y):r$, with $y\in Var(\mathcal{A}_{i+1})\backslash Var(\mathcal{A}_i)$. $\mathcal{A}_{i+1}$ remains satisfiable, because we the $QFBAPA$ solver returns a satisfiable solution.
-\end{itemize}
-Since $\mathcal{A}$ is a finite set and we can not have infinite nested levels, the algorithm can not introduce infinite successors. Together with every Abox in the chain being satisfiable, the algorithm ends with a satisfiable Abox $\mathcal{A}_n$
 \end{proof}
 We know that a subset of a satisfiable ABox $\mathcal{A}$ is also satisfiable because the induced interpretation $\mathcal{I}(\mathcal{A})$, which satisfies $\mathcal{A}$, satisfies all subsets of $\mathcal{A}$.\\
 We now prove that the algorithm terminates. For that we define first the depth \textcolor{red}{and size?} of a concept $C$:
