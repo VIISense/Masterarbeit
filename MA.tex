@@ -154,10 +154,16 @@ For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as
 The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{I}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}(x)$.\\
 $\mathcal{I}$ is a model of $\mathcal{A}$ iff
 \begin{itemize}
-\item $x:C$ iff $\pi_\mathcal{I}(x)\in C^\mathcal{I}$ 
-\item $(x,y):r$ iff $(\pi_\mathcal{I}(x),\pi_\mathcal{I}(y))\in r^\mathcal{I}$
+\item $x:C$ iff $x^\mathcal{I}\in C^\mathcal{I}$ 
+\item $(x,y):r$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
 \end{itemize} 
 \end{mydef}
+Let $\mathcal{I}_1$ and $\mathcal{I}_2$ be two interpretation and $h:\Delta^{\mathcal{I}_1}\mapsto\Delta^{\mathcal{I}_2}$ be a function. $h$ is a homomorphism iff
+\begin{itemize}
+\item $h(a^{\mathcal{I}_1})=a^{\mathcal{I}_2}$, for all $a\in\Delta^{\mathcal{I}_1}$
+\item $a\in C^{\mathcal{I}_1}$ implies $h(a)\in C^{\mathcal{I}_2}$, for all $C\in \mathbf{C}$
+\item $(a,b)\in r^{\mathcal{I}_1}$ implies $(h(a),h(b))\in r^{\mathcal{I}_2}$, for all $r\in\mathbf{R}$
+\end{itemize}
 \section{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consist of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunctions. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices ends in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
 We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not and if it satisfiable we want to create a satisfied ABox from $x:C$.\\
@@ -272,9 +278,37 @@ We first gather all $succ$-assertion regarding $x$ together and transform it int
 \end{itemize}
 We replace (possible compound) concepts and role names with set variables, for which a solver can assign elements to them. The last bullet point is important because sometimes it is not explicitly stated, what kind of successor a variable has. The $QFBAPA$ formula for Example 1 is 
 \begin{align*}
-1\leq X_{|A|\leq |B\cap r|}\wedge |X_A|\leq |X_B|\wedge X_C\wedge \mathcal{U}=X_r
+\mathcal{F}(x)=1\leq |X_{|A|\leq |B\cap r|}|\wedge |X_A|\leq |X_B|\wedge \mathcal{U}=X_r
 \end{align*}
 We only replace concepts on one \textit{nested level}. In the example the first assertion tells that $x$ must have at least one successor $y$ which has more successors in $B\cap r$ than in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} then $succ(|A|\leq |B|)$. According to one solution of the solver we can introduce variables and assertion. Also $x$ has more successor in $B$ than in $A$. By the last conjunction we give the information, that every successor must be an $r$-successor. Then in the upcoming steps, we can gather all $succ$-assertion of the new variables again and repeat this step.
+\subsection{Solution of a formula}
+For our algorithm we assume that we have a solver, which can return all possible solution. However there can be infinite many solution. Therefore we want to only consider solution inside some \textit{upper bounds}. The problem to bound the solution is transferable to the \textit{Integer Linear Programming} (ILP) problem, for which upper bounds are investigated already (like in \cite{knapsack}. Therefore we want to transform our formula into a \textit{system of equalities}:\\
+We arrange the inequalities into a form of $X_1\pm \dots \pm X_n\leq I$, $I\in\mathbb{Z}$, first. That means e.g. $\mathcal{F}(x)$ is arrange into
+\begin{align*}
+\mathcal{F}(x)=-|X_{|A|\leq |B\cap r|}|\leq -1\wedge |X_A|- |X_B|\leq 0 \wedge \mathcal{U}-X_r=0
+\end{align*}
+Then we change each inequalities into equalities:
+\begin{align*}
+\mathcal{F}(x)=-|X_{|A|\leq |B\cap r|}|+ I_1= -1\wedge |X_A|-|X_B|+I_2= 0 \wedge \mathcal{U}-X_r=0
+\end{align*}
+Now we can transform the numerical parts into a system $Ax=b$:
+\begin{align*}
+\left ( \begin{array}{ccccc}
+-1 & 0 & 0 & 1 & 0\\
+0 & 1 & -1 & 0 & 1 
+\end{array} \right )\left ( \begin{array}{c}
+x_1 \\
+x_2 \\
+x_3 \\
+x_4 \\
+x_5 
+\end{array}\right )=\left ( \begin{array}{c}
+-1 \\
+0 
+\end{array}\right )
+\end{align*}
+with the ordering $|X_{|A|\leq |B\cap r|}|, |X_A|, |X_B|, I_1, I_2 $.\\
+In \cite{knapsack} the calculated upper bound for each $x_i$ is $n\cdot (m\cdot max_{i,j}\{|a_{ij}|,|b_i|\})^{2\cdot m+1}$, where $A$ is a $m\,\times\,n$ matrix, $b$ a vector of $\mathbb{Z}^m$  and $1\leq i\leq m$, $1\leq j\leq n$. In our example the upper bound for all $x_i$ is $5\cdot (2\cdot max_{i,j}\{|1|,|-1|\})^{2\cdot 2+1}=320$. For our example it means that we can have solutions in which we never have more then $320$ successors in each $succ(|A|\leq |B\cap r|)$, $A$ and $B$. 
 \subsection{Algorithm}
 Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
 \begin{mydef}[Tableau]
@@ -294,7 +328,7 @@ Numerical part:
 \item transform $\mathcal{S}$ into a $QFBAPA$ formula
 \end{itemize}
 If a $QFBAPA$ solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
-If a $QFBAPA$ solver returns \textit{satisfiable} then select one solution $\phi$ then for each $e\in E(\phi)$ in the solution we introduce a new variable $y$ and
+If a $QFBAPA$ solver returns \textit{satisfiable} then select one solution $\phi$ and for each $e\in E(\phi)$ in the solution we introduce a new variable $y$ and
 \begin{itemize}
 \item for each $e\in X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:C\}$
 \item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
@@ -342,13 +376,7 @@ We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obta
 \begin{itemize}
 \item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}:=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
 \item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ and hence $x^\mathcal{I}\in C^\mathcal{I}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ and hence $x^\mathcal{I}\in D^\mathcal{I}$. In both cases $x^\mathcal{I}\in C^\mathcal{I}\cup D^\mathcal{I}=(C\sqcup D)^\mathcal{I}$ and hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule on $x:succ(c)$: By the induction hypothesis we have $x^\mathcal{I}\in succ(c)^\mathcal{I}$. We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together, formulate a $QFBAPA$ formula and let a solver return us all possible \textcolor{red}{(change it later to some upper bounds)}. Because $\mathcal{A}_i$ is satisfiable, the $succ$-assertions together are also satisfiable (subset of $\mathcal{A}$). Hence there has to solutions which can be returned by the solver. By the induction hypothesis we know that $x^\mathcal{I}\in succ(c)^\mathcal{I}$. In case $x$ has no successor, the solution $\phi$ with $E(\phi)=\emptyset$ must be a valid solution, which can be returned from the solver. In the case where $x$ has successors in $\mathcal{I}$, we can create a solution $\phi^\ast$ base on that: For each element $y^\mathcal{I}$ such that $(x^\mathcal{I},y^\mathcal{I}):r^\mathcal{I}$, $r\in\mathbf{R}$, we create an element $e$ and add it to $E(\phi^\ast)$
-\begin{itemize}
-\item for each $(x^\mathcal{I},y^\mathcal{I}):r^\mathcal{I}$, $r\in\mathbf{R}$, add $e$ to $X_r$
-\item for each $y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$, add $e$ to $X_C$
-\item for each $y^\mathcal{I}\in succ(c)^\mathcal{I}$, add $e$ to $X_{c}$
-\end{itemize}
-Note that $\mathcal{I}$ can be infinite. However it is enough if the solver returns a solution $\phi$, such that $\phi$ can be extended to $\phi^\ast$.\\
+\item we apply the $succ$-rule on $x:succ(c)$: By the induction hypothesis we have $x^\mathcal{I}\in succ(c)^\mathcal{I}$. We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together, formulate a $QFBAPA$ formula and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, the $succ$-assertions together are also satisfiable (subset of $\mathcal{A}$). Hence there has to solutions which can be returned by the solver. By the induction hypothesis we know that $x^\mathcal{I}\in succ(c)^\mathcal{I}$. In case $x$ has no successor, the solution $\phi$ with $E(\phi)=\emptyset$ must be a valid solution, which can be returned from the solver. In the case where $E(\phi)=\emptyset$ can not be a solution then we have to show that the solver can return a solution, such that there is a homomorphism from $\mathcal{I}(\mathcal{A}_{i+1})$, the (finite) induced interpretation of the given solution, to $\mathcal{I}$, which can be infinite. \textcolor{red}{todo}\\
 Therefore if we pick this solution, we can add successors such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
 \end{itemize}
 \end{proof}
