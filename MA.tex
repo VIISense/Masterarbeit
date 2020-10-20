@@ -120,7 +120,7 @@ The mappings satisfies for the cardinality terms $k,l$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = \sigma(l)$
 \end{itemize}
 \end{mydef}
-A solution $\phi$ for a $QFBAPA$ formula is denoted as assignments of elements $e$ to intersections and/or unions of set variables: $\phi(e)=X_1\cup\dots\cup X_n\cap\dots\cap X_m$. The set $E(\phi)$ denotes the elements, which are assigned from $\phi$.\\
+The mapping $\sigma$ is a solution of a $QFBAPA$ formula if it satisfies all cardinality constraints.\\
 Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
@@ -254,7 +254,7 @@ Our desired form for the ABox is gained by the following algorithm.
 The first part of the transformation runs in worst case in polynomial time: If any of the first four conditions holds, we only replace $c$ which runs in constant time.  The complexity of a removing function depends on the implementation: If we have direct access to the elements in the ABox the remove function has a constant (runtime) complexity. If we have some kind of sorting then the (runtime) complexity is logarithm. In worst case if we the ABox is stored as a simple list, then the (runtime) complexity is linear. Hence in worse cast the first part runs in polynomial time. The second part always runs in polynomial time because each transformation into $NNF$ runs in linear time. Hence our desired form of the ABox can be obtained in a polynomial time.
 \fi
 \subsection{Transforming an ABox into a formula}
-Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ s. We want to use it whenever we want to add successors for a variable $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula for one \textit{nested level}. As example we look at
+Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ solver, whenever we want to add successors for a variable $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula for one \textit{nested level}. We assume that the ABox is already in $NNF$. As example we look at
 \begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
 \begin{align*}
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}
@@ -345,7 +345,7 @@ For the correctness proof of the Tableau-algorithm we have to show that
 \end{itemize}
 In all proves we assume that the $QFBAPA$ solver is correct. First we prove that the algorithm works correctly e.g. we prove the first two points. 
 \begin{mylem}
-If the Tableau-algorithm applied on an ABox $\mathcal{A}=\{x:C\}$ terminates without a clash then $\mathcal{A}$ is satisfiable
+If the Tableau-algorithm is applied on an ABox $\mathcal{A}=\{x:C\}$ and  terminates without a clash then $\mathcal{A}$ is satisfiable
 \end{mylem}
 \begin{proof}
 Let $\mathcal{A}^\prime$ be the result after the algorithm terminated. Since we do not remove any assertion during the algorithm we have $\mathcal{A}\subseteq\mathcal{A}^\prime$. Hence if an interpretation $\mathcal{I}$ satisfies $\mathcal{A}^\prime$ then it also satisfies $\mathcal{A}$. Let $\mathcal{I}(\mathcal{A}^\prime)$ be the induced interpretation of $\mathcal{A}^\prime$. We show that $\mathcal{I}(\mathcal{A}^\prime)$ indeed satisfies $\mathcal{A}^\prime$ by induction over concepts:\\
@@ -355,7 +355,7 @@ We consider $x:C$ where $C$ is a compound concepts (induction step):
 \item $C=\neg D$: Since $\mathcal{A}^\prime$ does not contain a clash, $x:C\in A$ implies $x:D\notin A$. $D$ must be a concept name, because $\mathcal{A}^\prime$ is in $NNF$. Therefore by definition of induced interpretation and $x:D\notin A$ we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\notin D^{\mathcal{I}(\mathcal{A}^\prime)}$ which implies $x^{\mathcal{I}(\mathcal{A}^\prime)}\in \Delta^{\mathcal{I}(\mathcal{A}^\prime)}\backslash D^{\mathcal{I}(\mathcal{A}^\prime)}=C^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \item $C=D\sqcap E$: Since the algorithm terminated, the $\sqcap$-rule is not applicable any more. That means that there is a variable $x$, such that $\{x:D, x:E\}\subseteq \mathcal{A}^\prime$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ and $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cap D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcap D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \item $C=D\sqcup E$: Since the algorithm terminated, the $\sqcup$-rule is not applicable any more. That means that there is a variable $x$, such that $\{x:D, x:E\}\cap \mathcal{A}^\prime\neq \emptyset$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ or $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cup D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcup D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
-\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the $QFBAPA$ solver must have returned a solution. If the solution is empty, then no variables are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty then the induced interpretation is updated by introducing a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in E(\phi)$ and hence also for each freshly introduced variable $y$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have for a predecessor $x$ $(x,y):r$. By the induction hypothesis $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})$ must be in $r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_c$, $c$ is a cardinality constraint, we have $y:succ(c)$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the $QFBAPA$ solver must have returned a solution. If the solution is empty, then no variables are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty then the induced interpretation is updated by introducing a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in E(\phi)$ and hence also for each freshly introduced variable $y$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have $(x,y):r$. By the induction step we know there must be an element $x^{\mathcal{I}(\mathcal{A}^\prime)}\in\Delta1^{\mathcal{I}(\mathcal{A}^\prime)}$. Because we introduced $e$ in this step, we also introduced a new variable $y$ which means for the induced interpretation we introduce a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$. Since we also added $(x,y):r$ to $\mathcal{A}^\prime$, we must have $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})\in r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_c$, $c$ is a cardinality constraint, we have $y:succ(c)$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \end{itemize}
 Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\prime$ and that $\mathcal{A}\subseteq \mathcal{A}^\prime$, $\mathcal{I}(\mathcal{A}^\prime)$ also satisfies $\mathcal{A}$.
 \end{proof}
@@ -384,18 +384,18 @@ We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obta
 \If{$|r^\mathcal{I}(x)|=u$}
 \State jump to line 5;
 \Else
-\State add $e$ to $X_r$
+\State add $\phi(e)=X_r$ to $\phi_{dummy}$
 \EndIf
 \EndFor
 \ForEach{$y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$}
-\If{$|r^\mathcal{I}(x)\cup C^\mathcal{I}|=u$}
+\If{$|\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\cap C^\mathcal{I}|=u$}
 \State jump to line 5;
 \Else
 \State add $e$ to $X_C$
 \EndIf
 \EndFor
 \ForEach{$y^\mathcal{I}\in succ(c)^\mathcal{I}$}
-\If{$|r^\mathcal{I}(x)\cup succ(c)^\mathcal{I}|=u$}
+\If{$|\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\cap succ(c)^\mathcal{I}|=u$}
 \State jump to line 5;
 \Else
 \State add $e$ to $X_c$
