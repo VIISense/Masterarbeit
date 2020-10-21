@@ -319,10 +319,10 @@ Numerical part:
 \item\label{succ} $successor$-rule: $\mathcal{A}$ contains for a variable $x$ at least one violated assertion of the form $x:succ(c)$:
 \begin{itemize}
 \item gather all assertion of the form $x:succ(c)$ into a set $\mathcal{S}$
-\item transform $\mathcal{S}$ into a $QFBAPA$ formula
+\item transform $\mathcal{S}$ into a $QFBAPA$ formula $\mathcal{F}(S)$
 \end{itemize}
 If a $QFBAPA$ solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
-If a $QFBAPA$ solver returns \textit{satisfiable} then select one solution $\phi$ and for each $e\in E(\phi)$ in the solution we introduce a new variable $y$ and
+If a $QFBAPA$ solver returns \textit{satisfiable} then select one solution $\sigma$ and for each $e\in E(\sigma)$ we introduce a new variable $y$ and
 \begin{itemize}
 \item for each $e\in X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:C\}$
 \item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
@@ -355,7 +355,7 @@ We consider $x:C$ where $C$ is a compound concepts (induction step):
 \item $C=\neg D$: Since $\mathcal{A}^\prime$ does not contain a clash, $x:C\in A$ implies $x:D\notin A$. $D$ must be a concept name, because $\mathcal{A}^\prime$ is in $NNF$. Therefore by definition of induced interpretation and $x:D\notin A$ we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\notin D^{\mathcal{I}(\mathcal{A}^\prime)}$ which implies $x^{\mathcal{I}(\mathcal{A}^\prime)}\in \Delta^{\mathcal{I}(\mathcal{A}^\prime)}\backslash D^{\mathcal{I}(\mathcal{A}^\prime)}=C^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \item $C=D\sqcap E$: Since the algorithm terminated, the $\sqcap$-rule is not applicable any more. That means that there is a variable $x$, such that $\{x:D, x:E\}\subseteq \mathcal{A}^\prime$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ and $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cap D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcap D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \item $C=D\sqcup E$: Since the algorithm terminated, the $\sqcup$-rule is not applicable any more. That means that there is a variable $x$, such that $\{x:D, x:E\}\cap \mathcal{A}^\prime\neq \emptyset$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ or $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cup D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcup D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
-\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the $QFBAPA$ solver must have returned a solution. If the solution is empty, then no variables are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty then the induced interpretation is updated by introducing a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in E(\phi)$ and hence also for each freshly introduced variable $y$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have $(x,y):r$. By the induction step we know there must be an element $x^{\mathcal{I}(\mathcal{A}^\prime)}\in\Delta1^{\mathcal{I}(\mathcal{A}^\prime)}$. Because we introduced $e$ in this step, we also introduced a new variable $y$ which means for the induced interpretation we introduce a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$. Since we also added $(x,y):r$ to $\mathcal{A}^\prime$, we must have $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})\in r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_c$, $c$ is a cardinality constraint, we have $y:succ(c)$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the $QFBAPA$ solver must have returned a solution. If the solution is empty, then no variables are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty then the induced interpretation is updated by introducing a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in E(\sigma)$ and hence also for each freshly introduced variable $y$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have $(x,y):r$. By the induction step we know there must be an element $x^{\mathcal{I}(\mathcal{A}^\prime)}\in\Delta1^{\mathcal{I}(\mathcal{A}^\prime)}$. Because we introduced $e$ in this step, we also introduced a new variable $y$ which means for the induced interpretation we introduce a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$. Since we also added $(x,y):r$ to $\mathcal{A}^\prime$, we must have $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})\in r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_c$, $c$ is a cardinality constraint, we have $y:succ(c)$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \end{itemize}
 Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\prime$ and that $\mathcal{A}\subseteq \mathcal{A}^\prime$, $\mathcal{I}(\mathcal{A}^\prime)$ also satisfies $\mathcal{A}$.
 \end{proof}
@@ -370,21 +370,21 @@ We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obta
 \begin{itemize}
 \item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}:=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
 \item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ and hence $x^\mathcal{I}\in C^\mathcal{I}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ and hence $x^\mathcal{I}\in D^\mathcal{I}$. In both cases $x^\mathcal{I}\in C^\mathcal{I}\cup D^\mathcal{I}=(C\sqcup D)^\mathcal{I}$ and hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule on $x:succ(c)$: By the induction hypothesis we have $x^\mathcal{I}\in succ(c)^\mathcal{I}$. We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together, formulate a $QFBAPA$ formula $\mathcal{F}(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, the $succ$-assertions together are also satisfiable (subset of $\mathcal{A}$). Hence there has to solutions which can be returned by the solver. By the induction hypothesis we know that $x^\mathcal{I}\in succ(c)^\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the solution $\phi$ with $E(\phi)=\emptyset$ must be a valid solution, which can be returned from the solver. In case $x^\mathcal{I}$ does have successors, we can create a finite solution $\phi^\ast$ within an upper bound from $\mathcal{I}$:
+\item we apply the $succ$-rule on $x:succ(c)$: By the induction hypothesis we have $x^\mathcal{I}\in succ(c)^\mathcal{I}$. We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together, formulate a $QFBAPA$ formula $\mathcal{F}(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, the $succ$-assertions together are also satisfiable (subset of $\mathcal{A}$). Hence there has to solutions which can be returned by the solver. By the induction hypothesis we know that $x^\mathcal{I}\in succ(c)^\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the solution $\sigma$ with $E(\sigma)=\emptyset$ must be a valid solution, which can be returned from the solver. In case $x^\mathcal{I}$ does have successors, we can create a finite solution $\sigma^\ast$ within an upper bound from $\mathcal{I}$:
 \begin{algorithm}[H] 
 \begin{algorithmic}[1]
-\State $\phi^\ast=\emptyset$
-\State $E(\phi^\ast)=\emptyset$
+\State $\sigma^\ast=\emptyset$
+\State $E(\sigma^\ast)=\emptyset$
 \State $u\in\mathbb{N}$ upper bound
-\While{$\phi$ is not a solution of $\mathcal{F}(x)$}
+\While{$\sigma$ is not a solution of $\mathcal{F}(x)$}
 \State pick one successor $y^\mathcal{I}$, which has not been picked yet
-\State create $\phi_{dummy}$
-\State introduce $e$ and add it to $E(\phi_{dummy})$
+\State create $\sigma_{dummy}$
+\State introduce $e$ and add it to $E(\sigma_{dummy})$
 \ForEach{$(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$}
 \If{$|r^\mathcal{I}(x)|=u$}
 \State jump to line 5;
 \Else
-\State add $\phi(e)=X_r$ to $\phi_{dummy}$
+\State add $\sigma(e)=X_r$ to $\sigma_{dummy}$
 \EndIf
 \EndFor
 \ForEach{$y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$}
@@ -401,11 +401,11 @@ We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obta
 \State add $e$ to $X_c$
 \EndIf
 \EndFor
-\State $\phi^\ast:=\phi^\ast\cup \phi_{dummy}$
+\State $\sigma^\ast:=\sigma^\ast\cup \sigma_{dummy}$
 \EndWhile
 \end{algorithmic}
 \end{algorithm}
-Since we know that if an ILP has a solution then there must be also a solution with in an upper bound and since $QFBAPA$ formula can be transformed into a ILP, we know that the creation of $\phi^\ast$ must terminates, because $\mathcal{I}$ has a solution.\\
+Since we know that if an ILP has a solution then there must be also a solution with in an upper bound and since $QFBAPA$ formula can be transformed into a ILP, we know that the creation of $\sigma^\ast$ must terminates, because $\mathcal{I}$ has a solution.\\
 Therefore we are able to pick a solution, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
 \end{itemize}
 \end{proof}
