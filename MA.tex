@@ -302,7 +302,7 @@ x_5
 \end{array}\right )
 \end{align*}
 with the ordering $|X_{|A|\leq |B\cap r|}|, |X_A|, |X_B|, I_1, I_2 $.\\
-In \cite{knapsack} the calculated upper bound for each $x_i$ is $n\cdot (m\cdot max_{i,j}\{|a_{ij}|,|b_i|\})^{2\cdot m+1}$, where $A$ is a $m\,\times\,n$ matrix, $b$ a vector of $\mathbb{Z}^m$  and $1\leq i\leq m$, $1\leq j\leq n$. In our example the upper bound for all $x_i$ is $5\cdot (2\cdot max_{i,j}\{|1|,|-1|\})^{2\cdot 2+1}=320$. For our example it means that we can have solutions in which we never have more then $320$ successors in each $succ(|A|\leq |B\cap r|)$, $A$ and $B$. 
+In \cite{knapsack} the calculated upper bound for each $x_i$ is $n\cdot (m\cdot max_{i,j}\{|a_{ij}|,|b_i|\})^{2\cdot m+1}$, where $A$ is a $m\,\times\,n$ matrix, $b$ a vector of $\mathbb{Z}^m$  and $1\leq i\leq m$, $1\leq j\leq n$. \textcolor{red}{some more text about that paper} In our example the upper bound for all $x_i$ is $5\cdot (2\cdot max_{i,j}\{|1|,|-1|\})^{2\cdot 2+1}=320$. For our example it means that we can have solutions in which we never have more then $320$ successors in each $succ(|A|\leq |B\cap r|)$, $A$ and $B$. 
 \subsection{Algorithm}
 Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
 \begin{mydef}[Tableau]
@@ -370,42 +370,7 @@ We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obta
 \begin{itemize}
 \item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}:=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
 \item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ and hence $x^\mathcal{I}\in C^\mathcal{I}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ and hence $x^\mathcal{I}\in D^\mathcal{I}$. In both cases $x^\mathcal{I}\in C^\mathcal{I}\cup D^\mathcal{I}=(C\sqcup D)^\mathcal{I}$ and hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule on $x:succ(c)$: By the induction hypothesis we have $x^\mathcal{I}\in succ(c)^\mathcal{I}$. We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together, formulate a $QFBAPA$ formula $\mathcal{F}(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, the $succ$-assertions together are also satisfiable (subset of $\mathcal{A}$). Hence there has to solutions which can be returned by the solver. By the induction hypothesis we know that $x^\mathcal{I}\in succ(c)^\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the solution $\sigma$ with $E(\sigma)=\emptyset$ must be a valid solution, which can be returned from the solver. In case $x^\mathcal{I}$ does have successors, we can create a finite solution $\sigma^\ast$ within an upper bound from $\mathcal{I}$:
-\begin{algorithm}[H] 
-\begin{algorithmic}[1]
-\State $\sigma^\ast=\emptyset$
-\State $E(\sigma^\ast)=\emptyset$
-\State $u\in\mathbb{N}$ upper bound
-\While{$\sigma$ is not a solution of $\mathcal{F}(x)$}
-\State pick one successor $y^\mathcal{I}$, which has not been picked yet
-\State create $\sigma_{dummy}$
-\State introduce $e$ and add it to $E(\sigma_{dummy})$
-\ForEach{$(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$}
-\If{$|r^\mathcal{I}(x)|=u$}
-\State jump to line 5;
-\Else
-\State add $\sigma(e)=X_r$ to $\sigma_{dummy}$
-\EndIf
-\EndFor
-\ForEach{$y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$}
-\If{$|\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\cap C^\mathcal{I}|=u$}
-\State jump to line 5;
-\Else
-\State add $e$ to $X_C$
-\EndIf
-\EndFor
-\ForEach{$y^\mathcal{I}\in succ(c)^\mathcal{I}$}
-\If{$|\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\cap succ(c)^\mathcal{I}|=u$}
-\State jump to line 5;
-\Else
-\State add $e$ to $X_c$
-\EndIf
-\EndFor
-\State $\sigma^\ast:=\sigma^\ast\cup \sigma_{dummy}$
-\EndWhile
-\end{algorithmic}
-\end{algorithm}
-Since we know that if an ILP has a solution then there must be also a solution with in an upper bound and since $QFBAPA$ formula can be transformed into a ILP, we know that the creation of $\sigma^\ast$ must terminates, because $\mathcal{I}$ has a solution.\\
+\item we apply the $succ$-rule on $x:succ(c)$: By the induction hypothesis we have $x^\mathcal{I}\in succ(c)^\mathcal{I}$. We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together, formulate a $QFBAPA$ formula $\mathcal{F}(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, the $succ$-assertions together are also satisfiable (subset of $\mathcal{A}$). Hence there has to be solutions which can be returned by the solver. We need to show, that the solver is capable to return a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution $\sigma$ with $E(\sigma)=\emptyset$ must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and within our upper bound, then we can create a solution $\sigma^\ast$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show, that we can reduce the solution induced by $\mathcal{I}$. \textcolor{red}{todo}.
 Therefore we are able to pick a solution, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
 \end{itemize}
 \end{proof}
