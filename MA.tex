@@ -67,7 +67,7 @@ A knowledge base consists of a \textit{TBox}, which contains the axioms (rules),
 The expressive DL $\mathcal{ALCSCC}$ extends $\mathcal{ALCQ}$ with \textit{set constraint} and \textit{cardinality constrant}, which lays under the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic). As the name says we do not have quantifier. Instead we use set expression (Boolean Algebra part) and numerical constraint (Presburger Arithmetic) which is combined together with cardinality functions. For example $Human\sqcap \geq 1\,hasChildren.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChildren|\geq 1)\sqsubseteq Parent$. This DL is more expressive than $\mathcal{ALCQ}$ because every qualified restriction $\leq\,n\,r.C$ and $\geq \, n\, r.C$ can be written in $\mathcal{ALCSCC}$ as $succ(|r.C|\leq 1)$ and $succ(|r.C|\geq 1)$. In \cite{4} a solution for the satisfiability problem (without TBox) is presented which has the complexity PSpace: For an ABox we guess the value (true or false) of the top-level variables which can already lead to a \textit{false}-result. If not then the constraint is formulated into a $QFBAPA$ formula, for which an algorithm determine by guessing a number $N$ of Venn-region to be non-empty whether the formula is satisfied or not.\\
 In this work we present a Tableau-algorithm for $\mathcal{ALCSCC}$. As in previous work for other DLs we define completion rules which can be applied onto assertions in the ABox to determine whether $\perp$ can be concluded from it which states its unsatisfiability. If we can not apply any rules any more and we can not conclude $\perp$, then the ABox is satisfiable. The main difficulty is that unlike $\mathcal{ALCQ}$, where the bond of number of successor is fixed, in $\mathcal{ALCSCC}$ we can compare two cardinalities, which can vary during the algorithm. Hence we need an approach for counting successors and with it calculating the \textit{correct} cardinality, which is necessary to detect satisfied and violated constraint. For this we introduce \textit{induced interpretation} which can determine the cardinalities after each rule application. Further more to deal with the numerical arithmetic of $\mathcal{ALCSCC}$ we use a $QFBAPA$ solver, of which we assume it is capable to return all possible solution. We transform a subset of the ABox into a $QFBAPA$ formula and then let a solver determine whether the formula is satisfiable or not. If not we end with a clash. If it returns a solution, then we add variables according to it to our ABox. To ensure that the algorithm terminates we show that we are able to bound the number of finite solution.
 \section{Preliminaries}
-Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like.
+Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like. It combines boolean algebra (BA) of sets of symbols with Presburger arithmetic (PA):
 \begin{mydef}[$QFBAPA$]
 Let $T$ be a set of symbols
 \begin{itemize}
@@ -120,7 +120,7 @@ The mappings satisfies for the cardinality terms $k,l$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = \sigma(l)$
 \end{itemize}
 \end{mydef}
-The mapping $\sigma$ is a solution of a $QFBAPA$ formula if it satisfies all cardinality constraints.\\
+The mapping $\sigma$ is a solution of a $QFBAPA$ formula $\phi$ if it satisfies all cardinality constraints in $\phi$.\\
 Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
@@ -158,10 +158,10 @@ $\mathcal{I}$ is a model of $\mathcal{A}$ iff
 \item $(x,y):r$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
 \end{itemize} 
 \end{mydef}
-Note that in a concept $succ(c)$ $c$ can also be a cardinality constraint over $A\sqcap B$ and $A\sqcup B$. Since the semantic of $A\sqcap B$ and $A\cap B$ (analogously for $A\sqcup B$ and $A\cup B$) are the same, we take the assumption, that every $\sqcap$ and $\sqcup$ within a $succ(c)$ concept are replaced with $\cap$ and $\cup$.
+Note that in a concept $succ(c)$ $c$ can also be a cardinality constraint over $A\sqcap B$ and $A\sqcup B$. Since the semantic of $A\sqcap B$ and $A\cap B$ (analogously for $A\sqcup B$ and $A\cup B$) are defined the same way ($(C\sqcap D)^\mathcal{I}=C^\mathcal{I}\cap D^\mathcal{I}$ and $\sigma(C\cap D)=\sigma(C)\cap\sigma(D)$), we make the assumption that every $\sqcap$ and $\sqcup$ within a $succ(c)$ concept are replaced with $\cap$ and $\cup$.
 \section{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consists of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunction. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices end in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
-We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not and if it satisfiable we want to create a satisfied ABox from $x:C$.\\
+We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not and if it satisfiable we create a satisfied ABox from $x:C$.\\
 To help the algorithm we want to avoid nested negation e.g. $\neg(\neg(\neg(A\cup B)))$. Hence we consider all concepts in \textit{negated normal form (NNF)}.
 \begin{mydef}[Negation Normal Form]
 A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary $\mathcal{ALCSCC}$ concept. With $NNF(C)$ we denote the concept which is obtained by applying the rules below on $C$ until none is applicable any more.
@@ -191,9 +191,9 @@ A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the 
 \end{minipage}
 \end{figure}
 \end{mydef}
-The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\mathcal{I}$ of $\mathcal{A}$ we have $(C^\neg)^\mathcal{I}=\mathcal{U}\backslash C^\mathcal{I}$ and $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\mathcal{U}\subseteq \Delta$ we can conclude that every element in $(C^\neg)^\mathcal{I}$ is also in $(\neg C)^\mathcal{I}$.\\
+The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\sigma$ for a concept $C$ based on $QFBAPA$ we have $\sigma(C^\neg)=\sigma(\mathcal{U})\backslash \sigma(C)$ and for every interpretation $\mathcal{I}$ based on $\mathcal{ALCSCC}$ we have $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\sigma(\mathcal{U})\subseteq \Delta^\mathcal{I}$ we can conclude that every element in $\sigma(C^\neg)$ is also in $(\neg C)^\mathcal{I}$.\\
 The first five rules on the left hand side can be applied in linear time \cite{1},\cite{6}. The first four rules on the right hand side, $C^\neg\rightarrow \neg C$ and $\neg succ(c)\rightarrow succ(\neg c)$ can also be applied in linear time since we only shift the negation sign. the rule $(s^\neg)^\neg\rightarrow s$ works similarly to $\neg\neg C\rightarrow C$ and the rules $(s\cap t)^\neg\rightarrow s^\neg\cup t^\neg$ and $(s\cup t)^\neg\rightarrow s^\neg \cap t^\neg$ works the similarly to $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and can also be applied in linear time.\\
-Next we introduce \textit{induced interpretation} with which we can count successors of variables after any rule application.
+Next we introduce \textit{induced interpretation} with which we can count successors of variables after any rule application and hereby detect violated assertions.
 \begin{mydef}[Induced Interpretation]
 An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $\mathcal{A}$ by the following steps:
 \begin{itemize}
@@ -202,7 +202,6 @@ An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $\mathc
 \item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(\mathcal{A})},y^{\mathcal{I}(\mathcal{A})})$ to $r^{\mathcal{I}(\mathcal{A})}$
 \end{itemize}
 \end{mydef}
-Since we can now denote the number of successor of a variable $x$ we can determine which assertion of the form $x:succ(c)$ are violated.
 \begin{mydef}[Violated assertion]
 Let $\mathcal{A}$ be a set of assertion, $x$ be a variable, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion $x:succ(c)$ is \textit{violated} if $x^{\mathcal{I}(\mathcal{A})}\notin succ(c)^{\mathcal{I}(\mathcal{A})}$.
 \end{mydef}
@@ -212,48 +211,10 @@ An ABox $\mathcal{A}$ contains a \textit{clash} if
 \begin{itemize}
 \item $\{x:\perp\}\subseteq \mathcal{A}$ or
 \item $\{x:C,\,x:\neg C\}\subseteq \mathcal{A}$ or
+\item $\{(x,y):r,\,(x,y):\neg r\}\subseteq \mathcal{A}$
 \item $\{x:succ(c)\}\subseteq \mathcal{A}$ violated and no more rules are applicable
 \end{itemize}
 \end{mydef}
-\iffalse
-\subsection{The form of the ABox}
-Like already mention a ABox $S$ in $\mathcal{ALCSCC}$ contains assertions of the form $x:C$ and $(x,y):C$ where $C$ is a $\mathcal{ALCSCC}$ concept and $x,y\in Var(S)$ are variables. Like already discussed we want constraints to be in $NNF$ and for an assertion $x:succ(c)$ that $c$ is either $k\leq l$ or $n\,dvd\,l$.
-Our desired form for the ABox is gained by the following algorithm.
-\begin{algorithm}[H] \caption{Transforming ABox}
-\begin{algorithmic}[l]
-\State ABox $S$
-\ForEach {assertion $x:succ(c)\in S$}
-\If {$c$ is $s_1\subseteq s_2$}
-\State $c:=|s_1\cap s_2^\neg|\leq 0$; return;
-\EndIf
-\If{$c$ is $s_1\supseteq s_2$ and a set term constraint}
-\State $c:=|s_1^\neg\cap s_2|\leq 0$; return;
-\EndIf
-\If{$c$ is $s_1=s_2$}
-\State remove $x:succ(c)$;
-\State add $x:succ(|s_1\cap s_2^\neg|\leq 0)$ and $x:succ(|s_1^\neg\cap s_2|\leq 0)$; return;
-\EndIf
-\If{$c$ is $l>k$}
-\State $c:=k +1\leq l$; return;
-\EndIf
-\If{$c$ is $k<l$}
-\State $c:=k +1\leq l$; return;
-\EndIf
-\If{$c$ is $l\geq k$}
-\State $c:=k\leq l$; return;
-\EndIf
-\If{$c$ is $l=k$ and a cardinality constraint}
-\State remove $x:succ(c)$;
-\State add $x:succ(l\leq k)$ and $x:succ(k\leq l)$; return;
-\EndIf
-\EndFor\\
-\ForEach{assertion $x:C$ or $(x,y):s$}
-\State $C:=NNF(C)$ or $s:=NNF(s)$;
-\EndFor
-\end{algorithmic}
-\end{algorithm}
-The first part of the transformation runs in worst case in polynomial time: If any of the first four conditions holds, we only replace $c$ which runs in constant time.  The complexity of a removing function depends on the implementation: If we have direct access to the elements in the ABox the remove function has a constant (runtime) complexity. If we have some kind of sorting then the (runtime) complexity is logarithm. In worst case if we the ABox is stored as a simple list, then the (runtime) complexity is linear. Hence in worse cast the first part runs in polynomial time. The second part always runs in polynomial time because each transformation into $NNF$ runs in linear time. Hence our desired form of the ABox can be obtained in a polynomial time.
-\fi
 \subsection{Transforming an ABox into a formula}
 Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ solver, whenever we want to add successors for a variable $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula for one \textit{nested level}. We assume that the ABox is already in $NNF$. As example we look at
 \begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
@@ -278,9 +239,9 @@ For our example we have four set variables: $X_A$, $X_B$, $X_r$ and $X_{|A|\leq 
 \end{align}
 We only replace concepts on one \textit{nested level}. In the example the first assertion tells that $x$ must have at least one successor $y$ which has more successors in $B\cap r$ than in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} then $succ(|A|\leq |B|)$. According to one solution of the solver we can introduce variables and assertion. Also $x$ has more successor in $B$ than in $A$. By the last conjunction we give the information, that every successor must be an $r$-successor. Then in the upcoming steps, we can gather all $succ$-assertion of the new variables again and repeat this step.
 \subsection{Solution of a formula}
-For our algorithm we assume that we have a solver, which can return all possible solutions. However there can be infinite many solutions. Actually Example 1 can have infinitetly many solutions: We can always increase the amount of successors in $B$ as long as we have fewer successors in $A$. However having a infinite solution means that the Tableau-algorithm works on a infinite space and/or does not terminate. Therefore we want to only consider solution inside some \textit{upper bounds}. For an \textit{Integer Linear Programming} (ILP) problem possible upper bounds are already investigated (like in \cite{knapsack}). Therefore we want to transform our formula into a \textit{linear system of equalities} in a form $Ax=b$:\\
+For our algorithm we assume that we have a solver, which can return all possible solutions. However there can be infinite many solutions. Actually Example 1 can have infinitetly many solutions: We can always increase the amount of successors in $B$ as long as we have fewer successors in $A$. However having a infinite solution means that the Tableau-algorithm works on a infinite space and/or does not terminate. Therefore we want to only consider solution inside some \textit{upper bounds}. For an \textit{Integer Linear Programming} (ILP) problem, which is describe as a linear system of equalities, possible upper bounds are already investigated (like in \cite{knapsack}). Therefore we want to transform our formula into a linear system of equalities in a form $Ax=b$, where $A$ and $b$ describe our cardinality constraints and $x$ is the solution e.g. denotes the numbers of elements we have to assign to set variables to satisfy the constraints:\\
 First, we notice that every inequality in a QFBAPA formula can be
-rewritten as $X_1\pm \dots \pm X_n\leq I$ or $X_1\pm \dots \pm X_n\geq I$, where $I\in\mathbb{Z}$ is a constant. Let $c=|A|\leq |B\cap r|$. We arrange $\phi$ in \eqref{f} into
+rewritten as $n_1\cdot|X_1|\pm \dots \pm n_i\cdot|X_i|\lesseqgtr I$, $\lesseqgtr\,\in\{\leq,\geq,=\}$, where $n_1,\dots, n_i,I\in\mathbb{Z}$ are a constants. The numbers $n_1,\dots,n_i$ are called \textit{pre-factor}. Let $c=|A|\leq |B\cap r|$. We arrange $\phi$ in \eqref{f} into
 \begin{align*}
 \phi=|X_{c}|\geq 1\wedge |X_A|- |X_B|\leq 0 \wedge \mathcal{U}-X_r=0
 \end{align*} 
@@ -288,7 +249,7 @@ Then we change each inequalities into equalities by adding two slack variables v
 \begin{align*}
 \phi=|X_{c}|- I_1= 1\wedge |X_A|-|X_B|+I_2= 0 \wedge \mathcal{U}-X_r=0
 \end{align*}
-Right now it is not clear whether the set variables are overlapping or not. Therefore we consider \textit{Venn regions}, which is of the form $X^i_1\cap \dots X^i_k$. The subscript $i$ denotes either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$.Since we have four set variables, we have $2^4=16$ Venn region and therefore $16$ vectors denoting the Venn regions. We also have two equation which means we need at most two more vectors. The matrix $A$ therefore has two rows and 18 columns and $a_{ij}$, $1\leq i\leq 2$ and $1\leq j\leq 16$, denotes the sum of the pre-factors of the set variables in the $i$-th equation, in which the $j$-th Venn region is included. We already see that the number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in size of $\phi$, such that at most $N$ Venn regions are not empty, if there exists a solution.
+Right now it is not clear whether the set variables are overlapping or not. Therefore we consider \textit{Venn regions}, which is of the form $X^i_1\cap \dots \cap X^i_k$. The subscript $i$ denotes either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$. Therefore we construct $A$ and $b$ such that instead of assigning elements to set variables we assign them to the Venn regions. Since we have four set variables, we have $2^4=16$ Venn region and therefore $16$ vectors denoting the Venn regions. We also have two equation which means we need at most two more vectors for the slack variables. The matrix $A$ therefore has two rows and 18 columns and $a_{ij}$, $1\leq i\leq 2$ and $1\leq j\leq 16$, denotes the sum of the pre-factors of the set variables, in which the $j$-th Venn region is included, in the $i$-th equation. We already see that the number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in size of $\phi$, such that at most $N$ Venn regions are not empty, if there exists a solution.
 \begin{mylem}[Lemma 3 from \cite{4}]
 For every $QFBAPA$ formula $\phi$ a number $N$, which is polynomial to the size of $\phi$, can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that
 \begin{itemize}
@@ -296,7 +257,7 @@ For every $QFBAPA$ formula $\phi$ a number $N$, which is polynomial to the size 
 \item $|\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}|\subseteq |\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}|$
 \end{itemize}
 \end{mylem}
-Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regions, which are non-zero. In Example 1 we can already guess, that any Venn region within $X_r^\neg$ must be empty, because $\mathcal{U}=X_r$. Hence we can drop eight Venn regions and create the following system of equation. Let the vectors for the Venn regions be in the following order:
+Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regions, which are non-zero. In Example 1 we can already guess, that any Venn region within $X_r^\neg$ must be empty, because $\mathcal{U}=X_r$. Hence we can drop eight Venn regions and create a system of equation with $A$ being a $2\times 10$ matrix. Let the vectors for the Venn regions be in the following order:
 \begin{figure}[H]
 \begin{minipage}[t]{.5\textwidth}
 \raggedright
@@ -317,6 +278,7 @@ Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regio
 \end{itemize}
 \end{minipage}
 \end{figure}
+The last two vectors denote the slack variables: $v_9=I_1$ and $v_10=I_2$
 We create now the linear system of equation:
 \begin{align*}
 \left ( \begin{array}{cccccccccc}
@@ -328,10 +290,10 @@ x_1\\x_2\\x_3\\x_4\\x_5\\x_6\\x_7\\x_8
 1&0
 \end{array}\right )
 \end{align*}
-Note that $a_{2,1}$ and $a_{2,2}$ are $0$ because the pre-factor of $X_A$ and $X_B$ are $1$ and $-1$ and because the Venn regions $v_1$ and $v2$ are included both in $X_A$ and $X_B$. If $x_i=0$ then the Venn region $v_i$ is empty.\\
+Note that $a_{2,1}$ and $a_{2,2}$ are $0$ because the pre-factor of $X_A$ and $X_B$ in the second equation are $1$ and $-1$ and because the Venn regions $v_1$ and $v_2$ are included both in $X_A$ and $X_B$. If $x_i=0$ then the Venn region $v_i$ is empty.\\
 Going back to upper bound problem: The following result from [4] can be used to establish upper bound for the solution of the \textit{ILP}:
-\begin{mythe}[Theorem 1 from \cite{knapsack}]
-Let $A\in \mathbb{N}^m\times \mathbb{N}^n$ be a matrix and $b\in\mathbb{N}^m$ a vector. If $x\in\mathbb{N}^n$ is a solution of $Ax=b$, then there exists a solution $x^\prime$ such that all entries are integers between $0$ and $n\cdot (m\cdot max_{i,j}\{|a_{ij}|,|b_i|\})^{2\cdot m+1}$.
+\begin{mythe}[Theorem 1 from \cite{knapsack}]\label{upper bound}
+Let $A\in \mathbb{Z}^m\times \mathbb{Z}^n$ be a matrix and $b\in\mathbb{Z}^m$ a vector. If $x\in\mathbb{N}^n$ is a solution of $Ax=b$, then there exists a solution $x^\prime$ such that all entries are integers between $0$ and $n\cdot (m\cdot max_{i,j}\{|a_{ij}|,|b_i|\})^{2\cdot m+1}$.
 \end{mythe}
 For finding a solution $x^\prime$ the entries of the found solution $x$ are decreased. We distinguish between two cases. Let $M=m\cdot max_{i,j}\{|a_{ij}|\}^m$, $F=\{i|x_i>M\}$ and $v_i$ be the $i$-th column of $A$
 \begin{itemize}
@@ -342,9 +304,10 @@ h^TA x^\prime = h^Tb
 \end{align*}
 \end{itemize}
 (proof in \cite{knapsack})\\
+Therefore we are able to set an upper bound a priori for the solutions the $QFBAPA$ returns. Furthermore we stay in PSpace while calculating the upper bound by using $\leq N$ Venn regions after the results of \cite{4}.\\
 In our example the upper bound for all $x_i$ is $8\cdot (2\cdot max_{i,j}\{|1|,|-1|\})^{2\cdot 2+1}=512$. Therefore we can bound our number of elements in each Venn regions to $512$. 
 \subsection{Algorithm}
-Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part.
+Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. We describe above how we handle the numeric arithmetic of $\mathcal{ALCSCC}$ and that we want to decompose compound concept first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula and a solver returns a possible assignment of elements. The boolean part has a higher priority than the numerical part. 
 \begin{mydef}[Tableau]
 Let $\mathcal{A}$ be a set of assertions in $NNF$.\\
 Boolean part:
@@ -362,7 +325,7 @@ Numerical part:
 \item transform $\mathcal{S}$ into a $QFBAPA$ formula $\mathcal{F}(S)$
 \end{itemize}
 If a $QFBAPA$ solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
-If a $QFBAPA$ solver returns \textit{satisfiable} then select one solution $\sigma$ and for each $e\in E(\sigma)$ we introduce a new variable $y$ and
+If a $QFBAPA$ solver returns \textit{satisfiable} then calculate the upper bound after Theorem \ref{upper bound} and select one solution $\sigma$ within this bound. For each $e\in E(\sigma)$ we introduce a new variable $y$ and
 \begin{itemize}
 \item for each $e\in X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:C\}$
 \item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
@@ -410,7 +373,7 @@ We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obta
 \begin{itemize}
 \item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}:=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
 \item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ and hence $x^\mathcal{I}\in C^\mathcal{I}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ and hence $x^\mathcal{I}\in D^\mathcal{I}$. In both cases $x^\mathcal{I}\in C^\mathcal{I}\cup D^\mathcal{I}=(C\sqcup D)^\mathcal{I}$ and hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule on $x:succ(c)$: By the induction hypothesis we have $x^\mathcal{I}\in succ(c)^\mathcal{I}$. We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together, formulate a $QFBAPA$ formula $\phi(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, the $succ$-assertions together are also satisfiable (subset of $\mathcal{A}$). Hence there has to be solutions which can be returned by the solver. We need to show, that the solver is capable to return a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution $\sigma$ with $E(\sigma)=\emptyset$ must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and within our upper bound, then we can create a solution $\sigma^\ast$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show, that we can reduce the solution induced by $\mathcal{I}$. \textcolor{red}{todo}.
+\item we apply the $succ$-rule on $x:succ(c)$: By the induction hypothesis we have $x^\mathcal{I}\in succ(c)^\mathcal{I}$. We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together, formulate a $QFBAPA$ formula $\phi(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, the $succ$-assertions together are also satisfiable (subset of $\mathcal{A}$). Hence there has to be solutions which can be returned by the solver. We need to show, that the solver is capable to return a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution $\sigma$ with $E(\sigma)=\emptyset$ must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and within our upper bound, then we can create a solution $\sigma^\ast$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show, that we can create a (finite) solution from $\mathcal{I}$, which the solver is able to return. We know that $x^\mathcal{I}$ must have a finite number of successors in $\mathcal{I}$. Therefore there is a solution, which contains the successors of $x^\mathcal{I}$. In case $x^\mathcal{I}$ has more successors than the upper bound allows,
 Therefore we are able to pick a solution, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
 \end{itemize}
 \end{proof}
