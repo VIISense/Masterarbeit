@@ -58,7 +58,7 @@
 \begin{titlepage}
 	\centering
 	
-	\includegraphics[scale=0.2]{logo}\\
+	\includegraphics[scale=0.15]{logo}\\
 	{\scshape\Large Faculty of Computer Science \par}
 	\vspace{0.5cm}
 	{\scshape\Large Institute of Theoretical Computer Science \par}
@@ -73,6 +73,9 @@
 	\vspace{1.6cm}
 	{\Large Ryny Khy\par}
 	\vspace{0.5cm}
+	\textbf{Matriculation Number:} 4751049\par
+	born on 30. November 1994 in Landshut
+	\vspace{0.5cm}
 	\vfill
 	\begin{minipage}[t]{.65\textwidth}
 \raggedright
@@ -83,7 +86,7 @@ supervised by\par
 \end{minipage}% <---------------- Note the use of "%"
 \begin{minipage}[t]{.35\textwidth}
 \raggedright
-	examined by\par
+	reviewed by\par
 	Dr.-Ing. Stefan Borgwardt\\
 	Prof. Sebastian Rudolph\\
 
@@ -398,23 +401,29 @@ For the correctness proof of the Tableau-algorithm we have to show that
 \end{itemize}
 In all proves we assume that the $QFBAPA$ solver is correct. First we prove that the algorithm always terminates.\\
 A \textit{derived} ABox is an ABox after a finite number of rule application. For the termination proof we map every \textit{derived} ABox to an element $\Psi(\mathcal{A})$ of a set $Q$. This set $Q$ can be ordered by a well-founded strict partial ordering $\prec$. Since $\prec$ is well-founded we can not have a infinite increasing chain which results into termination of the algorithm. Therefore we show for every ABox $\mathcal{A}^\prime$ which is derivable from a derived ABox $\mathcal{A}$ that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
-The element of $Q$ are multisets of tuples. Each tuple consists of a multiset and an integer. A multiset $M$ is smaller than a multiset $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one element of $M^\prime$ with at least one element, which is smaller. In our definition of $Q$ $\Psi(\mathcal{A}^\prime)$ is smaller than $\Psi(\mathcal{A})$ if we can replace at least one tuple of $\Psi(\mathcal{A})$ with at least one smaller tuple to obtain $\Psi(\mathcal{A}^\prime)$. A tuple $(x_1,y_1)$ is smaller than a tuple $(x_2,y_2)$ if either $x_1<x_2$ or $x_1=x_2$ and $y_1<y_2$ (lexicographical odering from left to right). Otherwise $(x_2,y_2)$ is smaller.\\
-Next we define the size of a concept $C$ inductively, which is always an integer:
+The element of $Q$ are multisets of triples. Each triple consists of a multiset and an integer. A multiset $M$ is smaller than a multiset $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one element of $M^\prime$ with at least one element, which is smaller. In our definition of $Q$ $\Psi(\mathcal{A}^\prime)$ is smaller than $\Psi(\mathcal{A})$ if we can replace at least one triple of $\Psi(\mathcal{A})$ with at least one smaller triple to obtain $\Psi(\mathcal{A}^\prime)$. A triple $(x_1,y_1)$ is smaller than a triple $(x_2,y_2)$ if either $x_1<x_2$ or $x_1=x_2$ and $y_1<y_2$ (lexicographical odering from left to right). Otherwise $(x_2,y_2)$ is smaller.\\
+Next we define the size of a concept $C$ inductively:
 \begin{itemize}
 \item $size(A)=1$ if $A\in\mathbf{C}$
-\item $size(\neg C)=size(C^\neg)=size(C)$
+\item $size(\neg C)=size(C)$
 \item $size(C\sqcap D)=size(C\sqcup D)= size(C)+ size(D)$
-\item $size(C\cap D)=size(C\cup D)= size(C)+ size(D)$
 \item $size(succ(c))=\begin{cases}
 1+max\{size(k),size(l)\} & c=k\leq l \\
 1+size(l)& c= n\,dvd\,l
 \end{cases}$
 \end{itemize}
-\begin{mydef}
-Let $\mathcal{A}$ be a derived ABox. The multiset $\Psi(\mathcal{A})$ consists of tuples. Each tuple $\psi_\mathcal{A}(x)$ represent one variable $x$:
+The size of a cardinality terms $k$ is also defined inductively:
 \begin{itemize}
-\item the first component is a multiset which contains for each assertion $x:C\sqcap D\in\mathcal{A}$ for which the $\sqcap$-rule is applicable the integer $size(C\sqcap D)$. Respectively for $x:C\sqcup D$
-\item the second component is an integer which denotes the number of $x:succ(c)\in\mathcal{A}$ for which the $successor$-rule is applicable
+\item $size(n)=1$ if $n$ is an integer
+\item $size(C^\neg)=size(C)$
+\item $size(C\cap D)=size(C\cup D)= size(C)+ size(D)$
+\end{itemize}
+\begin{mydef}
+Let $\mathcal{A}$ be a derived ABox. The multiset $\Psi(\mathcal{A})$ consists of triples. Each triple $\psi_\mathcal{A}(x)$ represent one variable $x$:
+\begin{itemize}
+\item the first component is an integer which denotes $max\{size(C)|x:C\in\mathcal{A}\}$
+\item the second component is a multiset which contains for each assertion $x:C\sqcap D\in\mathcal{A}$ for which the $\sqcap$-rule is applicable the integer $size(C\sqcap D)$. Respectively for $x:C\sqcup D$
+\item the third component is an integer which denotes the number of $x:succ(c)\in\mathcal{A}$ for which the $successor$-rule is applicable
 \end{itemize}
 \end{mydef}
 We are now able to finally proof the termination of the algorithm.
@@ -424,11 +433,12 @@ For any ABox $\mathcal{A}=\{x:C\}$ the Tableau-algorithm terminates
 \begin{proof}
 We show that if $\mathcal{A}^\prime$ is obtainable from $\mathcal{A}$ by a rule from Definition \ref{Tableau}, then we have $\Psi(\mathcal{A}^\prime)\prec \Psi(\mathcal{A})$.\\
 \begin{itemize}
-\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcap$-rule: The first component becomes smaller because the integer for $size(C\sqcap D)$ is removed (because we can not apply this rule any more after one application). In case $C$ and/or $D$ happens to be disjunction or conjunction the multiset still becomes smaller because $size(C)\leq size(C)+size(D)=size(C\sqcap D)$ (respectively for $size(D)$). Because the first component always becomes smaller the tuple $\psi_{\mathcal{A}^\prime}(x)$.
+\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcap$-rule: The first component remains unchanged because $size(C)\leq size(C\sqcap D)$ and $size(D)\leq size(C\sqcap D)$. The second component becomes smaller because the integer for $size(C\sqcap D)$ is removed (because we can not apply this rule any more after one application). In case $C$ and/or $D$ happens to be disjunction or conjunction the multiset still becomes smaller because $size(C)\leq size(C)+size(D)=size(C\sqcap D)$ (respectively for $size(D)$). Hence the triple $\psi_{\mathcal{A}^\prime}(x)$ always becomes smaller.
 \item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcup$-rule: similar to above
-\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule: If we apply this rule, we gather all $succ$-assertion of $x$ and convert them to a $QFBAPA$ formula. If a solver returns unsatisfiable we have add $x:\perp$ which means we end with a clash. If the solver returns a solution, we add successors according to the solution. Hence all $succ$-assertion of $x$ becomes satisfied and the second component decreases. Because we are able to apply this rule, both $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$. Hence the first component of $\psi_\mathcal{A}(x)$ remains unchanged. Therefore $\psi_{\mathcal{A}^\prime}(x)$ is smaller than $\psi_\mathcal{A}(x)$
+\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule: The first component remains unchanged because we do not add any assertion for $x$.  Because we are able to apply this rule, both $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$. Hence the second component of $\psi_\mathcal{A}(x)$ remains unchanged. In this rule we gather all $succ$-assertion of $x$ and convert them to a $QFBAPA$ formula. If a solver returns unsatisfiable for the formula we have add $x:\perp$ which means we end with a clash. If the solver returns a solution, we add successors according to the solution. Hence all $succ$-assertion of $x$ becomes satisfied and the third component decreases. Therefore $\psi_{\mathcal{A}^\prime}(x)$ is smaller than $\psi_\mathcal{A}(x)$.\\
+For every freshly introduced variable $y$ we have to add a triple $\psi_{\mathcal{A}^\prime}(y)$ to $Q$. Since $y$ is a successor the first component of $\psi_{\mathcal{A}^\prime}(y)$ is always smaller than the first component of $\psi_{\mathcal{A}^\prime}(x)$. \textcolor{red}{todo: proof of that}
 \end{itemize}
-For any other variables $y$ such that $y\neq x$ the tuple $\psi_\mathcal{A}(y)$ remains unchanged. Hence in all three cases we can obtain $\Psi(\mathcal{A}^\prime)$ from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller tuple $\psi_{\mathcal{A}^\prime}(x)$. \\
+For any other variables $y$, such that $y\neq x$ and $y$ was not freshly introduced, the triple $\psi_\mathcal{A}(y)$ remains unchanged. Hence in all three cases we can obtain $\Psi(\mathcal{A}^\prime)$ from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller triple $\psi_{\mathcal{A}^\prime}(x)$. For any newly introduced variables we showed that the corresponding triples are always smaller than $\psi_{\mathcal{A}^\prime}(x)$. Therefore it remains $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$. \\
 Because we work with integers the strict partial ordering is indeed well-founded.
 \end{proof}
 Now we proof that the algorithm works correctly e.g. the algorithm returns a satisfied ABox iff the ABox is satisfiable.
