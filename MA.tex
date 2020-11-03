@@ -374,15 +374,18 @@ Numerical part:
 \item\label{succ} $successor$-rule: $\mathcal{A}$ contains for a variable $x$ at least one violated assertion of the form $x:succ(c)$:
 \begin{itemize}
 \item gather all assertion of the form $x:succ(c)$ into a set $\mathcal{S}$
-\item transform $\mathcal{S}$ into a $QFBAPA$ formula $\phi$
+\item transform $\mathcal{S}$ into a $QFBAPA$ formula $\phi$ after 3.1
 \item calculate the upper bound after Theorem \ref{upper bound}
 \end{itemize}
 If a $QFBAPA$ solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
 If a $QFBAPA$ solver returns \textit{satisfiable} then select one solution $\sigma$ with in the upper bound. For each $e\in\sigma(\mathcal{U})$ we introduce a new variable $y$ and
 \begin{itemize}
 \item for each $e\in X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:C\}$
-\item for each $e\in X_{c}$, $c$ is a cardinality constraint, we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
+\item for each $e\in X_{succ(c)}$ we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
 \item for each $e\in X_r$, $r\in\mathbf{R}$, we have $\mathcal{A}=\mathcal{A}\cup\{(x,y):r\}$
+\item for each $e\notin X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:\neg C\}$
+\item for each $e\notin X_{succ(c)}$ we have $\mathcal{A}=\mathcal{A}\cup\{y: NNF(\neg succ(c))\}$
+\item for each $e\notin X_r$, $r\in\mathbf{R}$, we have $\mathcal{A}=\mathcal{A}\cup\{(x,y):r^\neg\}$
 \end{itemize}
 \end{itemize}
 \end{mydef}
@@ -436,7 +439,11 @@ We show that if $\mathcal{A}^\prime$ is obtainable from $\mathcal{A}$ by a rule 
 \item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcap$-rule: The first component remains unchanged because $size(C)\leq size(C\sqcap D)$ and $size(D)\leq size(C\sqcap D)$. The second component becomes smaller because the integer for $size(C\sqcap D)$ is removed (because we can not apply this rule any more after one application). In case $C$ and/or $D$ happens to be disjunction or conjunction the multiset still becomes smaller because $size(C)\leq size(C)+size(D)=size(C\sqcap D)$ (respectively for $size(D)$). Hence the triple $\psi_{\mathcal{A}^\prime}(x)$ always becomes smaller.
 \item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcup$-rule: similar to above
 \item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule: The first component remains unchanged because we do not add any assertion for $x$.  Because we are able to apply this rule, both $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$. Hence the second component of $\psi_\mathcal{A}(x)$ remains unchanged. In this rule we gather all $succ$-assertion of $x$ and convert them to a $QFBAPA$ formula. If a solver returns unsatisfiable for the formula we have add $x:\perp$ which means we end with a clash. If the solver returns a solution, we add successors according to the solution. Hence all $succ$-assertion of $x$ becomes satisfied and the third component decreases. Therefore $\psi_{\mathcal{A}^\prime}(x)$ is smaller than $\psi_\mathcal{A}(x)$.\\
-For every freshly introduced variable $y$ we have to add a triple $\psi_{\mathcal{A}^\prime}(y)$ to $Q$. Since $y$ is a successor the first component of $\psi_{\mathcal{A}^\prime}(y)$ is always smaller than the first component of $\psi_{\mathcal{A}^\prime}(x)$. \textcolor{red}{todo: proof of that}
+For every freshly introduced variable $y$ we have to add a triple $\psi_{\mathcal{A}^\prime}(y)$ to $Q$. Since $y$ is a successor the first component of $\psi_{\mathcal{A}^\prime}(y)$ is always smaller than the first component of $\psi_{\mathcal{A}^\prime}(x)$:
+\begin{itemize}
+\item We know that for any successor it has only one predecessor: A new variable $y$ can only be introduced by the application of the $successor$-rule on one variable $x$, which has at least one $succ$-assertion. Furthermore, we can not add an assertion $(a,b):r,r\in\mathbf{R}$, such that $a$ and $b$ are not in a predecessor-successor relation before. Also we can only add variables on one nested level. Therefore we can not add new variables, which are in a predecessor-successor relation to each other.
+\item Since $y$ has only one successor we know that $max\{size(C)|y:C\in\mathcal{A}^\prime\}$ is always smaller then $max\{size(C)|x:C\in\mathcal{A}^\prime\}$ by the definition of $size(C)$: For each $y:C\in\mathcal{A}^\prime$ we know that $C$ must be part of a cardinality constraint $c$ such that $x:succ(c)\in\mathcal{A}$ and therefore $size(succ(c))>size(C)$.
+\end{itemize} 
 \end{itemize}
 For any other variables $y$, such that $y\neq x$ and $y$ was not freshly introduced, the triple $\psi_\mathcal{A}(y)$ remains unchanged. Hence in all three cases we can obtain $\Psi(\mathcal{A}^\prime)$ from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller triple $\psi_{\mathcal{A}^\prime}(x)$. For any newly introduced variables we showed that the corresponding triples are always smaller than $\psi_{\mathcal{A}^\prime}(x)$. Therefore it remains $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$. \\
 Because we work with integers the strict partial ordering is indeed well-founded.
@@ -474,7 +481,7 @@ We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obta
 \item for each $y^\mathcal{I}\in C^\mathcal{I}$ add $y_e$ to $X_C$
 \item for each $y^\mathcal{I}\in succ(c)^\mathcal{I}$ add $y_e$ to $X_c$
 \end{itemize}
-It is clear that if the solver returns this solution then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$ otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. If $x^\mathcal{I}$ has more successors than the calculated upper bound, we can reduce the number of successors after \cite{knapsack}: Convert the $QFBAPA$ formula to a linear system of equations $An=b$. We then create the solution $n$: If $v_k$ is the $k$-th Venn region $X_1^i\cap\dots X_n^i$, $i\in\{0,1\}$ then let $x_k=|\{e|e\in X_1^i\cap\dots X_n^i\}|$. We know that $n$ must be a solution to the linear system because otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. Then we can reduce $n$ after Theorem \ref{upper bound} to $n^\prime$. With the help of $n^\prime$ we create the new solution $\sigma^\ast$ by adding $n^\prime_k$ successors in the $k$-th Venn region for which it holds that:
+It is clear that if the solver returns this solution then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$ otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. If $x^\mathcal{I}$ has more successors than the calculated upper bound, we can reduce the number of successors after \cite{knapsack}: Convert the $QFBAPA$ formula to a linear system of equations $An=b$. We then create the solution $n$: If $v_k$ is the $k$-th Venn region $X_1^i\cap\dots X_n^i$, $i\in\{0,1\}$ then let $n_k=|\{e|e\in X_1^i\cap\dots X_n^i\}|$. We know that $n$ must be a solution to the linear system because otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. Then we can reduce $n$ after Theorem \ref{upper bound} to $n^\prime$. With the help of $n^\prime$ we create the new solution $\sigma^\ast$ by adding $n^\prime_k$ successors in the $k$-th Venn region for which it holds that:
 \begin{itemize}
 \item $\sigma^\ast(\mathcal{U)}\subseteq\sigma(\mathcal{U})$
 \item for each $y_e\in \sigma^\ast(\mathcal{U})$: if $\sigma^\ast(y_e)\in X_n, n\in\mathbf{C}\cup\mathbf{R}\cup\{c|x:succ(c)\in \mathcal{A}_i\}$ then $\sigma(y_e)\in X_n$
