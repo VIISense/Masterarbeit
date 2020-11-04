@@ -120,7 +120,9 @@ A knowledge base consists of a \textit{TBox}, which contains the axioms (rules),
 The expressive DL $\mathcal{ALCSCC}$ extends $\mathcal{ALCQ}$ with \textit{set constraint} and \textit{cardinality constrant}, which lays under the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic). As the name says we do not have quantifier. Instead we use set expression (Boolean Algebra part) and numerical constraint (Presburger Arithmetic) which is combined together with cardinality functions. For example $Human\sqcap \geq 1\,hasChildren.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChildren|\geq 1)\sqsubseteq Parent$. This DL is more expressive than $\mathcal{ALCQ}$ because every qualified restriction $\leq\,n\,r.C$ and $\geq \, n\, r.C$ can be written in $\mathcal{ALCSCC}$ as $succ(|r.C|\leq 1)$ and $succ(|r.C|\geq 1)$. In \cite{4} a solution for the satisfiability problem (without TBox) is presented which has the complexity PSpace: For an ABox we guess the value (true or false) of the top-level variables which can already lead to a \textit{false}-result. If not then the constraint is formulated into a $QFBAPA$ formula, for which an algorithm determine by guessing a number $N$ of Venn-region to be non-empty whether the formula is satisfied or not.\\
 In this work we present a Tableau-algorithm for $\mathcal{ALCSCC}$. As in previous work for other DLs we define completion rules which can be applied onto assertions in the ABox to determine whether $\perp$ can be concluded from it which states its unsatisfiability. If we can not apply any rules any more and we can not conclude $\perp$, then the ABox is satisfiable. The main difficulty is that unlike $\mathcal{ALCQ}$, where the bond of number of successor is fixed, in $\mathcal{ALCSCC}$ we can compare two cardinalities, which can vary during the algorithm. Hence we need an approach for counting successors and with it calculating the \textit{correct} cardinality, which is necessary to detect satisfied and violated constraint. For this we introduce \textit{induced interpretation} which can determine the cardinalities after each rule application. Further more to deal with the numerical arithmetic of $\mathcal{ALCSCC}$ we use a $QFBAPA$ solver, of which we assume it is capable to return all possible solution. We transform a subset of the ABox into a $QFBAPA$ formula and then let a solver determine whether the formula is satisfiable or not. If not we end with a clash. If it returns a solution, then we add individual names accordingly to our ABox. 
 \chapter{Preliminaries}
-Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like. It combines boolean algebra (BA) of sets of symbols with Presburger arithmetic (PA):
+Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like. 
+\section{$QFBAPA$}
+The logic $QFBAPA$ combines boolean algebra (BA) of sets of symbols with Presburger arithmetic (PA):
 \begin{mydef}[$QFBAPA$]
 Let $T$ be a finite set of symbols
 \begin{itemize}
@@ -173,8 +175,9 @@ The mappings satisfies for the cardinality terms $k,l$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = \sigma(l)$
 \end{itemize}
 \end{mydef}
-The mapping $\sigma$ is a solution of a $QFBAPA$ formula $\phi$ if it satisfies all cardinality constraints in $\phi$.\\
-Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
+The mapping $\sigma$ is a solution of a $QFBAPA$ formula $\phi$ if it satisfies all cardinality constraints in $\phi$.
+\section{$\mathcal{ALCSCC}$}
+Next we define the description logic $\mathcal{ALCSCC}$. Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts are defined inductively:
 \begin{itemize}
@@ -402,8 +405,9 @@ For the correctness proof of the Tableau-algorithm we have to show that
 \item If no more rules are applicable on a clash-free ABox $\mathcal{A}$ then $\mathcal{A}$ is satisfiable
 \item If $\mathcal{A}$ is satisfiable then the Tableau-algorithm terminates without a clash
 \end{itemize}
-In all proves we assume that the $QFBAPA$ solver is correct. First we prove that the algorithm always terminates.\\
-A \textit{derived} ABox is an ABox after a finite number of rule application. For the termination proof we map every \textit{derived} ABox to an element $\Psi(\mathcal{A})$ of a set $Q$. This set $Q$ can be ordered by a well-founded strict partial ordering $\prec$. Since $\prec$ is well-founded we can not have a infinite increasing chain which results into termination of the algorithm. Therefore we show for every ABox $\mathcal{A}^\prime$ which is derivable from a derived ABox $\mathcal{A}$ that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
+In all proves we assume that the $QFBAPA$ solver is correct. First we prove that the algorithm always terminates.
+\section{Termination of the Tableau-Algorithm}
+We define a \textit{derived} ABox as an ABox after a finite number of rule application. For the termination proof we map every \textit{derived} ABox to an element $\Psi(\mathcal{A})$ of a set $Q$. This set $Q$ can be ordered by a well-founded strict partial ordering $\prec$. Since $\prec$ is well-founded we can not have a infinite increasing chain which results into termination of the algorithm. Therefore we show for every ABox $\mathcal{A}^\prime$ which is derivable from a derived ABox $\mathcal{A}$ that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
 The element of $Q$ are multisets of triples. Each triple consists of a multiset and an integer. A multiset $M$ is smaller than a multiset $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one element of $M^\prime$ with at least one element, which is smaller. In our definition of $Q$ $\Psi(\mathcal{A}^\prime)$ is smaller than $\Psi(\mathcal{A})$ if we can replace at least one triple of $\Psi(\mathcal{A})$ with at least one smaller triple to obtain $\Psi(\mathcal{A}^\prime)$. A triple $(x_1,y_1)$ is smaller than a triple $(x_2,y_2)$ if either $x_1<x_2$ or $x_1=x_2$ and $y_1<y_2$ (lexicographical odering from left to right). Otherwise $(x_2,y_2)$ is smaller.\\
 Next we define the size of a concept $C$ inductively:
 \begin{itemize}
@@ -448,7 +452,8 @@ For every freshly introduced individual name $y$ we have to add a triple $\psi_{
 For any other individual name $y$, such that $y\neq x$ and $y$ was not freshly introduced, the triple $\psi_\mathcal{A}(y)$ remains unchanged. Hence in all three cases we can obtain $\Psi(\mathcal{A}^\prime)$ from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller triple $\psi_{\mathcal{A}^\prime}(x)$. For any newly introduced individual names we showed that the corresponding triples are always smaller than $\psi_{\mathcal{A}^\prime}(x)$. Therefore it remains $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$. \\
 Because we work with integers the strict partial ordering is indeed well-founded.
 \end{proof}
-Now we proof that the algorithm works correctly e.g. the algorithm returns a satisfied ABox iff the ABox is satisfiable.
+\section{Soundness and Completeness}
+After we proved that the algorithm terminates, we continue with the correctness of the algorithm e.g. the algorithm returns a satisfied ABox iff the ABox is satisfiable.
 \begin{mylem}
 If the Tableau-algorithm is applied on an ABox $\mathcal{A}=\{x:C\}$ and  terminates without a clash then $\mathcal{A}$ is satisfiable
 \end{mylem}
@@ -494,39 +499,21 @@ with $n\in\mathbf{C}\cup\mathbf{R}\cup\{succ(c)|x:succ(c)\in \mathcal{A}_i\}$
 The reason for that lays under the fact, that we decreases the number of successors in specific Venn-region to gain $n^\prime$.\\
 The algorithm then create individual names according to the solution, which leads to the satisfaction of all $succ$-assertions of $x$. For each created individual name $y$ we know that there is an element $y_e\in\sigma^\ast(\mathcal{U})$ such that:
 \begin{itemize}
-\item $y:C$ iff $y_e\in\sigma^\ast(X_C)$, $C\in\mathbf{C}$
-\item $y:succ(c)$ iff $y_e\in\sigma^\ast(X_{succ(c)})$
-\item $(x,y):r$ iff $y_e\in\sigma^\ast(X_r)$
-\item $y:\neg C$ iff $y_e\notin\sigma^\ast(X_C)$, $C\in\mathbf{C}$
-\item $y:\neg succ(c)$ iff $y_e\notin\sigma^\ast(X_{succ(c)})$
-\item $(x,y):r^\neg$ iff $y_e\notin\sigma^\ast(X_r)$
+\item $y:C\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma^\ast(X_C)$, $C\in\mathbf{C}$
+\item $y:succ(c)\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma^\ast(X_{succ(c)})$
+\item $(x,y):r\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma^\ast(X_r)$
 \end{itemize}
 Because of the fact in (\dag) we can conclude
 \begin{itemize}
-\item $y:C$ iff $y_e\in\sigma(X_C)$, $C\in\mathbf{C}$
-\item $y:succ(c)$ iff $y_e\in\sigma(X_{succ(c)})$
-\item $(x,y):r$ iff $y_e\in\sigma(X_r)$
-\item $y:\neg C$ iff $y_e\notin\sigma(X_C)$, $C\in\mathbf{C}$
-\item $y:\neg succ(c)$ iff $y_e\notin\sigma(X_{succ(c)})$
-\item $(x,y):r^\neg$ iff $y_e\notin\sigma(X_r)$
+\item $y:C\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma(X_C)$, $C\in\mathbf{C}$
+\item $y:succ(c)\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma(X_{succ(c)})$
+\item $(x,y):r\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma(X_r)$
 \end{itemize}
-Since $\sigma$ is induced by $\mathcal{I}$ we find for each $y_e\in\sigma^\ast(\mathcal{U})$ an element $y^\mathcal{I}$ in $\Delta^\mathcal{I}$ such that:
+Since $\sigma$ is induced by $\mathcal{I}$ we find for each newly introduced individual name $y$ an element $y^\mathcal{I}$ such that:
 \begin{itemize}
-\item $y_e\in\sigma(X_C)$ iff $y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$
-\item $y_e\in\sigma(X_{succ(c)})$ iff $y^\mathcal{I}\in succ(c)^\mathcal{I}$
-\item $y_e\in\sigma(X_r)$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
-\item $y_e\notin\sigma(X_C)$, $C\in\mathbf{C}$ iff $y^\mathcal{I}\notin C^\mathcal{I}$, $C\in\mathbf{C}$
-\item $y_e\notin\sigma(X_{succ(c)})$ iff $y^\mathcal{I}\notin succ(c)^\mathcal{I}$
-\item $y_e\notin\sigma(X_r)$ iff $(x^\mathcal{I},y^\mathcal{I})\notin r^\mathcal{I}$
-\end{itemize}
-Therefore for each newly introduced individual name $y$ there is an element $y^\mathcal{I}$ such that:
-\begin{itemize}
-\item $y:C$ iff $y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$
-\item $y:succ(c)$ iff $y^\mathcal{I}\in succ(c)^\mathcal{I}$
-\item $(x,y):r$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
-\item $y:\neg C$ iff $y^\mathcal{I}\notin C^\mathcal{I}$, $C\in\mathbf{C}$
-\item $y:\neg succ(c)$ iff $y^\mathcal{I}\notin succ(c)^\mathcal{I}$
-\item $(x,y):r^\neg$ iff $(x^\mathcal{I},y^\mathcal{I})\notin r^\mathcal{I}$
+\item $y:C\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$
+\item $y:succ(c)\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in succ(c)^\mathcal{I}$
+\item $(x,y):r\in\mathcal{A}_{i+1}$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
 \end{itemize}
 Hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$
 \end{itemize}
