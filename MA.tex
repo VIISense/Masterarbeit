@@ -122,7 +122,7 @@ In this work we present a Tableau-algorithm for $\mathcal{ALCSCC}$. As in previo
 \chapter{Preliminaries}
 Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like. 
 \section{$QFBAPA$}
-The logic $QFBAPA$ combines boolean algebra (BA) of sets of symbols with Presburger arithmetic (PA):
+The logic $QFBAPA$ combines boolean algebra (BA) over a sets of symbols with Presburger arithmetic (PA). A \textit{term} of a boolean algebra over a symbol set $T$ is a conjunction ($\cap$) and/or disjunction ($\cup$) of symbols, which are possible negated ($s^\neg$, $s\in T$). A term of the Presburger arithmetic are additions of natural numbers. In $QFBAPA$ we construct \textit{set terms} after the boolean algebra and create \textit{cardinality terms} over those set terms with help of the Presburger arithmetic. Since we can construct multiplication with the help of additions, multiplication of cardinality terms is also included. Over the terms we can construct \textit{constraints} in this logic: We can state inclusions of set terms and compare cardinality terms. The formal definition follows.
 \begin{mydef}[$QFBAPA$]
 Let $T$ be a finite set of symbols
 \begin{itemize}
@@ -156,8 +156,8 @@ where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
 A $QFBABA$ formula $\phi$ is a disjunction ($\vee$) and conjunction ($\wedge$) of (also possible negated) cardinality constraints, where every set symbol is represented as a set variable.
 \end{mydef}
-Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$. Hence for an assertion $x:succ(c)$ the cardinality constraint $c$ is either of the form $k\leq l$ or $n\,dvd\,l$.\\
-The semantic of $QFBAPA$ is define as follows:
+Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$.\\
+For an example we have a set of symbols $T=\{l, a, n, e, f\}$ and some constraints like $|l|=1$, $|l|=|a|$, $|n\cap f^\neg|=0$, $|n\cap f^\neg|=0$. We can connect those constraints to one formula $|l|=2\wedge|l|=|a|\wedge |n\cap f^\neg|=0\wedge |n\cap f^\neg|=0$. We notice that we are missing information for what the symbols stand and what the formula wants to say e.g. we are missing \textit{semantic}. The semantic of $QFBAPA$ is define as follows:
 \begin{mydef}[Interpretation of $QFBAPA$]
 Let $\Delta^\mathcal{I}$ be a finite set and $\sigma$ a mapping which maps
 \begin{itemize}
@@ -175,7 +175,32 @@ The mappings satisfies for the cardinality terms $k,l$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = \sigma(l)$
 \end{itemize}
 \end{mydef}
-The mapping $\sigma$ is a solution of a $QFBAPA$ formula $\phi$ if it satisfies all cardinality constraints in $\phi$.
+The mapping $\sigma$ is a solution of a $QFBAPA$ formula $\phi$ if it satisfies all cardinality constraints in $\phi$.\\
+For our example a satisfied semantic can be to interpret the symbols as body parts: Let $\Delta^\mathcal{I}=T=\{\text{leg1, leg 2, arm1, arm 2, nose, ear1, ear2}\}$ and let $\sigma$ maps the symbols as follows:
+\begin{figure}[H]
+\begin{minipage}[t]{0.5\textwidth}
+\raggedright
+\begin{itemize}
+\item $\sigma(l)=\{$ leg1, leg2$\}$
+\item $\sigma(a)=\{$ arm1, arm2$\}$
+\end{itemize}
+\end{minipage}%
+\begin{minipage}[t]{0.5\textwidth}
+\raggedright
+\begin{itemize}
+\item $\sigma(n)=\{$nose$\}$
+\item $\sigma(e)=\{$ear1, ear 2$\}$
+\item $\sigma(f)=\{$nose, ear1, ear2$\}$
+\end{itemize}
+\end{minipage}
+\end{figure}
+The interpretation satisfies the formula because $\sigma(|l|)=2=\sigma(|k|)$ and $\sigma(n\cap f^\neg)=0$ and $\sigma(e\cap f^\neg)$.\\
+Now we can interpret our formula as 
+\begin{itemize}
+\item we have 2 legs
+\item we have as many legs as arms
+\item nose and two ears are both in the same set hence they belong to a common body part (face)
+\end{itemize}
 \section{$\mathcal{ALCSCC}$}
 Next we define the description logic $\mathcal{ALCSCC}$. Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
@@ -191,6 +216,7 @@ $\mathcal{ALCSCC}$ concepts are defined inductively:
 \item $succ(c)$ if $c$ is a cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
 \end{itemize}
 \end{mydef}
+Note that in the section 2.1 we mention that we do only consider cardinality constraints. Further more for the cardinality constraint $c$ can appear only in two forms: $n\,dvd\,l$ and $k\leq l$, with $n\in\mathbb{N}$ and $k,l$ being cardinality terms.\\ 
 An ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are individual names. The set $I(\mathcal{A})$ is the set of individual names occurring in $\mathcal{A}$. 
 \begin{mydef}[Interpretation]
 An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ over an ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
@@ -214,7 +240,7 @@ $\mathcal{I}$ is a model of $\mathcal{A}$ iff
 \item $(x,y):r$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
 \end{itemize} 
 \end{mydef}
-Note that in a concept $succ(c)$ $c$ can also be a cardinality constraint over $A\sqcap B$ and $A\sqcup B$. Since the semantic of $A\sqcap B$ and $A\cap B$ (analogously for $A\sqcup B$ and $A\cup B$) are defined the same way ($(C\sqcap D)^\mathcal{I}=C^\mathcal{I}\cap D^\mathcal{I}$ and $\sigma(C\cap D)=\sigma(C)\cap\sigma(D)$), we make the assumption that every $\sqcap$ and $\sqcup$ within a $succ(c)$ concept are replaced with $\cap$ and $\cup$.
+Note that in a concept $succ(c)$ $c$ can also be a cardinality constraint over some concepts $A\sqcap B$ and/or $A\sqcup B$. Since the semantic of $A\sqcap B$ and $A\cap B$ (analogously for $A\sqcup B$ and $A\cup B$) are defined the same way ($(C\sqcap D)^\mathcal{I}=C^\mathcal{I}\cap D^\mathcal{I}$ and $\sigma(C\cap D)=\sigma(C)\cap\sigma(D)$), we make the assumption that every $\sqcap$ and $\sqcup$ within a $succ(c)$ concept are replaced with $\cap$ and $\cup$.
 \chapter{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consists of completion rules to decide satisfiability of a set of assertions. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunction. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices end in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
 We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not and if it satisfiable then we create a satisfied ABox from $x:C$.\\
