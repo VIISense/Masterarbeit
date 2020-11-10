@@ -115,19 +115,19 @@ Place and Date & Author's signiture\\[8ex]
 \begin{center}
 \textbf{Abstract}
 \end{center}
-In the research field of description logic (DL) checking satisfiability of $\mathcal{ALCQ}$ has been investigated thoroughly and is therefore well-known in this research field. The DL $\mathcal{ALCSCC}$ extend $\mathcal{ALCQ}$ with a numerical aspects in form of cardinality constraints over concepts. There has been some research about checking satisfiability of this DL however creating a Tableau algorithm, which is a method to check satisfiability, for this DL comes with a create challenge due to the numerical aspect. In this work we create a Tableau algorithm with the help of a arbitrary but correct $QFBAPA$ solver. To ensure termination and not using infinite space we only consider solutions which lay sunder a pre-computed upper bound without losing any important information. In the end we provide a full correction proof for this Tableau algorithm.
+In the research field of Description Logics (DLs) checking satisfiability of $\mathcal{ALCQ}$ has been investigated thoroughly and is therefore well-known. The DL $\mathcal{ALCSCC}$ extend $\mathcal{ALCQ}$ with constraints over role successor using quantifier-free fragment (QF) of Boolean Algebra (BA) and Presburger Arithmetic (PA). Checking satisfiability of this DL has been proven to be decidable and PSpace-complete. We provide in this work a Tableau-algorithm for checking satisfiability of $\mathcal{ALCSCC}$ and its correctness proof.
 \tableofcontents
 \newpage
 \chapter{Introduction}
 Traditional data bases where data are stored solely without any connection towards to themselves like many people would imagine are often not enough any more. The reason is that the data are stored without any semantics. However storing data with semantics can provide additional information. For example we have some data about two objects \textit{"Anna"} and \textit{"Beth"}. In a traditional data base, if not explicitly stated, both data are not related to each other. Nethertheless Anna and Beth can have a relation, which also depends on who or what both are. For example both can be human and Anna is a teacher and Beth is a student and are assigned to the same class. By adding solely those information in a traditional data base the information that Anna must teache Beth is not given. One way to apply semantics to data objects is to use \textit{ontologies}. In biological and (bio)medical researches data bases are often based on ontologies \cite{bio}. Ontologies (in the computer science field) can be viewed as formal representation of a certain domain of interest. In data base they are collection of relations between the entities in the data base and are formulated as a fragment of first-order logic (FOL). These fragments of FOL are represented as \textit{Description Logic (DL)}, which is a family of knowledge representation system. DLs are mainly built of concepts, which correspond to unary relations in FOL and is often represented by a capital letter, and relation between the concepts, which correspond to binary relations in FOL and is often represented by a lowercase letter. For more complex (compound) concepts operators like $\sqcap$, $\sqcup$,$\sqsubseteq$, $\exists$ and $\forall$, depending on the DL, are used. For example the statement "All Men and Women are Human" is formalized in FOL as $\forall x.Men(x)\vee Women(x)\rightarrow Human(x)$ and in DL as an \textit{axiom} $Men\,\sqcup\, Women\sqsubseteq Human$, where $Men$,$Women$ and $Human$ are concept names. The statement "All Humans, who have children, are parents" can be formalized in FOL as $\forall x \exists y. Human(x)\wedge hasChildren(x,y)\rightarrow Parent(x)$ and in DL as $Human\sqcap \exists hasChildren.\top \sqsubseteq Parent$, where $Human$ and $Parents$ are concept names and $hasChildren$ is a role name. Restriction with the operators $\exists$ and $\forall$ are called \textit{quantified} restrictions. The second statement can also be formalized with a \textit{qualified} restriction: $Human\sqcap \geq 1 hasChildren.\top\sqsubseteq Parent$. Each quantified restriction can be transformed into a qualified restriction.\\
 A knowledge base consists of a \textit{TBox}, which contains the axioms (rules), and of an \textit{ABox} which contains assertions of certain elements (objects). One big research field in DL is the determination of satisfiability of a \textit{knowledge base}, which is formulated in DL.  In \cite{1} a \textit{Tableau}-algorithm is presented for checking satisfiability for an ABox in the DL $\mathcal{ALCQ}$. This DL allows conjunctions ($\sqcap$), disjunctions ($\sqcup$), negation $\neg C$ and qualifying number restriction ($\leq\,n\,r\, C$ and $\geq \, n\, r\, C$), where $n$ is a number, $r$ a role name, and $C$ a concept name. A Tableau-algorithm applies \textit{completion rules} to a given \textit{set}(ABox) to decompose complex concepts and try satisfiying violated assertions. The satisfiability (of concepts) is stated in \cite{1} as PSPACE-hard problem (without TBox, with TBox it is EXPTime-hard \cite{4}). In \cite{pspace} a optimized Tableau-algorithm is presented which states that it is a PSPACE-problem. The optimization is that instead of keeping $n$ successors to satisfy a restriction $\geq\,n\,r.C$ like in \cite{1}, the algorithm saves the number of existing successors and by comparing the numbers detects possible \textit{clashes}.\\
-The expressive DL $\mathcal{ALCSCC}$ extends $\mathcal{ALCQ}$ with \textit{set constraint} and \textit{cardinality constrant}, which lays under the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic). As the name says we do not have quantifier. Instead we use set expression (Boolean Algebra part) and numerical constraint (Presburger Arithmetic) which is combined together with cardinality functions. For example $Human\sqcap \geq 1\,hasChildren.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChildren|\geq 1)\sqsubseteq Parent$. This DL is more expressive than $\mathcal{ALCQ}$ because every qualified restriction $\leq\,n\,r.C$ and $\geq \, n\, r.C$ can be written in $\mathcal{ALCSCC}$ as $succ(|r.C|\leq 1)$ and $succ(|r.C|\geq 1)$. In \cite{4} a solution for the satisfiability problem (without TBox) is presented which has the complexity PSpace: For an ABox we guess the value (true or false) of the top-level variables which can already lead to a \textit{false}-result. If not then the constraint is formulated into a $QFBAPA$ formula, for which an algorithm determine by guessing a number $N$ of Venn-region to be non-empty whether the formula is satisfied or not.\\
-In this work we present a Tableau-algorithm for $\mathcal{ALCSCC}$. As in previous work for other DLs we define completion rules which can be applied onto assertions in the ABox to determine whether $\perp$ can be concluded from it which states its unsatisfiability. If we can not apply any rules any more and we can not conclude $\perp$, then the ABox is satisfiable. The main difficulty is that unlike $\mathcal{ALCQ}$, where the bond of number of successor is fixed, in $\mathcal{ALCSCC}$ we can compare two cardinalities, which can vary during the algorithm. Hence we need an approach for counting successors and with it calculating the \textit{correct} cardinality, which is necessary to detect satisfied and violated constraint. For this we introduce \textit{induced interpretation} which can determine the cardinalities after each rule application. Further more to deal with the numerical arithmetic of $\mathcal{ALCSCC}$ we use a $QFBAPA$ solver, of which we assume it is capable to return all possible solution. We transform a subset of the ABox into a $QFBAPA$ formula and then let a solver determine whether the formula is satisfiable or not. If not we end with a clash. If it returns a solution, then we add individual names accordingly to our ABox. 
+The expressive DL $\mathcal{ALCSCC}$ extends $\mathcal{ALCQ}$ with \textit{set constraint} and \textit{cardinality constrant}, which lays under the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic). As the name says we do not have quantifier. Instead we use set expression (Boolean Algebra part) and numerical constraint (Presburger Arithmetic) which is combined together with cardinality functions. For example $Human\sqcap \geq 1\,hasChildren.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChildren|\geq 1)\sqsubseteq Parent$. This DL is more expressive than $\mathcal{ALCQ}$ because every qualified restriction $\leq\,n\,r.C$ and $\geq \, n\, r.C$ can be written in $\mathcal{ALCSCC}$ as $succ(|r.C|\leq 1)$ and $succ(|r.C|\geq 1)$. In \cite{4} a solution for the satisfiability problem (without TBox) is presented which has the complexity PSpace: For an ABox we guess the value (true or false) of the top-level variables which can already lead to a \textit{false}-result. If not then the constraint is formulated into a QFBAPA formula, for which an algorithm determine by guessing a number $N$ of Venn-region to be non-empty whether the formula is satisfied or not.\\
+In this work we present a Tableau-algorithm for $\mathcal{ALCSCC}$. As in previous work for other DLs we define completion rules which can be applied onto assertions in the ABox to determine whether $\perp$ can be concluded from it which states its unsatisfiability. If we can not apply any rules any more and we can not conclude $\perp$, then the ABox is satisfiable. The main difficulty is that unlike $\mathcal{ALCQ}$, where the bond of number of successor is fixed, in $\mathcal{ALCSCC}$ we can compare two cardinalities, which can vary during the algorithm. Hence we need an approach for counting successors and with it calculating the \textit{correct} cardinality, which is necessary to detect satisfied and violated constraint. For this we introduce \textit{induced interpretation} which can determine the cardinalities after each rule application. Further more to deal with the numerical arithmetic of $\mathcal{ALCSCC}$ we use a QFBAPA solver, of which we assume it is capable to return all possible solution. We transform a subset of the ABox into a QFBAPA formula and then let a solver determine whether the formula is satisfiable or not. If not we end with a clash. If it returns a solution, then we add individual names accordingly to our ABox. 
 \chapter{Preliminaries}
-Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language $QFBAPA$ looks like. 
-\section{$QFBAPA$}
-The logic $QFBAPA$ combines boolean algebra (BA) over a sets of symbols with Presburger arithmetic (PA). A \textit{term} of a boolean algebra over a symbol set $T$ is a conjunction ($\cap$) and/or disjunction ($\cup$) of symbols, which are possible negated ($s^\neg$, $s\in T$). A term of the Presburger arithmetic are additions of natural numbers. In $QFBAPA$ we construct \textit{set terms} after the boolean algebra and create \textit{cardinality terms} over those set terms with help of the Presburger arithmetic. Since we can construct multiplication with the help of additions, multiplication of cardinality terms is also included. Over the terms we can construct \textit{constraints} in this logic: We can state inclusions of set terms and compare cardinality terms. The formal definition follows.
-\begin{mydef}[$QFBAPA$]
+Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language QFBAPA looks like. 
+\section{QFBAPA}
+The logic QFBAPA \cite{KuncakRinard} combines boolean algebra (BA) over a sets of symbols with Presburger arithmetic (PA). A \textit{term} of a boolean algebra over a symbol set $T$ is a conjunction ($\cap$) and/or disjunction ($\cup$) of symbols, which are possibly negated ($s^\neg$, $s\in T$). A term of the Presburger arithmetic are additions of natural numbers. In QFBAPA we construct \textit{set terms} after the boolean algebra and create \textit{cardinality terms} over those set terms with help of the Presburger arithmetic. Since we can construct multiplication with the help of additions, multiplication of cardinality terms is also included. Over the terms we can construct \textit{constraints} in this logic: We can state inclusions of set terms and compare cardinality terms. The formal definition follows.
+\begin{mydef}[QFBAPA]
 Let $T$ be a finite set of symbols
 \begin{itemize}
 \item set terms over $T$ are:
@@ -161,26 +161,31 @@ where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 A $QFBABA$ formula $\phi$ is a disjunction ($\vee$) and conjunction ($\wedge$) of (also possible negated) cardinality constraints, where every set symbol is represented as a set variable.
 \end{mydef}
 Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$.\\
-For an example we have a set of symbols $T=\{l, a, n, e, f\}$ and some constraints like $|l|=2$, $|l|=|a|$, $|n\cap f^\neg|=0$, $|n\cap f^\neg|=0$. We can connect those constraints to one formula $|l|=2\wedge|l|=|a|\wedge |n\cap f^\neg|=0\wedge |n\cap f^\neg|=0$. We notice that we are missing information for what the symbols stand and what the formula wants to say e.g. we are missing \textit{semantic}. The semantic of $QFBAPA$ is define as follows:
-\begin{mydef}[Interpretation of $QFBAPA$]
-Let $\Delta^\mathcal{I}$ be a finite set and $\sigma$ a mapping which maps
+For an example we have a set of symbols $T=\{l, a, n, e, f\}$ and some constraints like $|l|=2$, $|l|=|a|$, $|n\cap f^\neg|=0$, $|n\cap f^\neg|=0$. We can connect those constraints to one formula 
+\begin{equation}
+|l|=2\wedge|l|=|a|\wedge |n\cap f^\neg|=0\wedge |n\cap f^\neg|=0
+\end{equation}
+To satisfy the formula we have to create a semantic for it such that all cardinality constraint are true (since all constraint are connected with $\wedge$). In our case we would need two elements which are in the semantic of $l$, hence also two elements in the semantic of $a$.\\
+The semantics of QFBAPA, called substitutions, is defined as follows:
+\begin{mydef}[Substitutions of QFBAPA]
+A substituations $\sigma$ of a over a symbol set $T$ is a mapping that assign
 \begin{itemize}
-\item every symbol $a$ in $T$ to $\sigma(a)\subseteq\mathcal{U}$
-\item $\emptyset$ to $\sigma(\emptyset)$
-\item $\mathcal{U}$ to $\sigma(\mathcal{U})\subseteq \Delta^\mathcal{I}$
+\item $\mathcal{U}$ to a finite set $\sigma(\mathcal{U})$
+\item every symbol $a$ in $T$ to $\sigma(a)\subseteq\sigma(\mathcal{U})$
+\item $\emptyset$ to $\sigma(\emptyset)=\emptyset$
 \item $\sigma(s\cap t):= \sigma(s)\cap \sigma(t)$, $\sigma(s\cup t):= \sigma(s)\cup \sigma(t)$
 \item $\sigma(s^\neg):=\sigma(\mathcal{U})\backslash \sigma(s)$
 \item $\sigma(|s|):=|\sigma(s)|$
 \item $\sigma(k+l):=\sigma(k)+\sigma(l)$, $\sigma(n\cdot k):= n\cdot \sigma(k)$
 \end{itemize}
-The mappings satisfies for the cardinality terms $k,l$
+Given cardinality terms $k,l$ we say that $\sigma$ satisfies
 \begin{itemize}
 \item $k\leq l$ iff $\sigma(k)\leq \sigma(l)$
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = \sigma(l)$
 \end{itemize}
 \end{mydef}
-The mapping $\sigma$ is a solution of a $QFBAPA$ formula $\phi$ if it satisfies all cardinality constraints in $\phi$.\\
-For our example a satisfied semantic can be to interpret the symbols as body parts: Let $\Delta^\mathcal{I}=T=\{\text{leg1, leg 2, arm1, arm 2, nose, ear1, ear2}\}$ and let $\sigma$ maps the symbols as follows:
+The substitution $\sigma$ is a solution of a QFBAPA formula $\phi$ if the formula with $\sigma$ can be evaluated to $\top$. A QFBAPA formula is satisfiable if it has a solution $\sigma$ and is unsatisfiable otherwise.\\
+A solution to (2.1) can the following: Let $\sigma(\mathcal{U})=\{\text{leg1, leg 2, arm1, arm 2, nose, ear1, ear2}\}$ and:
 \begin{figure}[H]
 \begin{minipage}[t]{0.5\textwidth}
 \raggedright
@@ -198,7 +203,7 @@ For our example a satisfied semantic can be to interpret the symbols as body par
 \end{itemize}
 \end{minipage}
 \end{figure}
-The interpretation satisfies the formula because $\sigma(|l|)=2=\sigma(|k|)$ and $\sigma(n\cap f^\neg)=0$ and $\sigma(e\cap f^\neg)$.\\
+The interpretation satisfies the formula because $\sigma(|l|)=2=\sigma(|k|)$ and $\sigma(|n\cap f^\neg|)=0$ and $\sigma(|e\cap f^\neg|)=0$.\\
 Now we can interpret our formula as 
 \begin{itemize}
 \item we have 2 legs
@@ -206,32 +211,34 @@ Now we can interpret our formula as
 \item nose and two ears are both in the same set hence they belong to a common body part (face)
 \end{itemize}
 \section{$\mathcal{ALCSCC}$}
-Next we define the description logic $\mathcal{ALCSCC}$. Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
+Next we define the description logic $\mathcal{ALCSCC}$ \cite{4}. Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
-$\mathcal{ALCSCC}$ concepts are defined inductively:
+$\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ are defined inductively:
 \begin{itemize}
 \item all concept names
-\item if $C,D$ are concepts then:
+\item if $C,D$ are $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ then:
 \begin{itemize}
 \item $\neg C$
 \item $C\sqcup D$
 \item $C\sqcap D$
 \end{itemize}
-\item $succ(c)$ if $c$ is a cardinality constraint over $\mathcal{ALCSCC}$ concepts and role names
+\item if $c$ is a QFBAPA cardinality constraint over a set $T$ of role names in $\mathbf{R}$ and $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ then $succ(c)$ is a $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$
 \end{itemize}
 \end{mydef}
-Note that in 2.1 we mention that we do only consider cardinality constraints. Further more for the cardinality constraint $c$ can appear only in two forms: $n\,dvd\,l$ and $k\leq l$, with $n\in\mathbb{N}$ and $k,l$ being cardinality terms.\\ 
-An ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are individual names. The set $I(\mathcal{A})$ is the set of individual names occurring in $\mathcal{A}$.\\
-Regarding our example from 2.1 we can now construct an ABox of specific individual names, in which we describe their bodies. Let $\mathbf{C}=\{Legs,Arms,Female\}$ and $\mathbf{R}=\{bodyParts\}$. A possible ABox, which states that an individual name \textit{Anna} has two legs and two arms and is female, is $\{Anna:succ(|Legs\cap bodyParts|=2)\sqcap succ(|Legs|=|Arms|)\sqcap Female\}$.\\
-Like for $QFBAPA$ we also need semantics for $\mathcal{ALCSCC}$.
-\begin{mydef}[Interpretation of $\mathcal{ALCSCC}$]
-An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ over an ABox $\mathcal{A}$ in $\mathcal{ALCSCC}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
+An $\mathcal{ALCSCC}$ ABox $\mathcal{A}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are individual names. The set $I(\mathcal{A})$ is the set of individual names occurring in $\mathcal{A}$.\\
+Regarding our QFBAPA example 2.1 we can now construct an ABox of specific individual names, in which we describe their bodies. Let $\mathbf{C}=\{Legs,Arms,Female\}$ and $\mathbf{R}=\{bodyParts\}$. A possible ABox, which states that an individual name \textit{Anna} has two legs and two arms and is female, is 
+\begin{equation}
+\{Anna:succ(|Legs\cap bodyParts|=2)\sqcap succ(|Legs|=|Arms|)\sqcap Female\}
+\end{equation}
+Similar to the substitutions for QFBAPA we define now the semantics, called interpretations, for $\mathcal{ALCSCC}$
+\begin{mydef}[Interpretations of $\mathcal{ALCSCC}$]
+An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ over an $\mathcal{ALCSCC}$ ABox $\mathcal{A}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
 \item each individual name $x\in I(\mathcal{A})$ to $x^\mathcal{I}\in \Delta^\mathcal{I}$
 \item every concept names $A\in\mathbf{C}$ to $A^\mathcal{I}\subseteq \Delta^\mathcal{I}$
 \item every role name $r\in\mathbf{R}$ to $r^\mathcal{I}\subseteq\Delta^\mathcal{I}\times\Delta^\mathcal{I}$, such that every element in $\Delta^\mathcal{I}$ has a finite number of successors.
 \end{itemize}
-The set $r^\mathcal{I}(x)$ contains all elements $y$ such that $(x,y)\in r^\mathcal{I}$ e.g. it contains all $r$-successors of $x$.\\
+The set $r^\mathcal{I}(x)$ contains all elements $y$ such that $(x,y)\in r^\mathcal{I}$ i.e. it contains all $r$-successors of $x$.\\
 For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as follows
 \begin{itemize}
 \item $\top^\mathcal{I}=\Delta^\mathcal{I}$ and $\perp^\mathcal{I}=\emptyset^\mathcal{I}$
@@ -239,15 +246,14 @@ For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as
 \item $(\neg C)^\mathcal{I}:=\Delta^\mathcal{I}\backslash C^\mathcal{I}$
 \item $succ(c)^\mathcal{I}=\{x\in \Delta^\mathcal{I}|$the mapping $\cdot^{\mathcal{I}_x}$ satisfies $c\}$
 \end{itemize}
-The mapping $\cdot^{\mathcal{I}_x}$ maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{I}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}(x)$.\\
+The mapping $\cdot^{\mathcal{I}_x}$ is a QFBAPA substitution that maps $\emptyset$ to $\emptyset^\mathcal{I}$, $\mathcal{U}$ to $\mathcal{U}^{\mathcal{I}_x}:=\{\bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)\}$, every concept $C$ occurring in $c$ to $C^{\mathcal{I}_x}:=C^\mathcal{I}\cap \mathcal{U}^{\mathcal{I}_x}$ and every role name $r$ occurring in $c$ to $r^{\mathcal{I}_x}:=r^\mathcal{I}(x)$.\\
 $\mathcal{I}$ is a model of $\mathcal{A}$ iff
 \begin{itemize}
 \item $x:C$ iff $x^\mathcal{I}\in C^\mathcal{I}$ 
 \item $(x,y):r$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
 \end{itemize} 
 \end{mydef}
-Note that in a concept $succ(c)$ $c$ can also be a cardinality constraint over some concepts $A\sqcap B$ and/or $A\sqcup B$. Since the semantic of $A\sqcap B$ and $A\cap B$ (analogously for $A\sqcup B$ and $A\cup B$) are defined the same way ($(C\sqcap D)^\mathcal{I}=C^\mathcal{I}\cap D^\mathcal{I}$ and $\sigma(C\cap D)=\sigma(C)\cap\sigma(D)$), we make the assumption that every $\sqcap$ and $\sqcup$ within a $succ(c)$ concept are replaced with $\cap$ and $\cup$.\\
-Considering our ABox with \textit{Anna} we can describe a semnatic like in 2.1: Let $\Delta^\mathcal{I}=\{Anna^\mathcal{I}, Leg1^\mathcal{I}, Leg2^\mathcal{I}, Arm1^\mathcal{I}, Arm2^\mathcal{I}\}$ and 
+We can define a model $\mathcal{I}$ of the ABox defined in (2.2) by setting $\Delta^\mathcal{I}=\{Anna^\mathcal{I}, Leg1^\mathcal{I}, Leg2^\mathcal{I}, Arm1^\mathcal{I}, Arm2^\mathcal{I}\}$ and 
 \begin{itemize}
 \item $Female^\mathcal{I}=\{Anna^\mathcal{I}\}$
 \item $Leg^\mathcal{I}=\{Leg1^\mathcal{I}, Leg2^\mathcal{I}\}$
@@ -284,8 +290,31 @@ A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the 
 \end{minipage}
 \end{figure}
 \end{mydef}
-The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\sigma$ for a concept $C$ based on $QFBAPA$ we have $\sigma(C^\neg)=\sigma(\mathcal{U})\backslash \sigma(C)$ and for every interpretation $\mathcal{I}$ based on $\mathcal{ALCSCC}$ we have $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\sigma(\mathcal{U})\subseteq \Delta^\mathcal{I}$ we can conclude that every element in $\sigma(C^\neg)$ is also in $(\neg C)^\mathcal{I}$.\\
-The first five rules on the left hand side can be applied in linear time \cite{1},\cite{6}. The first four rules on the right hand side and the rules $C^\neg\rightarrow \neg C$ and $\neg succ(c)\rightarrow succ(\neg c)$ can also be applied in linear time since we only shift the negation sign. The rule $(s^\neg)^\neg\rightarrow s$ works similarly to $\neg\neg C\rightarrow C$ and the rules $(s\cap t)^\neg\rightarrow s^\neg\cup t^\neg$ and $(s\cup t)^\neg\rightarrow s^\neg \cap t^\neg$ works similarly to $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$. Therefore all of them can also be applied in linear time.
+The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\sigma$ for a concept $C$ based on QFBAPA we have $\sigma(C^\neg)=\sigma(\mathcal{U})\backslash \sigma(C)$ and for every interpretation $\mathcal{I}$ based on $\mathcal{ALCSCC}$ we have $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\sigma(\mathcal{U})\subseteq \Delta^\mathcal{I}$ we can conclude that every element in $\sigma(C^\neg)$ is also in $(\neg C)^\mathcal{I}$.\\
+The first five rules on the left hand side can be applied in linear time \cite{1},\cite{6}. The first four rules on the right hand side and the rules $C^\neg\rightarrow \neg C$ and $\neg succ(c)\rightarrow succ(\neg c)$ can also be applied in linear time since we only shift the negation sign. The rule $(s^\neg)^\neg\rightarrow s$ works similarly to $\neg\neg C\rightarrow C$ and the rules $(s\cap t)^\neg\rightarrow s^\neg\cup t^\neg$ and $(s\cup t)^\neg\rightarrow s^\neg \cap t^\neg$ works similarly to $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$. Therefore all of them can also be applied in linear time.\\
+Regarding the normal form we also replace in every $succ(c)$ concept every disjunction and conjunction in form as $\sqcap$ and $\sqcup$ with $\cap$ and $\cup$. We can do this because for an arbitrary interpretation $\mathcal{I}$ we have for each $x,y\in\Delta^\mathcal{I}$ $y\in (C\sqcap D)^{\mathcal{I}_x}$ iff $y\in(C\cap D)^{\mathcal{I}_x}$:
+\begin{figure}[H]
+\begin{minipage}[t]{0.8\textwidth}
+\begin{align*}
+&y\in (C\sqcap D)^{\mathcal{I}_x}\\
+&y\in (C\sqcap D)^\mathcal{I}\cap\mathcal{U}^{\mathcal{I}_x}\\
+&y\in C^\mathcal{I}\cap D^\mathcal{I}\cap \mathcal{U}^{\mathcal{I}_x}\\
+&y\in (C^\mathcal{I}\cap\mathcal{U}^{\mathcal{I}_x})\cap (D^\mathcal{I}\cap\mathcal{U}^{\mathcal{I}_x})\\
+&y\in C^{\mathcal{I}_x}\cap D^{\mathcal{I}_x}\\\
+&y\in (C\cap D)^{\mathcal{I}_x}
+\end{align*}
+\end{minipage}%
+\begin{minipage}[t]{0.2\textwidth}
+\begin{align*}
+&\leftrightarrow\\
+&\leftrightarrow\\
+&\leftrightarrow\\
+&\leftrightarrow\\
+&\leftrightarrow\\
+\end{align*}
+\end{minipage}
+\end{figure}
+
 \chapter{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consists of completion rules to decide satisfiability an ABox. The rules are applied exhaustively on the set until none is applicable any more. One major characteristic of this algorithm is that it does not matter in which order the rules are applied. Another characteristic is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunction. If a choice ends in a \textit{clash} then we track back to the point where we had to chose and take the other choice instead. If all choices end in a clash then the ABox is unsatisfiable, otherwise it is satisfiable.\\
 We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not and if it satisfiable then we create a satisfied ABox from $x:C$.\\
@@ -312,8 +341,8 @@ An ABox $\mathcal{A}$ contains a \textit{clash} if
 \end{itemize}
 \end{mydef}
 \section{Transforming an ABox into a formula}
-Dealing with numerical arithmetic is challenging and hence we use the help of a $QFBAPA$ solver, whenever we want to add successors for an individual name $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a $QFBAPA$ formula for one \textit{nested level}. We assume that the ABox is already in $NNF$. As example we look at
-\begin{ex}[Example for transforming ABox into $QFBAPA$ formula]
+Dealing with numerical arithmetic is challenging and hence we use the help of a QFBAPA solver, whenever we want to add successors for an individual name $x$. For that we collect all $succ$-assertion regarding $x$ first and then transform them into a QFBAPA formula for one \textit{nested level}. We assume that the ABox is already in $NNF$. As example we look at
+\begin{ex}[Example for transforming ABox into QFBAPA formula]
 \begin{align*}
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}
 \end{align*}
@@ -329,7 +358,7 @@ We first gather all $succ$-assertion regarding $x$ together and transform it int
 \item include the conjunct $\mathcal{U}=X_{r_1}\cup\dots\cup X_{r_n}$, $r_1,\dots, r_n\in\mathbf{R}$
 \end{itemize}
 We replace (possible compound) concepts and role names with set variables, for which a solver can assign elements to them. The last bullet point is important because sometimes it is not explicitly stated, what kind of successor an individual name has. That means that every successor is connected to its predecessor and/or to its successors, if available, by at least one role name.\\
-For our example we have five set variables: $X_A$, $X_B$, $X_r$, $X_{succ(|A|\leq |B\cap r|)}$ and $\mathcal{U}$. The $QFBAPA$ formula for Example 1 is 
+For our example we have five set variables: $X_A$, $X_B$, $X_r$, $X_{succ(|A|\leq |B\cap r|)}$ and $\mathcal{U}$. The QFBAPA formula for Example 1 is 
 \begin{align}\label{f}
 \phi=1\leq |X_{succ(|A|\leq |B\cap r|)}|\wedge |X_A|\leq |X_B|\wedge \mathcal{U}=X_r
 \end{align}
@@ -347,7 +376,7 @@ Then we change each inequalities into equalities by adding two slack variables $
 \end{align*}
 Right now it is not clear whether the set variables are overlapping or not. Therefore we consider \textit{Venn regions}, which is of the form $X^i_1\cap \dots \cap X^i_k$. The subscript $i$ denotes either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$. Therefore we construct $A$ and $b$ such that instead of assigning elements to set variables we assign them to the Venn regions. Since we have five set variables, we have $2^5=32$ Venn region and therefore $32$ vectors denoting the Venn regions. We also have two equation which means we need at most two more vectors for the slack variables. The matrix $A$ therefore has two rows and $34$ columns with $a_{ij}$, $1\leq i\leq 2$ and $1\leq j\leq 16$, denoting the sum of the pre-factors of the set variables, in which the $j$-th Venn region is included, in the $i$-th equation. We already see that the number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in size of $\phi$, such that at most $N$ Venn regions are not empty, if there exists a solution.
 \begin{mylem}[Lemma 3 from \cite{4}]
-For every $QFBAPA$ formula $\phi$ a number $N$, which is polynomial to the size of $\phi$, can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that
+For every QFBAPA formula $\phi$ a number $N$, which is polynomial to the size of $\phi$, can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that
 \begin{itemize}
 \item $|\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}|\leq N$
 \item $|\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}|\subseteq |\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}|$
@@ -399,10 +428,10 @@ We take a look now in the proof of this theorem to understand how the solution i
 h^TA x^\prime = h^Tb
 \end{align*}
 \end{itemize}
-Therefore we are able to set an upper bound a priori for the solutions the $QFBAPA$ returns. Furthermore we stay in PSpace while calculating the upper bound by using $\leq N$ Venn regions after the results of \cite{4}.\\
+Therefore we are able to set an upper bound a priori for the solutions the QFBAPA returns. Furthermore we stay in PSpace while calculating the upper bound by using $\leq N$ Venn regions after the results of \cite{4}.\\
 In our example the upper bound for all $x_i$ is $8\cdot (2\cdot max_{i,j}\{|1|,|-1|\})^{2\cdot 2+1}=512$, which means that we can discard any solution in which a Venn region has more than $512$ elements.
 \section{Algorithm}\label{Tableau}
-Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a $QFBAPA$ formula. Then we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
+Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. Hence we divide the algorithm in two parts: a boolean part, where the decomposing of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a QFBAPA formula. Then we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
 \begin{mydef}[Tableau]
 Let $\mathcal{A}$ be a set of assertions in $NNF$.\\
 Boolean part:
@@ -417,11 +446,11 @@ Numerical part:
 \item\label{succ} $successor$-rule: $\mathcal{A}$ contains for an individual name $x$ at least one violated assertion of the form $x:succ(c)$:
 \begin{itemize}
 \item gather all assertion of the form $x:succ(c)$ into a set $\mathcal{S}$
-\item transform $\mathcal{S}$ into a $QFBAPA$ formula $\phi$ after 3.1
+\item transform $\mathcal{S}$ into a QFBAPA formula $\phi$ after 3.1
 \item calculate the upper bound after Theorem \ref{upper bound}
 \end{itemize}
-If a $QFBAPA$ solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
-If a $QFBAPA$ solver returns \textit{satisfiable} then select one solution $\sigma$ with in the upper bound. For each $e\in\sigma(\mathcal{U})$ we introduce a new individual name $y$ and
+If a QFBAPA solver returns \textit{unsatisfiable} then $\mathcal{A}=\mathcal{A}\cup\{x:\perp\}$\\
+If a QFBAPA solver returns \textit{satisfiable} then select one solution $\sigma$ with in the upper bound. For each $e\in\sigma(\mathcal{U})$ we introduce a new individual name $y$ and
 \begin{itemize}
 \item for each $e\in X_C$ we have $\mathcal{A}=\mathcal{A}\cup\{y:C\}$
 \item for each $e\in X_{succ(c)}$ we have $\mathcal{A}=\mathcal{A}\cup\{y:succ(c)\}$
@@ -437,7 +466,7 @@ We pick up Example 1 again but in a form where it is not decomposed yet:
 \begin{align*}
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C, (x,y):B\cap r\}
 \end{align*}
-We are able to apply the boolean rules and hence we apply them first and decompose into Example 1. Then we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{S}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the $QFBAPA$ formula $1\leq X_{succ(|A|\leq |B\cap r|)}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}$. Then we let a solver return an assignment. In this case we see that the formula is satisfiable with $X_{succ(|A|\leq |B\cap r|)}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$ every successor is a $r$-successor. We then introduce for $e$ ans $f$ two individual names $y$ and $z$ and the assertion $y:X_B$, $(x,y):r$, $z:succ(|A|\leq|B\cap r|)$ and $(x,z):r$ to $S$. Then for $z$ we have to apply the $successor$-rule again.
+We are able to apply the boolean rules and hence we apply them first and decompose into Example 1. Then we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{S}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the QFBAPA formula $1\leq X_{succ(|A|\leq |B\cap r|)}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=\{X_r\}$. Then we let a solver return an assignment. In this case we see that the formula is satisfiable with $X_{succ(|A|\leq |B\cap r|)}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$ every successor is a $r$-successor. We then introduce for $e$ ans $f$ two individual names $y$ and $z$ and the assertion $y:X_B$, $(x,y):r$, $z:succ(|A|\leq|B\cap r|)$ and $(x,z):r$ to $S$. Then for $z$ we have to apply the $successor$-rule again.
 \chapter{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
@@ -445,7 +474,7 @@ For the correctness proof of the Tableau-algorithm we have to show that
 \item If no more rules are applicable on a clash-free ABox $\mathcal{A}$ then $\mathcal{A}$ is satisfiable
 \item If $\mathcal{A}$ is satisfiable then the Tableau-algorithm terminates without a clash
 \end{itemize}
-In all proves we assume that the $QFBAPA$ solver is correct. First we prove that the algorithm always terminates.
+In all proves we assume that the QFBAPA solver is correct. First we prove that the algorithm always terminates.
 \section{Termination of the Tableau-Algorithm}
 We define a \textit{derived} ABox as an ABox after a finite number of rule application. For the termination proof we map every \textit{derived} ABox to an element $\Psi(\mathcal{A})$ of a set $Q$. This set $Q$ can be ordered by a well-founded strict partial ordering $\prec$. Since $\prec$ is well-founded we can not have a infinite increasing chain which results into termination of the algorithm. Therefore we show for every ABox $\mathcal{A}^\prime$ which is derivable from a derived ABox $\mathcal{A}$ that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
 The element of $Q$ are multisets of triples. Each triple consists of a multiset and an integer. A multiset $M$ is smaller than a multiset $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one element of $M^\prime$ with at least one element, which is smaller. In our definition of $Q$ $\Psi(\mathcal{A}^\prime)$ is smaller than $\Psi(\mathcal{A})$ if we can replace at least one triple of $\Psi(\mathcal{A})$ with at least one smaller triple to obtain $\Psi(\mathcal{A}^\prime)$. A triple $(x_1,y_1)$ is smaller than a triple $(x_2,y_2)$ if either $x_1<x_2$ or $x_1=x_2$ and $y_1<y_2$ (lexicographical odering from left to right). Otherwise $(x_2,y_2)$ is smaller.\\
@@ -482,7 +511,7 @@ We show that if $\mathcal{A}^\prime$ is obtainable from $\mathcal{A}$ by a rule 
 \begin{itemize}
 \item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcap$-rule: The first component remains unchanged because $size(C)\leq size(C\sqcap D)$ and $size(D)\leq size(C\sqcap D)$. The second component becomes smaller because the integer for $size(C\sqcap D)$ is removed (because we can not apply this rule any more after one application). In case $C$ and/or $D$ happens to be disjunction or conjunction the multiset still becomes smaller because $size(C)\leq size(C)+size(D)=size(C\sqcap D)$ (respectively for $size(D)$). Hence the triple $\psi_{\mathcal{A}^\prime}(x)$ always becomes smaller.
 \item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcup$-rule: similar to above
-\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule: The first component remains unchanged because we do not add any assertion for $x$.  Because we are able to apply this rule, both $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$. Hence the second component of $\psi_\mathcal{A}(x)$ remains unchanged. In this rule we gather all $succ$-assertion of $x$ and convert them to a $QFBAPA$ formula. If a solver returns unsatisfiable for the formula we have add $x:\perp$ which means we end with a clash. If the solver returns a solution, we add successors according to the solution. Hence all $succ$-assertion of $x$ becomes satisfied and the third component decreases. Therefore $\psi_{\mathcal{A}^\prime}(x)$ is smaller than $\psi_\mathcal{A}(x)$.\\
+\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule: The first component remains unchanged because we do not add any assertion for $x$.  Because we are able to apply this rule, both $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$. Hence the second component of $\psi_\mathcal{A}(x)$ remains unchanged. In this rule we gather all $succ$-assertion of $x$ and convert them to a QFBAPA formula. If a solver returns unsatisfiable for the formula we have add $x:\perp$ which means we end with a clash. If the solver returns a solution, we add successors according to the solution. Hence all $succ$-assertion of $x$ becomes satisfied and the third component decreases. Therefore $\psi_{\mathcal{A}^\prime}(x)$ is smaller than $\psi_\mathcal{A}(x)$.\\
 For every freshly introduced individual name $y$ we have to add a triple $\psi_{\mathcal{A}^\prime}(y)$ to $Q$. Since $y$ is a successor the first component of $\psi_{\mathcal{A}^\prime}(y)$ is always smaller than the first component of $\psi_{\mathcal{A}^\prime}(x)$:
 \begin{itemize}
 \item We know that for any successor it has only one predecessor: A new individual name $y$ can only be introduced by the application of the $successor$-rule on one individual name $x$, which has at least one $succ$-assertion. Furthermore, we can not add an assertion $(a,b):r,r\in\mathbf{R}$, such that $a,b\in I(\mathcal{A})$ are not in a predecessor-successor relation before. Also we can only add individual names on one nested level. Therefore we can not add new individual names, which are in a predecessor-successor relation to each other.
@@ -505,7 +534,7 @@ We consider $x:C$ where $C$ is a compound concepts (induction step):
 \item $C=\neg D$: Since $\mathcal{A}^\prime$ does not contain a clash, $x:C\in A$ implies $x:D\notin A$. $D$ must be a concept name, because $\mathcal{A}^\prime$ is in $NNF$. Therefore by definition of induced interpretation and $x:D\notin A$ we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\notin D^{\mathcal{I}(\mathcal{A}^\prime)}$ which implies $x^{\mathcal{I}(\mathcal{A}^\prime)}\in \Delta^{\mathcal{I}(\mathcal{A}^\prime)}\backslash D^{\mathcal{I}(\mathcal{A}^\prime)}=C^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \item $C=D\sqcap E$: Since the algorithm terminated, the $\sqcap$-rule is not applicable any more. That means that there is an individual name $x$, such that $\{x:D, x:E\}\subseteq \mathcal{A}^\prime$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ and $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cap D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcap D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \item $C=D\sqcup E$: Since the algorithm terminated, the $\sqcup$-rule is not applicable any more. That means that there is an individual name $x$, such that $\{x:D, x:E\}\cap \mathcal{A}^\prime\neq \emptyset$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ or $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cup D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcup D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
-\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the $QFBAPA$ solver must have returned a solution. If the solution is empty, then no individual names are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty then the induced interpretation is updated by introducing a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in \sigma(\mathcal{U})$ and hence also for each freshly introduced individual name $y$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have $(x,y):r$. By the induction step we know there must be an element $x^{\mathcal{I}(\mathcal{A}^\prime)}\in\Delta^{\mathcal{I}(\mathcal{A}^\prime)}$. Because we introduced $e$ in this step, we also introduced a new individual name $y$ which means for the induced interpretation we introduce a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$. Since we also added $(x,y):r$ to $\mathcal{A}^\prime$, we must have $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})\in r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_c$, $c$ is a cardinality constraint, we have $y:succ(c)$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the QFBAPA solver must have returned a solution. If the solution is empty, then no individual names are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty then the induced interpretation is updated by introducing a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in \sigma(\mathcal{U})$ and hence also for each freshly introduced individual name $y$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have $(x,y):r$. By the induction step we know there must be an element $x^{\mathcal{I}(\mathcal{A}^\prime)}\in\Delta^{\mathcal{I}(\mathcal{A}^\prime)}$. Because we introduced $e$ in this step, we also introduced a new individual name $y$ which means for the induced interpretation we introduce a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$. Since we also added $(x,y):r$ to $\mathcal{A}^\prime$, we must have $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})\in r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_c$, $c$ is a cardinality constraint, we have $y:succ(c)$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \end{itemize}
 Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\prime$ and that $\mathcal{A}\subseteq \mathcal{A}^\prime$, $\mathcal{I}(\mathcal{A}^\prime)$ also satisfies $\mathcal{A}$.
 \end{proof}
@@ -520,13 +549,13 @@ We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obta
 \begin{itemize}
 \item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}:=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
 \item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ and hence $x^\mathcal{I}\in C^\mathcal{I}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ and hence $x^\mathcal{I}\in D^\mathcal{I}$. In both cases $x^\mathcal{I}\in C^\mathcal{I}\cup D^\mathcal{I}=(C\sqcup D)^\mathcal{I}$ and hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule on $x:succ(c)$: We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together in a set $\mathcal{S}$, formulate a $QFBAPA$ formula $\phi(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, $\mathcal{S}$ is also satisfiable (subset of $\mathcal{A}$). Hence there has to be solutions which can be returned by the solver. We need to show, that the solver is capable to return a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and within our upper bound, then we can create a solution $\sigma$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show, that we can create a (finite) solution from $\mathcal{I}$, which the solver is able to return. We know that $x^\mathcal{I}$ must have a finite number of successors in $\mathcal{I}$. Therefore we can create a solution $\sigma$ based on that: Let $\sigma$ be a empty solution. For every $C\in\mathbf{C}$, $r\in\mathbf{R}$, $c$ such that $x:succ(c)\in\mathcal{A}$, let $X_C$, $X_r$, $X_c$ be set variables. For each $y^\mathcal{I}\in \bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)$ we introduce an element $y_e$ and add it to $\sigma(\mathcal{U})$:
+\item we apply the $succ$-rule on $x:succ(c)$: We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together in a set $\mathcal{S}$, formulate a QFBAPA formula $\phi(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, $\mathcal{S}$ is also satisfiable (subset of $\mathcal{A}$). Hence there has to be solutions which can be returned by the solver. We need to show, that the solver is capable to return a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and within our upper bound, then we can create a solution $\sigma$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show, that we can create a (finite) solution from $\mathcal{I}$, which the solver is able to return. We know that $x^\mathcal{I}$ must have a finite number of successors in $\mathcal{I}$. Therefore we can create a solution $\sigma$ based on that: Let $\sigma$ be a empty solution. For every $C\in\mathbf{C}$, $r\in\mathbf{R}$, $c$ such that $x:succ(c)\in\mathcal{A}$, let $X_C$, $X_r$, $X_c$ be set variables. For each $y^\mathcal{I}\in \bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)$ we introduce an element $y_e$ and add it to $\sigma(\mathcal{U})$:
 \begin{itemize}
 \item for each $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$ add $y_e$ to $X_r$
 \item for each $y^\mathcal{I}\in C^\mathcal{I}$ add $y_e$ to $X_C$
 \item for each $y^\mathcal{I}\in succ(c)^\mathcal{I}$ add $y_e$ to $X_c$
 \end{itemize}
-It is clear that if the solver returns this solution then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$ otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. If $x^\mathcal{I}$ has more successors than the calculated upper bound, we can reduce the number of successors after \cite{knapsack}: Convert the $QFBAPA$ formula to a linear system of equations $An=b$. We then create the solution $n$: If $v_k$ is the $k$-th Venn region $X_1^i\cap\dots X_n^i$, $i\in\{0,1\}$ then let $n_k=|\{e|e\in X_1^i\cap\dots X_n^i\}|$. We know that $n$ must be a solution to the linear system because otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. Then we can reduce $n$ after Theorem \ref{upper bound} to $n^\prime$. With the help of $n^\prime$ we create the new solution $\sigma^\ast$ by adding $n^\prime_k$ successors in the $k$-th Venn region for which it holds that (\dag):
+It is clear that if the solver returns this solution then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$ otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. If $x^\mathcal{I}$ has more successors than the calculated upper bound, we can reduce the number of successors after \cite{knapsack}: Convert the QFBAPA formula to a linear system of equations $An=b$. We then create the solution $n$: If $v_k$ is the $k$-th Venn region $X_1^i\cap\dots X_n^i$, $i\in\{0,1\}$ then let $n_k=|\{e|e\in X_1^i\cap\dots X_n^i\}|$. We know that $n$ must be a solution to the linear system because otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. Then we can reduce $n$ after Theorem \ref{upper bound} to $n^\prime$. With the help of $n^\prime$ we create the new solution $\sigma^\ast$ by adding $n^\prime_k$ successors in the $k$-th Venn region for which it holds that (\dag):
 \begin{itemize}
 \item $\sigma^\ast(\mathcal{U)}\subseteq\sigma(\mathcal{U})$
 \item for each $y_e\in \sigma^\ast(\mathcal{U})$: 
