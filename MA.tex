@@ -601,7 +601,7 @@ We distinguish the cases based on the rules we apply on $\mathcal{A}_i$ to obtai
 \item for each $y^\mathcal{I}\in C^\mathcal{I}$ add $e$ to $\sigma(X_C)$
 \item for each $y^\mathcal{I}\in succ(c)^\mathcal{I}$ add $e$ to $\sigma(X_c)$
 \end{itemize}
-It is clear that if the solver returns this solution, then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. If each Venn region of this solution has more elements than the calculated upper bound, we can reduce the number of successors by the following steps \cite{knapsack}: Convert the QFBAPA formula to a system of linear equations $An=b$ like in Section 3.2. Let $n$ be a solution to this system such that $n_k=|\{e|e\in \sigma(X^i_1)\cap\dots\cap\sigma(X^i_m)\}|$, where $X^i_1\cap\dots\cap X^i_m$ is the $k$-th Venn region. Then we can reduce $n$ to $n^\prime$ like shown in Section 3.2. With the help of $n^\prime$ we create the new solution $\sigma^\prime$ by adding $n^\prime_k$ successors in the $k$-th Venn region. It holds that (\dag):
+It is clear that if the solver returns this solution, then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. If each Venn region of this solution has more elements than the calculated upper bound, we can reduce the number of successors by the following steps \cite{knapsack}: Convert the QFBAPA formula to a system of linear equations $An=b$ like in Section 3.2. We know there has to be a solution, because $\mathcal{S}$ is satisfiable. Let $n$ be a solution to this system such that $n_k=|\{e|e\in \sigma(X^i_1)\cap\dots\cap\sigma(X^i_m)\}|$, where $X^i_1\cap\dots\cap X^i_m$ is the $k$-th Venn region. Then we can reduce $n$ to $n^\prime$ like shown in Section 3.2. With the help of $n^\prime$ we create the new solution $\sigma^\prime$ by adding $n^\prime_k$ successors in the $k$-th Venn region. It holds that (\dag):
 \begin{itemize}
 \item $\sigma^\ast(\mathcal{U)}\subseteq\sigma(\mathcal{U})$
 \item for each $e\in \sigma^\ast(\mathcal{U})$: $e\in \sigma^\ast(X_v)$ iff $e\in\sigma(X_m)$\\
@@ -626,7 +626,7 @@ Since $\sigma$ is induced by $\mathcal{I}$:
 \item $y_e:succ(c)\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in succ(c)^\mathcal{I}$
 \item $(x,y_e):r\in\mathcal{A}_{i+1}$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
 \end{itemize}
-Hence we can extend $\mathcal{I}$ by $y_e:=y^\mathcal{I}$ which satisfies $\mathcal{A}_{i+1}$
+Hence we can extend $\mathcal{I}$ by $y_e^\mathcal{I}=y^\mathcal{I}$ which satisfies $\mathcal{A}_{i+1}$.
 \end{itemize}
 \end{proof}
 \chapter{Conclusion}
