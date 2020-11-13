@@ -458,9 +458,11 @@ If the QFBAPA solver returns \textit{satisfiable}, then select one solution $\si
 \end{mydef}
 A \textit{complete} ABox is an ABox to which no more rules of the Tableau-algorithm are applicable.\\
 We pick up Example 1 again but in a form where it is not decomposed yet:
+\begin{ex}
 \begin{align*}
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C\}
 \end{align*}
+\end{ex}
 We can already see that $\mathcal{A}$ is satisfiable. We show how the tableau algorithm can behave with this input.\\
 We are able to apply the boolean rules and hence we apply them first and decompose into Example 1. Then we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{S}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the QFBAPA formula $1\leq X_{succ(|A|\leq |B\cap r|)}\wedge|X_A|\leq |X_B|\wedge \mathcal{U}=X_r$. Then we let a solver return an assignment. In this case we see that the formula is satisfiable with $X_{succ(|A|\leq |B\cap r|)}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$ i.e. every successor is a $r$-successor. We then introduce for $e$ and $f$ two individual names $y_e$ and $y_f$ and the assertion $y_e:X_B$, $(x,y_e):r$, $y_f:succ(|A|\leq|B\cap r|)$ and $(x,y_f):r$ to $\mathcal{A}$. 
 \begin{figure}[H]
@@ -503,8 +505,8 @@ For the correctness proof of the Tableau-algorithm we have to show that
 \end{itemize}
 In all proofs we assume that the QFBAPA solver is correct. First we prove that the algorithm always terminates.
 \section{Termination}
-We define a \textit{derived} ABox as an ABox after a finite number of rule applications. For the termination proof we map every \textit{derived} ABox to an element $\Psi(\mathcal{A})$ of a set $Q$. This set $Q$ can be ordered by a well-founded strict partial ordering $\prec$. Since $\prec$ is well-founded we can not have a infinite decreasing chain. Therefore we show for every ABox $\mathcal{A}^\prime$ which is derivable from a derived ABox $\mathcal{A}$ that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ which results in termination of the algorithm.\\
-The elements of $Q$ are multisets of triples. Each triple consists of a multiset and an integer. A multiset $M$ is smaller than a multiset $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one element of $M^\prime$ with a set of elements, which are smaller. In our definition of $Q$ $\Psi(\mathcal{A}^\prime)$ is smaller than $\Psi(\mathcal{A})$ if we can replace at least one triple of $\Psi(\mathcal{A})$ with smaller triple to obtain $\Psi(\mathcal{A}^\prime)$. A triple $(x_1,x_2, x_3)$ is smaller than a triple $(y_1,y_2,y_3)$ if for the first $i\in\{1,2,3\}$ we have $x_i\neq y_i$, then $x_i<y_i$ (lexicographical ordering from left to right). Otherwise $(y_1,y_2,y_3)$ is smaller or equal.\\
+We define a \textit{derived} ABox as an ABox after a finite number of rule applications. For the termination proof we map every \textit{derived} ABox $\mathcal{A}$ to an element $\Psi(\mathcal{A})$ of a set $Q$. This set $Q$ can be ordered by a well-founded strict partial ordering $\prec$. Since $\prec$ is well-founded we can not have a infinite decreasing chain. Therefore we show for every ABox $\mathcal{A}^\prime$ which is derivable from a derived ABox $\mathcal{A}$ that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ which results in termination of the algorithm.\\
+The elements of $Q$ are multisets of triples. Each triple consists of a multiset and an integer. A multiset $M$ is smaller than a multiset $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one element of $M^\prime$ with a set of elements, which are smaller. For example the multiset $M=\{2,2,2,1,5\}$ is smaller then $M^\prime=\{2,3,5\}$ because the second entry $\{3\}$ of $M^\prime$ can be replaced by $\{2,2,1\}$. In our definition of $Q$ $\Psi(\mathcal{A}^\prime)$ is smaller than $\Psi(\mathcal{A})$ if we can replace at least one triple of $\Psi(\mathcal{A})$ with smaller triple to obtain $\Psi(\mathcal{A}^\prime)$. A triple $(x_1,x_2, x_3)$ is smaller than a triple $(y_1,y_2,y_3)$ if for the first $i\in\{1,2,3\}$ we have $x_i\neq y_i$, then $x_i<y_i$ (lexicographical ordering from left to right). Otherwise $(y_1,y_2,y_3)$ is smaller or equal.\\
 Next we define the size of a concept $C$ inductively:
 \begin{itemize}
 \item $size(A)=1$ if $A\in\mathbf{C}$
@@ -518,9 +520,10 @@ Next we define the size of a concept $C$ inductively:
 The size of a cardinality terms $k$ is also defined inductively:
 \begin{itemize}
 \item $size(n)=1$ if $n$ is an integer
-\item $size(|k|)=1$
-\item $size(C^\neg)=size(C+1$
-\item $size(C\cap D)=size(C\cup D)= size(C)+ size(D)+1$
+\item $size(r)=size(C)=1$ if $r\in\mathbf{R}$, $C\in\mathbf{C}$
+\item $size(|k|)=size(k)$
+\item $size(k^\neg)=size(k)+1$
+\item $size(k\cap l)=size(k\cup l)= size(k)+ size(l)+1$
 \end{itemize}
 \begin{mydef}
 Let $\mathcal{A}$ be a derived ABox. The multiset $\Psi(\mathcal{A})$ consists of triples. Each triple $\psi_\mathcal{A}(x)$ represent one individual name $x$:
@@ -530,6 +533,26 @@ Let $\mathcal{A}$ be a derived ABox. The multiset $\Psi(\mathcal{A})$ consists o
 \item The third component is the number of $x:succ(c)\in\mathcal{A}$ for which the $successor$-rule is applicable.
 \end{itemize}
 \end{mydef}
+For the ABox $\mathcal{A}$ in Example 2 we have the following multiset:
+\begin{align*}
+\Psi(\mathcal{A})=\{\psi_\mathcal{A}(x)\}=\{(7,\{7,7\},0)\}
+\end{align*}
+After the decomposing we got the ABox $\mathcal{A}^1$, which is stated in Example 1.
+\begin{align*}
+\Psi(\mathcal{A}^1)=\{\psi_{\mathcal{A}^1}(x)\}=\{(7,\{\},2)\}
+\end{align*}
+We can see that the second entry of $\psi_{\mathcal{A}^\prime}(x)$ decreases because we do not have any conjunction anymore. Hereby he increment of the third entry does not matter.\\
+Then the $successor$-rule is applied and we add two new individual names $y_e$ and $y_f$ to obtain $\mathcal{A}^2$, hence a new multiset has to be added.
+\begin{align*}
+\Psi(\mathcal{A}^2)=\{\psi_{\mathcal{A}^2}(x),\psi_{\mathcal{A}^2}(y_e), \psi_{\mathcal{A}^2}(y_f)\}=\{(7,\{\},0),(1,\{\},0),(3,\{\},1)\}
+\end{align*}
+We see that $\psi_{\mathcal{A}^2}(x)$, $\psi_{\mathcal{A}^2}(y_e)$ and $\psi_{\mathcal{A}^2}(y_f)$ are smaller than $\psi_{\mathcal{A}^1}(x)$ hence $\Psi(\mathcal{A}^2)\prec \Psi(\mathcal{A}^1)$.\\
+We then apply the last $successor$-rule to $y_f$ and gain
+\begin{align*}
+\Psi(\mathcal{A}^3)=\{\psi_{\mathcal{A}^3}(x),\psi_{\mathcal{A}^3}(y_e), \psi_{\mathcal{A}^3}(y_f),\psi_{\mathcal{A}^3}(y_g)\}=\\
+\{(7,\{\},0),(1,\{\},0),(3,\{\},0),(2,\{\},0)\}
+\end{align*}
+The newly introduced triple is smaller then $\psi_{\mathcal{A}^2}(y_f)$ and hence we have $\Psi(\mathcal{A}^3)\prec \Psi(\mathcal{A}^2)$.\\
 We are now able to finally prove the termination of the algorithm.
 \begin{mylem}
 For any ABox $\mathcal{A}=\{x:C\}$ the Tableau-algorithm terminates
