@@ -292,7 +292,7 @@ A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the 
 \end{mydef}
 The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\sigma$ for a concept $C$ based on QFBAPA we have $\sigma(C^\neg)=\sigma(\mathcal{U})\backslash \sigma(C)$ and for every interpretation $\mathcal{I}$ based on $\mathcal{ALCSCC}$ we have $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\sigma(\mathcal{U})\subseteq \Delta^\mathcal{I}$ we can conclude that every element in $\sigma(C^\neg)$ is also in $(\neg C)^\mathcal{I}$.\\
 The first five rules on the left hand side can be applied in linear time \cite{1},\cite{6}. The first four rules on the right hand side and the rules $C^\neg\rightarrow \neg C$ and $\neg succ(c)\rightarrow succ(\neg c)$ can also be applied in linear time since we only shift the negation sign. The rule $(s^\neg)^\neg\rightarrow s$ works similarly to $\neg\neg C\rightarrow C$ and the rules $(s\cap t)^\neg\rightarrow s^\neg\cup t^\neg$ and $(s\cup t)^\neg\rightarrow s^\neg \cap t^\neg$ works similarly to $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$. Therefore all of them can also be applied in linear time.\\
-Regarding the normal form we also replace in every $succ(c)$ concept every disjunction and conjunction in form as $\sqcap$ and $\sqcup$ with $\cap$ and $\cup$. We can do this because for an arbitrary interpretation $\mathcal{I}$ we have for each $x,y\in\Delta^\mathcal{I}$ $y\in (C\sqcap D)^{\mathcal{I}_x}$ iff $y\in(C\cap D)^{\mathcal{I}_x}$:
+Regarding the normal form we also replace in every $succ(c)$ concept every disjunction and conjunction in form as $\sqcap$ and $\sqcup$ with $\cap$ and $\cup$. We can do this because for an arbitrary interpretation $\mathcal{I}$ for each $x,y\in\Delta^\mathcal{I}$ we have $y\in (C\sqcap D)^{\mathcal{I}_x}$ iff $y\in(C\cap D)^{\mathcal{I}_x}$:
 \begin{figure}[H]
 \begin{minipage}[t]{0.8\textwidth}
 \begin{align*}
@@ -497,19 +497,19 @@ In both application of the $successor$-rule we assumed that the solve returns a 
 \chapter{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
-\item For every input the Tableau-algorithm terminates
-\item If no more rules are applicable on a clash-free ABox $\mathcal{A}$ then $\mathcal{A}$ is satisfiable
-\item If $\mathcal{A}$ is satisfiable then the Tableau-algorithm terminates without a clash
+\item For every input the Tableau-algorithm terminates.
+\item If no more rules are applicable on a clash-free ABox $\mathcal{A}$, then $\mathcal{A}$ is satisfiable.
+\item If $\mathcal{A}$ is satisfiable, then the Tableau-algorithm terminates without a clash.
 \end{itemize}
-In all proves we assume that the QFBAPA solver is correct. First we prove that the algorithm always terminates.
+In all proofs we assume that the QFBAPA solver is correct. First we prove that the algorithm always terminates.
 \section{Termination}
-We define a \textit{derived} ABox as an ABox after a finite number of rule application. For the termination proof we map every \textit{derived} ABox to an element $\Psi(\mathcal{A})$ of a set $Q$. This set $Q$ can be ordered by a well-founded strict partial ordering $\prec$. Since $\prec$ is well-founded we can not have a infinite increasing chain which results into termination of the algorithm. Therefore we show for every ABox $\mathcal{A}^\prime$ which is derivable from a derived ABox $\mathcal{A}$ that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
-The element of $Q$ are multisets of triples. Each triple consists of a multiset and an integer. A multiset $M$ is smaller than a multiset $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one element of $M^\prime$ with at least one element, which is smaller. In our definition of $Q$ $\Psi(\mathcal{A}^\prime)$ is smaller than $\Psi(\mathcal{A})$ if we can replace at least one triple of $\Psi(\mathcal{A})$ with at least one smaller triple to obtain $\Psi(\mathcal{A}^\prime)$. A triple $(x_1,y_1)$ is smaller than a triple $(x_2,y_2)$ if either $x_1<x_2$ or $x_1=x_2$ and $y_1<y_2$ (lexicographical odering from left to right). Otherwise $(x_2,y_2)$ is smaller.\\
+We define a \textit{derived} ABox as an ABox after a finite number of rule applications. For the termination proof we map every \textit{derived} ABox to an element $\Psi(\mathcal{A})$ of a set $Q$. This set $Q$ can be ordered by a well-founded strict partial ordering $\prec$. Since $\prec$ is well-founded we can not have a infinite decreasing chain. Therefore we show for every ABox $\mathcal{A}^\prime$ which is derivable from a derived ABox $\mathcal{A}$ that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ which results in termination of the algorithm.\\
+The elements of $Q$ are multisets of triples. Each triple consists of a multiset and an integer. A multiset $M$ is smaller than a multiset $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one element of $M^\prime$ with a set of elements, which are smaller. In our definition of $Q$ $\Psi(\mathcal{A}^\prime)$ is smaller than $\Psi(\mathcal{A})$ if we can replace at least one triple of $\Psi(\mathcal{A})$ with smaller triple to obtain $\Psi(\mathcal{A}^\prime)$. A triple $(x_1,x_2, x_3)$ is smaller than a triple $(y_1,y_2,y_3)$ if for the first $i\in\{1,2,3\}$ we have $x_i\neq y_i$, then $x_i<y_i$ (lexicographical ordering from left to right). Otherwise $(y_1,y_2,y_3)$ is smaller or equal.\\
 Next we define the size of a concept $C$ inductively:
 \begin{itemize}
 \item $size(A)=1$ if $A\in\mathbf{C}$
-\item $size(\neg C)=size(C)$
-\item $size(C\sqcap D)=size(C\sqcup D)= size(C)+ size(D)$
+\item $size(\neg C)=size(C)+1$
+\item $size(C\sqcap D)=size(C\sqcup D)= size(C)+ size(D)+1$
 \item $size(succ(c))=\begin{cases}
 1+max\{size(k),size(l)\} & c=k\leq l \\
 1+size(l)& c= n\,dvd\,l
@@ -518,50 +518,47 @@ Next we define the size of a concept $C$ inductively:
 The size of a cardinality terms $k$ is also defined inductively:
 \begin{itemize}
 \item $size(n)=1$ if $n$ is an integer
-\item $size(C^\neg)=size(C)$
-\item $size(C\cap D)=size(C\cup D)= size(C)+ size(D)$
+\item $size(|k|)=1$
+\item $size(C^\neg)=size(C+1$
+\item $size(C\cap D)=size(C\cup D)= size(C)+ size(D)+1$
 \end{itemize}
 \begin{mydef}
 Let $\mathcal{A}$ be a derived ABox. The multiset $\Psi(\mathcal{A})$ consists of triples. Each triple $\psi_\mathcal{A}(x)$ represent one individual name $x$:
 \begin{itemize}
-\item the first component is an integer which denotes $max\{size(C)|x:C\in\mathcal{A}\}$
-\item the second component is a multiset which contains for each assertion $x:C\sqcap D\in\mathcal{A}$ for which the $\sqcap$-rule is applicable the integer $size(C\sqcap D)$. Respectively for $x:C\sqcup D$
-\item the third component is an integer which denotes the number of $x:succ(c)\in\mathcal{A}$ for which the $successor$-rule is applicable
+\item The first component is the integer $max\{size(C)|x:C\in\mathcal{A}\}$.
+\item The second component is a multiset which contains for each assertion $x:C\sqcap D\in\mathcal{A}$ for which the $\sqcap$-rule is applicable the integer $size(C\sqcap D)$. Respectively for $x:C\sqcup D$.
+\item The third component is the number of $x:succ(c)\in\mathcal{A}$ for which the $successor$-rule is applicable.
 \end{itemize}
 \end{mydef}
-We are now able to finally proof the termination of the algorithm.
+We are now able to finally prove the termination of the algorithm.
 \begin{mylem}
 For any ABox $\mathcal{A}=\{x:C\}$ the Tableau-algorithm terminates
 \end{mylem}
 \begin{proof}
 We show that if $\mathcal{A}^\prime$ is obtainable from $\mathcal{A}$ by a rule from Definition \ref{Tableau}, then we have $\Psi(\mathcal{A}^\prime)\prec \Psi(\mathcal{A})$.\\
 \begin{itemize}
-\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcap$-rule: The first component remains unchanged because $size(C)\leq size(C\sqcap D)$ and $size(D)\leq size(C\sqcap D)$. The second component becomes smaller because the integer for $size(C\sqcap D)$ is removed (because we can not apply this rule anymore after one application). In case $C$ and/or $D$ happens to be disjunction or conjunction the multiset still becomes smaller because $size(C)\leq size(C)+size(D)=size(C\sqcap D)$ (respectively for $size(D)$). Hence the triple $\psi_{\mathcal{A}^\prime}(x)$ always becomes smaller.
+\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcap$-rule: The first component remains unchanged because $size(C)\leq size(C\sqcap D)$ and $size(D)\leq size(C\sqcap D)$. The second component becomes smaller because the integer for $size(C\sqcap D)$ is removed (because we cannot apply this rule anymore after one application). In case $C$ and/or $D$ happens to be a disjunction or conjunction the multiset still becomes smaller because $size(C)< size(C)+size(D)+1=size(C\sqcap D)$ (respectively for $size(D)$). Hence the triple $\psi_{\mathcal{A}^\prime}(x)$ always becomes smaller.
 \item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcup$-rule: similar to above
-\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule: The first component remains unchanged because we do not add any assertion for $x$.  Because we are able to apply this rule, both $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$. Hence the second component of $\psi_\mathcal{A}(x)$ remains unchanged. In this rule we gather all $succ$-assertion of $x$ and convert them to a QFBAPA formula. If a solver returns unsatisfiable for the formula we have add $x:\perp$ which means we end with a clash. If the solver returns a solution, we add successors according to the solution. Hence all $succ$-assertion of $x$ becomes satisfied and the third component decreases. Therefore $\psi_{\mathcal{A}^\prime}(x)$ is smaller than $\psi_\mathcal{A}(x)$.\\
-For every freshly introduced individual name $y$ we have to add a triple $\psi_{\mathcal{A}^\prime}(y)$ to $Q$. Since $y$ is a successor the first component of $\psi_{\mathcal{A}^\prime}(y)$ is always smaller than the first component of $\psi_{\mathcal{A}^\prime}(x)$:
-\begin{itemize}
-\item We know that for any successor it has only one predecessor: A new individual name $y$ can only be introduced by the application of the $successor$-rule on one individual name $x$, which has at least one $succ$-assertion. Furthermore, we can not add an assertion $(a,b):r,r\in\mathbf{R}$, such that $a,b\in I(\mathcal{A})$ are not in a predecessor-successor relation before. Also we can only add individual names on one nested level. Therefore we can not add new individual names, which are in a predecessor-successor relation to each other.
-\item Since $y$ has only one successor we know that $max\{size(C)|y:C\in\mathcal{A}^\prime\}$ is always smaller then $max\{size(C)|x:C\in\mathcal{A}^\prime\}$ by the definition of $size(C)$: For each $y:C\in\mathcal{A}^\prime$ we know that $C$ must be part of a cardinality constraint $c$ such that $x:succ(c)\in\mathcal{A}$ and therefore $size(succ(c))>size(C)$.
-\end{itemize} 
+\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule: The first component remains unchanged because we do not add any assertion for $x$. Because we are able to apply this rule, both $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$. Hence the second component of $\psi_\mathcal{A}(x)$ remains unchanged. In this rule we gather all $succ$-assertion of $x$ and convert them to a QFBAPA formula. If a solver returns unsatisfiable for the formula we have add $x:\perp$ which means we end with a clash. If the solver returns a solution, we add successors according to the solution. Hence we can not apply the $successor$-rule on all $succ$-assertions of $x$ anymore. Therefore $\psi_{\mathcal{A}^\prime}(x)$ is smaller than $\psi_\mathcal{A}(x)$.\\
+For every freshly introduced individual name $y$ we have to add a triple $\psi_{\mathcal{A}^\prime}(y)$ to $Q$. Since $y$ is a successor the first component of $\psi_{\mathcal{A}^\prime}(y)$ is always smaller than the first component of $\psi_{\mathcal{A}^\prime}(x)$: We know that $max\{size(C)|y:C\in\mathcal{A}^\prime\}$ is always smaller then $max\{size(C)|x:C\in\mathcal{A}^\prime\}$ by the definition of $size(C)$: For each $y:C\in\mathcal{A}^\prime$ we know that $C$ must be part of a cardinality constraint $c$ such that $x:succ(c)\in\mathcal{A}$ and therefore $size(succ(c))>size(C)$. For any other individual name $y_x$, such that $y\neq x$ and $y$ was not freshly introduced, the triple $\psi_\mathcal{A}(y)$ remains unchanged.
 \end{itemize}
-For any other individual name $y$, such that $y\neq x$ and $y$ was not freshly introduced, the triple $\psi_\mathcal{A}(y)$ remains unchanged. Hence in all three cases we can obtain $\Psi(\mathcal{A}^\prime)$ from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller triple $\psi_{\mathcal{A}^\prime}(x)$. For any newly introduced individual names we showed that the corresponding triples are always smaller than $\psi_{\mathcal{A}^\prime}(x)$. Therefore it remains $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$. \\
-Because we work with integers the strict partial ordering is indeed well-founded.
+ Hence in all three cases we can obtain $\Psi(\mathcal{A}^\prime)$ from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller triple $\psi_{\mathcal{A}^\prime}(x)$. For any newly introduced individual names we showed that the corresponding triples are always smaller than $\psi_{\mathcal{A}^\prime}(x)$. Therefore $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$. \\
+Because we work with non-negative integers, the strict partial ordering is indeed well-founded.
 \end{proof}
 \section{Soundness and Completeness}
-After we proved that the algorithm terminates, we continue with the correctness of the algorithm e.g. the algorithm returns a satisfied ABox iff the ABox is satisfiable.
+After we proved that the algorithm terminates, we continue with the correctness of the algorithm e.g. the algorithm terminates with a clash-free ABox iff the ABox is satisfiable.
 \begin{mylem}
-If the Tableau-algorithm is applied on an ABox $\mathcal{A}=\{x:C\}$ and  terminates without a clash then $\mathcal{A}$ is satisfiable
+If the Tableau-algorithm is applied on an ABox $\mathcal{A}=\{x:C\}$ and  terminates without a clash, then $\mathcal{A}$ is satisfiable
 \end{mylem}
 \begin{proof}
 Let $\mathcal{A}^\prime$ be the result after the algorithm terminated. Since we do not remove any assertion during the algorithm we have $\mathcal{A}\subseteq\mathcal{A}^\prime$. Hence if an interpretation $\mathcal{I}$ satisfies $\mathcal{A}^\prime$ then it also satisfies $\mathcal{A}$. Let $\mathcal{I}(\mathcal{A}^\prime)$ be the induced interpretation of $\mathcal{A}^\prime$. We show that $\mathcal{I}(\mathcal{A}^\prime)$ indeed satisfies $\mathcal{A}^\prime$ by induction over concepts:\\
 For each concept name $C\in\mathbf{C}$ such that $x:C\in\mathcal{A}^\prime$, we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$ by the definition of induced interpretation. (induction base)\\
-We consider $x:C$ where $C$ is a compound concepts (induction step):
+We consider $x:C$ where $C$ is a compound concept (induction step):
 \begin{itemize}
 \item $C=\neg D$: Since $\mathcal{A}^\prime$ does not contain a clash, $x:C\in A$ implies $x:D\notin A$. $D$ must be a concept name, because $\mathcal{A}^\prime$ is in $NNF$. Therefore by definition of induced interpretation and $x:D\notin A$ we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\notin D^{\mathcal{I}(\mathcal{A}^\prime)}$ which implies $x^{\mathcal{I}(\mathcal{A}^\prime)}\in \Delta^{\mathcal{I}(\mathcal{A}^\prime)}\backslash D^{\mathcal{I}(\mathcal{A}^\prime)}=C^{\mathcal{I}(\mathcal{A}^\prime)}$.
-\item $C=D\sqcap E$: Since the algorithm terminated, the $\sqcap$-rule is not applicable anymore. That means that there is an individual name $x$, such that $\{x:D, x:E\}\subseteq \mathcal{A}^\prime$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ and $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cap D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcap D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
-\item $C=D\sqcup E$: Since the algorithm terminated, the $\sqcup$-rule is not applicable anymore. That means that there is an individual name $x$, such that $\{x:D, x:E\}\cap \mathcal{A}^\prime\neq \emptyset$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ or $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}\cup D^{\mathcal{I}(\mathcal{A}^\prime)}=(C\sqcup D)^{\mathcal{I}(\mathcal{A}^\prime)}$.
-\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the QFBAPA solver must have returned a solution. If the solution is empty, then no individual names are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty then the induced interpretation is updated by introducing a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in \sigma(\mathcal{U})$ and hence also for each freshly introduced individual name $y$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have $(x,y):r$. By the induction step we know there must be an element $x^{\mathcal{I}(\mathcal{A}^\prime)}\in\Delta^{\mathcal{I}(\mathcal{A}^\prime)}$. Because we introduced $e$ in this step, we also introduced a new individual name $y$ which means for the induced interpretation we introduce a new element $y^{\mathcal{I}(\mathcal{A}^\prime)}$. Since we also added $(x,y):r$ to $\mathcal{A}^\prime$, we must have $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})\in r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_c$, $c$ is a cardinality constraint, we have $y:succ(c)$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=D\sqcap E$: Since the algorithm terminated, the $\sqcap$-rule is not applicable anymore. That means that there is an individual name $x$, such that $\{x:D, x:E\}\subseteq \mathcal{A}^\prime$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ and $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}\cap E^{\mathcal{I}(\mathcal{A}^\prime)}=C^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=D\sqcup E$: Since the algorithm terminated, the $\sqcup$-rule is not applicable anymore. That means that there is an individual name $x$, such that $\{x:D, x:E\}\cap \mathcal{A}^\prime\neq \emptyset$. By the induction hypothesis we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}$ or $x^{\mathcal{I}(\mathcal{A}^\prime)}\in E^{\mathcal{I}(\mathcal{A}^\prime)}$. Therefore $x^{\mathcal{I}(\mathcal{A}^\prime)}\in D^{\mathcal{I}(\mathcal{A}^\prime)}\cup E^{\mathcal{I}(\mathcal{A}^\prime)}=C^{\mathcal{I}(\mathcal{A}^\prime)}$.
+\item $C=succ(c)$: Since $\mathcal{A}^\prime$ does not contain a clash, the QFBAPA solver must have returned a solution. If the solution is empty, then no individual names are needed to be introduced to satisfy $x:C$ and we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$. If the solution is not empty, then the induced interpretation is updated by introducing a new element $y_e^{\mathcal{I}(\mathcal{A}^\prime)}$ for each $e\in \sigma(\mathcal{U})$ and hence also for each freshly introduced individual name $y_e$. For each $e\in X_C$ we have $y:C\in \mathcal{A}^\prime$. By the induction hypothesis $y_e^{\mathcal{I}(\mathcal{A}^\prime)}$ must be in $C^{\mathcal{I}(\mathcal{A}^\prime)}$. For each $e\in X_r$ we have $(x,y):r\in\mathcal{A}^\prime$. Since we also added $(x,y):r$ to $\mathcal{A}^\prime$, we must have $(x^{\mathcal{I}(\mathcal{A}^\prime)},y^{\mathcal{I}(\mathcal{A}^\prime)})\in r^{\mathcal{I}(\mathcal{A}^\prime)}$. Lastly for each $e\in X_{succ(d)}$ we have $y:succ(d)\in\mathcal{A}^\prime$. Again by the induction hypothesis $y^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(d)^{\mathcal{I}(\mathcal{A}^\prime)}$. Since the solution is correct, we know that $x^{\mathcal{I}(\mathcal{A}^\prime)}\in succ(c)^{\mathcal{I}(\mathcal{A}^\prime)}$.
 \end{itemize}
 Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\prime$ and that $\mathcal{A}\subseteq \mathcal{A}^\prime$, $\mathcal{I}(\mathcal{A}^\prime)$ also satisfies $\mathcal{A}$.
 \end{proof}
@@ -569,49 +566,45 @@ Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\pri
 If $\mathcal{A}:=\{x:C\}$ is satisfiable then the Tableau-algorithm terminates without a clash.
 \end{mylem}
 \begin{proof}
-By Lemma 1 we know, that the algorithm always terminates. It remains to show that the algorithm terminates with a satisfied ABox. Since $\mathcal{A}$ is satisfiable it does not contain a clash. Let $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ be an interpretation, which satisfies $\mathcal{A}$. We show, that if $\mathcal{A}_i$ does not contain a clash and $\mathcal{I}$ satisfies $\mathcal{A}_i$, then $\mathcal{A}_{i+1}$ can be obtained from $\mathcal{A}_i$ by applying a rule while maintaining clash-free and satisfied by $\mathcal{I}$.\\
-We already stated that $\mathcal{I}$ satisfies the clash-free $\mathcal{A}=:\mathcal{A}_{0}$. (induction base).
-Let $\mathcal{A}_i$ be a clash-free ABox, which is satisfied by $\mathcal{I}$. (induction hypothesis).
-We distinguish the cases based on the rules, we apply on $\mathcal{A}_i$ to obtain $\mathcal{A}_{i+1}$ (induction step):
+By Lemma 1 we know that the algorithm always terminates. It remains to show that the algorithm terminates with a clash-free ABox. Since $\mathcal{A}$ is satisfiable it does not contain a clash. Let $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ be an interpretation which satisfies $\mathcal{A}$. We show that if $\mathcal{A}_i$ does not contain a clash and $\mathcal{I}$ satisfies $\mathcal{A}_i$, then $\mathcal{A}_{i+1}$ can be obtained from $\mathcal{A}_i$ by applying a rule while maintaining clash-freeness and satisfiability by $\mathcal{I}$.\\
+We already stated that $\mathcal{I}$ satisfies the clash-free $\mathcal{A}=:\mathcal{A}_{0}$ (induction base).
+Let $\mathcal{A}_i$ be a clash-free ABox which is satisfied by $\mathcal{I}$ (induction hypothesis).
+We distinguish the cases based on the rules we apply on $\mathcal{A}_i$ to obtain $\mathcal{A}_{i+1}$ (induction step):
 \begin{itemize}
-\item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}:=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
-\item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ and hence $x^\mathcal{I}\in C^\mathcal{I}$ or we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ and hence $x^\mathcal{I}\in D^\mathcal{I}$. In both cases $x^\mathcal{I}\in C^\mathcal{I}\cup D^\mathcal{I}=(C\sqcup D)^\mathcal{I}$ and hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule on $x:succ(c)$: We have to show that by this step we are able to add successors, such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertion together in a set $\mathcal{S}$, formulate a QFBAPA formula $\phi(x)$ and let a solver return us all possible solution with in an upper bound. Because $\mathcal{A}_i$ is satisfiable, $\mathcal{S}$ is also satisfiable (subset of $\mathcal{A}$). Hence there has to be solutions which can be returned by the solver. We need to show, that the solver is capable to return a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and within our upper bound, then we can create a solution $\sigma$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show, that we can create a (finite) solution from $\mathcal{I}$, which the solver is able to return. We know that $x^\mathcal{I}$ must have a finite number of successors in $\mathcal{I}$. Therefore we can create a solution $\sigma$ based on that: Let $\sigma$ be a empty solution. For every $C\in\mathbf{C}$, $r\in\mathbf{R}$, $c$ such that $x:succ(c)\in\mathcal{A}$, let $X_C$, $X_r$, $X_c$ be set variables. For each $y^\mathcal{I}\in \bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)$ we introduce an element $y_e$ and add it to $\sigma(\mathcal{U})$:
+\item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
+\item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either $x^\mathcal{I}\in C^\mathcal{I}$ and hence we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $x^\mathcal{I}\in D^\mathcal{I}$ and hence  we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$. In both cases $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
+\item we apply the $succ$-rule on $x:succ(c)$: We have to show that by this step we are able to add successors such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertions together in a set $\mathcal{S}$, formulate a QFBAPA formula $\phi(x)$ and let a solver return us all possible solutions within an upper bound. Because $\mathcal{A}_i$ is satisfiable, $\mathcal{S}$ is also satisfiable (subset of $\mathcal{A}_i$). Hence there have to be solutions which can be returned by the solver. We need to show that the solver is capable of returning a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and the number of $x$'s successors within each Venn region is within our upper bound, then we can create a solution $\sigma$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show that we can create a (finite) solution from $\mathcal{I}$, which the solver is able to return. We know that $x^\mathcal{I}$ must have a finite number of successors in $\mathcal{I}$. Therefore we can create a solution $\sigma$ based on that: Let $\sigma$ be an empty solution. For each $y^\mathcal{I}\in \bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)$ we introduce an element $e$ and add it to $\sigma(\mathcal{U})$:
 \begin{itemize}
-\item for each $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$ add $y_e$ to $X_r$
-\item for each $y^\mathcal{I}\in C^\mathcal{I}$ add $y_e$ to $X_C$
-\item for each $y^\mathcal{I}\in succ(c)^\mathcal{I}$ add $y_e$ to $X_c$
+\item for each $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$ add $e$ to $\sigma(X_r)$
+\item for each $y^\mathcal{I}\in C^\mathcal{I}$ add $e$ to $\sigma(X_C)$
+\item for each $y^\mathcal{I}\in succ(c)^\mathcal{I}$ add $e$ to $\sigma(X_c)$
 \end{itemize}
-It is clear that if the solver returns this solution then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$ otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. If $x^\mathcal{I}$ has more successors than the calculated upper bound, we can reduce the number of successors after \cite{knapsack}: Convert the QFBAPA formula to a linear system of equations $An=b$. We then create the solution $n$: If $v_k$ is the $k$-th Venn region $X_1^i\cap\dots X_n^i$, $i\in\{0,1\}$ then let $n_k=|\{e|e\in X_1^i\cap\dots X_n^i\}|$. We know that $n$ must be a solution to the linear system because otherwise $\mathcal{I}$ does not satisfy $\mathcal{A}_i$. Then we can reduce $n$ after Theorem \ref{upper bound} to $n^\prime$. With the help of $n^\prime$ we create the new solution $\sigma^\ast$ by adding $n^\prime_k$ successors in the $k$-th Venn region for which it holds that (\dag):
+It is clear that if the solver returns this solution, then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. If each Venn region of this solution has more elements than the calculated upper bound, we can reduce the number of successors by the following steps \cite{knapsack}: Convert the QFBAPA formula to a system of linear equations $An=b$ like in Section 3.2. Let $n$ be a solution to this system such that $n_k=|\{e|e\in \sigma(X^i_1)\cap\dots\cap\sigma(X^i_m)\}|$, where $X^i_1\cap\dots\cap X^i_m$ is the $k$-th Venn region. Then we can reduce $n$ to $n^\prime$ like shown in Section 3.2. With the help of $n^\prime$ we create the new solution $\sigma^\prime$ by adding $n^\prime_k$ successors in the $k$-th Venn region. It holds that (\dag):
 \begin{itemize}
 \item $\sigma^\ast(\mathcal{U)}\subseteq\sigma(\mathcal{U})$
-\item for each $y_e\in \sigma^\ast(\mathcal{U})$: 
-\begin{itemize}
-\item if $y_e\in \sigma^\ast(X_n)$ then $y_e\in\sigma(X_n)$
-\item if $y_e\notin \sigma^\ast(X_n)$ then $y_e\notin\sigma(X_n)$
+\item for each $e\in \sigma^\ast(\mathcal{U})$: $e\in \sigma^\ast(X_v)$ iff $e\in\sigma(X_m)$\\
+with $m\in\mathbf{C}\cup\mathbf{R}\cup\{succ(c)|x:succ(c)\in \mathcal{A}_i\}$
 \end{itemize}
-with $n\in\mathbf{C}\cup\mathbf{R}\cup\{succ(c)|x:succ(c)\in \mathcal{A}_i\}$
-\end{itemize}
-The reason for that lays under the fact, that we decreases the number of successors in specific Venn-region to gain $n^\prime$.\\
-The algorithm then create individual names according to the solution, which leads to the satisfaction of all $succ$-assertions of $x$. For each created individual name $y$ we know that there is an element $y_e\in\sigma^\ast(\mathcal{U})$ such that:
+The reason is the fact that we decrease the number of successors in specific Venn-regions to obtain $n^\prime$.\\
+The algorithm then creates individual names according to the solution $\sigma^\prime$, which leads to the satisfaction of all $succ$-assertions of $x$. For each element $e\in\sigma^\prime(\mathcal{U})$ we know that there is an individual name $y_e$ such that:
 \begin{itemize}
-\item $y:C\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma^\ast(X_C)$, $C\in\mathbf{C}$
-\item $y:succ(c)\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma^\ast(X_{succ(c)})$
-\item $(x,y):r\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma^\ast(X_r)$
+\item $y_e:C\in\mathcal{A}_{i+1}$ iff $e\in\sigma^\prime(X_C)$, $C\in\mathbf{C}$
+\item $y_e:succ(c)\in\mathcal{A}_{i+1}$ iff $e\in\sigma^\prime(X_{succ(c)})$
+\item $(x,y_e):r\in\mathcal{A}_{i+1}$ iff $e\in\sigma^\prime(X_r)$
 \end{itemize}
 Because of the fact in (\dag) we can conclude
 \begin{itemize}
-\item $y:C\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma(X_C)$, $C\in\mathbf{C}$
-\item $y:succ(c)\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma(X_{succ(c)})$
-\item $(x,y):r\in\mathcal{A}_{i+1}$ iff $y_e\in\sigma(X_r)$
+\item $y_e:C\in\mathcal{A}_{i+1}$ iff $e\in\sigma(X_C)$, $C\in\mathbf{C}$
+\item $y_e:succ(c)\in\mathcal{A}_{i+1}$ iff $e\in\sigma(X_{succ(c)})$
+\item $(x,y_e):r\in\mathcal{A}_{i+1}$ iff $e\in\sigma(X_r)$
 \end{itemize}
-Since $\sigma$ is induced by $\mathcal{I}$ we find for each newly introduced individual name $y$ an element $y^\mathcal{I}$ such that:
+Since $\sigma$ is induced by $\mathcal{I}$:
 \begin{itemize}
-\item $y:C\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$
-\item $y:succ(c)\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in succ(c)^\mathcal{I}$
-\item $(x,y):r\in\mathcal{A}_{i+1}$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
+\item $y_e:C\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$
+\item $y_e:succ(c)\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in succ(c)^\mathcal{I}$
+\item $(x,y_e):r\in\mathcal{A}_{i+1}$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
 \end{itemize}
-Hence $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$
+Hence we can extend $\mathcal{I}$ by $y_e:=y^\mathcal{I}$ which satisfies $\mathcal{A}_{i+1}$
 \end{itemize}
 \end{proof}
 \chapter{Conclusion}
