@@ -211,6 +211,7 @@ Now we can interpret our formula as
 \item we have as many legs as arms
 \item nose and two ears are both in the same set hence they belong to a common body part (face)
 \end{itemize}
+In \cite{KuncakRinard} it is shown that checking satisfiability of QFBAPA formulas is a NP-complete problem.
 \section{$\mathcal{ALCSCC}$}
 Next we define the description logic $\mathcal{ALCSCC}$ \cite{4}. Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
@@ -374,7 +375,7 @@ We assume that every considered QFABAPA solver is correct which means
 Let $\phi$ be an arbitrary QFBAPA formula. We assume that every considered QFABAPA solver is able to return all possible solutions of $\phi$.
 \end{assumption}
 \section{Solution of a formula}
-For our algorithm we assume that we have a solver which can return all possible solutions. However there can be infinitely many solutions. Actually Example 1 can have infinitely many solutions: We can always increase the amount of successors in $B$ as long as we have fewer successors in $A$. However having that means that the tableau algorithm works on an infinite space and/or does not terminate. Therefore we want to only consider solutions inside some \textit{upper bounds}. For an \textit{Integer Linear Programming} (ILP) problem, which is described as a system of linear equalities, possible upper bounds are already investigated (like in \cite{knapsack}). Therefore we want to transform our formula into a linear system of equalities of the form $Ax=b$, where $A$ and $b$ describe our cardinality constraints and $x$ is the solution i.e. denotes the numbers of elements we have to assign to set variables to satisfy the formula:\\
+For our algorithm we assume that we have a solver which can return all possible solutions. However there can be infinitely many solutions. Actually Example 1 can have infinitely many solutions: We can always increase the amount of successors in $B$ as long as we have fewer successors in $A$. However having that means that the tableau algorithm works on an infinite space and/or does not terminate. Therefore we want to only consider solutions inside some \textit{upper bounds}. For an \textit{Integer Linear Programming} (ILP) problem, which is described as a system of linear equalities, possible upper bounds are already investigated (like in \cite{knapsack}). Therefore we want to transform our formula into a linear system of equalities of the form $Ax=b$, where $A$ and $b$ describe our cardinality constraints and $x$ is the solution i.e. denotes the numbers of elements we have to assign to set variables to satisfy the formula. \\
 First, we notice that every inequality in a QFBAPA formula can be
 rewritten as $n_1\cdot|X_1|\pm \dots \pm n_i\cdot|X_i|\lesseqgtr I$, $\lesseqgtr\,\in\{\leq,\geq,=\}$, where $n_1,\dots, n_i,I\in\mathbb{Z}$ are a constants. The numbers $n_1,\dots,n_i$ are called \textit{pre-factors}. Let $c={succ(|A|\leq |B\cap r|)}$. We arrange $\phi$ in \eqref{f} into
 \begin{align*}
@@ -384,7 +385,7 @@ Then we change each inequalities into equalities by adding two slack variables $
 \begin{align*}
 \phi^{\prime\prime}=|X_{c}|- I_1= 1\wedge |X_A|-|X_B|+I_2= 0 \wedge |\mathcal{U}\cap X_r^\neg|=0\wedge |\mathcal{U}^\neg\cap X_r|=0
 \end{align*}
-Right now it is not clear whether the set variables are overlapping or not. Therefore we consider \textit{Venn regions}, which are of the form $X^i_1\cap \dots \cap X^i_k$. The subscript $i$ denotes either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$. Therefore we construct $A$ and $b$ such that instead of assigning elements to set variables we assign them to the Venn regions. Since we have five set variables, we have $2^5=32$ Venn regions and therefore $32$ vectors denoting the Venn regions. We also have four equations and two more vectors for the slack variables. The matrix $A$ therefore has four rows and $34$ columns with $a_{ij}$, $1\leq i\leq 4$ and $1\leq j\leq 34$, denoting the sum of the pre-factors of the set variables, in which the $j$-th Venn region is included in the $i$-th equation. We already see that the number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in the size of $\phi$, such that at most $N$ Venn regions are not empty if there exists a solution.
+Right now it is not clear whether the set variables are overlapping or not. Therefore we consider \textit{Venn regions}, which are of the form $X^i_1\cap \dots \cap X^i_k$. The subscript $i$ denotes either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$. Since we have $5$ set variable, we have $2^5=32$ Venn regions. We already see that the number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in the size of $\phi$, such that at most $N$ Venn regions are not empty if there exists a solution.
 \begin{mylem}[Lemma 3 from \cite{4}]
 For every QFBAPA formula $\phi$ a number $N$, which is polynomial in the size of $\phi$, can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that
 \begin{itemize}
@@ -392,7 +393,7 @@ For every QFBAPA formula $\phi$ a number $N$, which is polynomial in the size of
 \item $\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}\subseteq \{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}$
 \end{itemize}
 \end{mylem}
-Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regions, which are non-empty. In Example 1 we can already guess that any Venn region within $X_r^\neg$ or $\mathcal{U}^\neg$ must be empty, because every element must be in $\mathcal{U}$ and since $\mathcal{U}=X_r$ they must be all in $X_r$. Hence we can drop $24$ Venn regions and create a system of equations with $A$ being a $4\times 10$ matrix. Let the vectors for the Venn regions be in the following order:
+Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regions, which are non-empty. In Example 1 we can already guess that any Venn region within $X_r^\neg$ or $\mathcal{U}^\neg$ must be empty, because every element must be in $\mathcal{U}$ and since $\mathcal{U}=X_r$ they must be all in $X_r$. Hence we can drop $24$ Venn regions. Therefore we construct $A$ and $b$ such that instead of assigning elements to set variables we assign them to the remaining $8$ Venn regions. That means for the vector $x$ the entry $x_k$, $1\leq k\leq 8$, denotes the number of elements in the $k$-th Venn region. Since we have four equations and two slack variables the matrix $A$ has four rows and $10$ columns with $a_{ij}$, $1\leq i\leq 4$ and $1\leq j\leq 10$, denoting the sum of the pre-factors of the set variables, in which the $j$-th Venn region is included in the $i$-th equation. Let the vectors for the Venn regions be in the following order:
 \begin{itemize}
 \item $v_1=X_A\cap X_B\cap X_c\cap X_r\cap \mathcal{U}\cap I_1^\neg\cap I_2^\neg$
 \item $v_2=X_A\cap X_B\cap X_c^\neg\cap X_r\cap \mathcal{U}\cap I_1^\neg\cap I_2^\neg$
@@ -612,11 +613,11 @@ We distinguish the cases based on the rules we apply on $\mathcal{A}_i$ to obtai
 \begin{itemize}
 \item we apply the $\sqcap$-rule on $x:C\sqcap D$: The interpretation $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C,x:D\}$ because by the hypothesis $\mathcal{I}$ already satisfies $\mathcal{A}_i$ and hence also $x:C\sqcap D$. That means that $x^\mathcal{I}\in(C\sqcap D)^\mathcal{I}$ and therefore $\{x,C,x:D\}\cup\mathcal{A}_i$ is satisfied by $\mathcal{I}$
 \item we apply the $\sqcup$-rule on $x:C\sqcup D$: We have to show that either $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$ is satisfied by $\mathcal{I}$. Again by the induction hypothesis $\mathcal{A}_i$ is satisfied by $\mathcal{I}$ and hence $x^\mathcal{I}=(C\sqcup D)^\mathcal{I}$. So either $x^\mathcal{I}\in C^\mathcal{I}$ and hence we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:C\}$ or $x^\mathcal{I}\in D^\mathcal{I}$ and hence  we choose $\mathcal{A}_{i+1}=\mathcal{A}_i\cup\{x:D\}$. In both cases $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$.
-\item we apply the $succ$-rule on $x:succ(c)$: We have to show that by this step we are able to add successors such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertions together in a set $\mathcal{S}$, formulate a QFBAPA formula $\phi(x)$ and let a solver return us all possible solutions within an upper bound. Because $\mathcal{A}_i$ is satisfiable, $\mathcal{S}$ is also satisfiable (subset of $\mathcal{A}_i$). Hence there have to be solutions which can be returned by the solver. We need to show that the solver is capable of returning a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and the number of $x$'s successors within each Venn region is within our upper bound, then we can create a solution $\sigma$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show that we can create a (finite) solution from $\mathcal{I}$, which the solver is able to return. We know that $x^\mathcal{I}$ must have a finite number of successors in $\mathcal{I}$. Therefore we can create a solution $\sigma$ based on that: Let $\sigma$ be an empty solution. For each $y^\mathcal{I}\in \bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)$ we introduce an element $e$ and add it to $\sigma(\mathcal{U})$:
+\item we apply the $succ$-rule on $x:succ(c)$: We have to show that by this step we are able to add successors such that $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. In this step, we gather first all $succ$-assertions together in a set $\mathcal{S}$, formulate a QFBAPA formula $\phi(x)$ and let a solver return us all possible solutions within an upper bound. Because $\mathcal{A}_i$ is satisfiable, $\mathcal{S}$ is also satisfiable (subset of $\mathcal{A}_i$). Hence there have to be solutions which can be returned by the solver. We need to show that the solver is capable of returning a solution within our upper bound, such that $\mathcal{A}_{i+1}$ is satisfied by $\mathcal{I}$. In case $x^\mathcal{I}$ has no successors, the empty solution must be a valid solution, which can be returned from the solver. If $\mathcal{I}$ is finite and the number of $x$'s successors within each Venn region is within our upper bound, then we can create a solution $\sigma$ induced by $\mathcal{I}$, which can be returned by our solver. In any other case we have to show that we can create a (finite) solution from $\mathcal{I}$, which the solver is able to return. We know that $x^\mathcal{I}$ must have a finite number of successors in $\mathcal{I}$. Therefore we can create a solution $\sigma$ based on that: Let $\sigma$ be an empty solution. For each $e\in \bigcup_{r\in\mathbf{R}}r^\mathcal{I}(x)$ we add $e$ to $\sigma(\mathcal{U})$:
 \begin{itemize}
-\item for each $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$ add $e$ to $\sigma(X_r)$
-\item for each $y^\mathcal{I}\in C^\mathcal{I}$ add $e$ to $\sigma(X_C)$
-\item for each $y^\mathcal{I}\in succ(c)^\mathcal{I}$ add $e$ to $\sigma(X_c)$
+\item for each $(x^\mathcal{I},e)\in r^\mathcal{I}$ add $e$ to $\sigma(X_r)$
+\item for each $e\in C^\mathcal{I}$ add $e$ to $\sigma(X_C)$
+\item for each $e\in succ(c)^\mathcal{I}$ add $e$ to $\sigma(X_c)$
 \end{itemize}
 It is clear that if the solver returns this solution, then $\mathcal{I}$ satisfies $\mathcal{A}_{i+1}$. If each Venn region of this solution has more elements than the calculated upper bound, we can reduce the number of successors by the following steps \cite{knapsack}: Convert the QFBAPA formula to a system of linear equations $An=b$ like in Section 3.2. We know there has to be a solution, because $\mathcal{S}$ is satisfiable. Let $n$ be a solution to this system such that $n_k=|\{e|e\in \sigma(X^i_1)\cap\dots\cap\sigma(X^i_m)\}|$, where $X^i_1\cap\dots\cap X^i_m$ is the $k$-th Venn region. Then we can reduce $n$ to $n^\prime$ like shown in Section 3.2. With the help of $n^\prime$ we create the new solution $\sigma^\prime$ by adding $n^\prime_k$ successors in the $k$-th Venn region. It holds that (\dag):
 \begin{itemize}
@@ -639,15 +640,18 @@ Because of the fact in (\dag) we can conclude
 \end{itemize}
 Since $\sigma$ is induced by $\mathcal{I}$:
 \begin{itemize}
-\item $y_e:C\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in C^\mathcal{I}$, $C\in\mathbf{C}$
-\item $y_e:succ(c)\in\mathcal{A}_{i+1}$ iff $y^\mathcal{I}\in succ(c)^\mathcal{I}$
-\item $(x,y_e):r\in\mathcal{A}_{i+1}$ iff $(x^\mathcal{I},y^\mathcal{I})\in r^\mathcal{I}$
+\item $y_e:C\in\mathcal{A}_{i+1}$ iff $e\in C^\mathcal{I}$, $C\in\mathbf{C}$
+\item $y_e:succ(c)\in\mathcal{A}_{i+1}$ iff $e\in succ(c)^\mathcal{I}$
+\item $(x,y_e):r\in\mathcal{A}_{i+1}$ iff $(x^\mathcal{I},e)\in r^\mathcal{I}$
 \end{itemize}
-Hence we can extend $\mathcal{I}$ by $y_e^\mathcal{I}=y^\mathcal{I}$ which satisfies $\mathcal{A}_{i+1}$.
+Hence we can extend $\mathcal{I}$ by $y_e^\mathcal{I}=e$ which satisfies $\mathcal{A}_{i+1}$.
 \end{itemize}
 \end{proof}
 \chapter{Conclusion}
-blub
+\begin{itemize}
+\item runtime and spacetime
+\item future work: Tableau algorithm without solver?
+\end{itemize}
 \normalem
 \bibliographystyle{abbrv}
 \bibliography{ref}
