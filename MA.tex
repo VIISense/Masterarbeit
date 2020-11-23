@@ -318,7 +318,20 @@ Regarding the normal form we also replace in every $succ(c)$ concept every disju
 \end{align*}
 \end{minipage}
 \end{figure}
-
+Next we define the size of an $\mathcal{ALCSCC}$ concept $C$ inductively over concepts, set terms and cardinality constraints. The size is important for the termination proof.
+\begin{itemize}
+\item $size(r)=size(C)=1$ if $r\in\mathbf{R}$, $C\in\mathbf{C}$
+\item $size(n)=size(|k|)=1$ if $n\in\mathbb{N}$, $k$ cardinality term
+\item $size(\neg C)=size(C)+1$
+\item $size(k^\neg)=size(k)+1$
+\item $size(C\sqcap D)=size(C\sqcup D)= size(C)+ size(D)+1$
+\item $size(k\cap l)=size(k\cup l)= size(k)+ size(l)+1$
+\item $size(|k|)=size(k)$
+\item $size(succ(c))=\begin{cases}
+1+max\{size(k),size(l)\} & c=k\leq l \\
+1+size(l)& c= n\,dvd\,l
+\end{cases}$
+\end{itemize}
 \chapter{Tableau for $\mathcal{ALCSCC}$}
 A Tableau-algorithm consists of completion rules to decide satisfiability an ABox. The rules are applied exhaustively on the set until none is applicable anymore. Originally one major characteristic of a traditional tableau algorithm is that it does not matter in which order the rules are applied. However for this DL we have to give the rules priorities. Another characteristic of a tableau algorithm, which is kept for this DL, is that it works non-deterministically: In case we have disjunctions we can choose between the concepts in this disjunction. If a choice ends in a \textit{clash} then we back track to the point where we had to choose and take the other choice instead. If all choices end in a clash, then the ABox is unsatisfiable, otherwise it is satisfiable.\\
 We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not by applying the rules on the ABox $\mathcal{A}=\{x:C\}$.\\
@@ -438,7 +451,7 @@ h^TA x = h^Tb
 \end{align*}
 \end{itemize}
 Therefore we are able to set an upper bound a priori for the solutions the QFBAPA solver returns. Furthermore we stay in PSpace after Lemma 1 because the calculation of the upper bound use $\leq N$ Venn regions.\\
-In our example the upper bound for all $x_i$ is $10\cdot (2\cdot max\{|1|,|-1|\})^{2\cdot 2+1}=320$, which means that we can discard any solution in which a Venn region has more than $320$ elements.
+In our example the upper bound for all $x_i$ is $10\cdot (4\cdot max\{|1|,|-1|\})^{2\cdot 4+1}=2621440$, which means that we can discard any solution in which a Venn region has more than $2621440$ elements.
 \section{The Tableau Algorithm}\label{Tableau}
 Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. Hence we divide the algorithm in two parts: a boolean part, where the decomposition of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a QFBAPA formula. Then we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
 \begin{mydef}[Tableau for $\mathcal{ALCSCC}$]
@@ -526,24 +539,6 @@ Also note that an individual name can only has a finite number of successors. He
 \end{itemize}
 For the termination proof we map every ABox $\mathcal{A}$ to an element $\Psi(\mathcal{A})$ of a set $Q$. Each $\Psi(\mathcal{A})$ consists of triples $\psi_\mathcal{A}(x)$ for each individual name $x$. Let $\prec$ be an strict partial ordering over multisets of triples. If we show that $\prec$ is well-founded, e.g. there is no infinite decreasing chain, and that for every ABox $\mathcal{A}^\prime$, which is derivable from an ABox $\mathcal{A}$, we can only have $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ then the termination of the algorithm can be concluded.\\
 The elements of $Q$ are multisets of triples. Each triple consists of a multiset of integers and an integer. A multiset of integers $M$ is smaller than another multiset of integers $M^\prime$ (written as $M\prec_M M^\prime$) if we can obtain $M$ from $M^\prime$ by replacing at least one integer of $M^\prime$ with a set of integers, which are smaller. For example it holds that $M=\{2,2,2,1,5\}\prec_M M^\prime=\{2,3,5\}$ because the second entry $\{3\}$ of $M^\prime$ can be replaced by $\{2,2,1\}$. We say that the empty mutliset $\{\}$ is always smaller than any multiset of integers. A triple $T_1=(x_1,x_2, x_3)$ is smaller than a triple $T_2=(y_1,y_2,y_3)$ (written as $T_1\prec_T T_2$) if for the first $i\in\{1,2,3\}$, such that $x_i\neq y_i$, we have either $x_i<y_i$ (if $x_1,y_i$ are integers) or $x_i\prec_M y_i$ (if $x_i,y_i$ are multisets of integers) (lexicographical ordering from left to right). Otherwise $T_2$ is smaller or equal. Therefore $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ if we can replace at least one triple $T$ in $\Psi(\mathcal{A})$ with at least one triple $T^\prime$, such that $T^\prime\prec_T T$, to obtain $\Psi(\mathcal{A}^\prime)$.\\
-Next we define the size of a concept $C$ inductively:
-\begin{itemize}
-\item $size(A)=1$ if $A\in\mathbf{C}$
-\item $size(\neg C)=size(C)+1$
-\item $size(C\sqcap D)=size(C\sqcup D)= size(C)+ size(D)+1$
-\item $size(succ(c))=\begin{cases}
-1+max\{size(k),size(l)\} & c=k\leq l \\
-1+size(l)& c= n\,dvd\,l
-\end{cases}$
-\end{itemize}
-The size of a cardinality terms $k$ is also defined inductively:
-\begin{itemize}
-\item $size(n)=1$ if $n$ is an integer
-\item $size(r)=size(C)=1$ if $r\in\mathbf{R}$, $C\in\mathbf{C}$
-\item $size(|k|)=size(k)$
-\item $size(k^\neg)=size(k)+1$
-\item $size(k\cap l)=size(k\cup l)= size(k)+ size(l)+1$
-\end{itemize}
 Note that we assume earlier in Section 2.2 that each $C\sqcap D$ and $C\sqcup D$ in a cardinality term is replaced by $C\cap D$ and $C\cup D$ respectively.\\
 We describe now how the triples in $Q$ looks like.
 \begin{mydef}
@@ -592,12 +587,13 @@ For any other individual name $z$, such that $z\neq x$ and $z=y$, the triple $\p
 Hence in all three cases we can obtain $\Psi(\mathcal{A}^\prime)$ from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller triple $\psi_{\mathcal{A}^\prime}(x)$. For any newly introduced individual names we showed that the new triples are always smaller than $\psi_{\mathcal{A}^\prime}(x)$. Therefore $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.
 \end{proof}
 \section{Soundness and Completeness}
-After we proved that the algorithm terminates, we continue with the correctness of the algorithm e.g. the algorithm terminates with a clash-free ABox iff the ABox is satisfiable.
-\begin{mylem}
+After we proved that the algorithm terminates, we continue with the correctness of the algorithm e.g. the algorithm terminates with a clash-free ABox iff the ABox is satisfiable.\\
+We start with one direction of the \textit{iff} statement.
+\begin{mylem}[Soundness]
 If the Tableau-algorithm is applied on an ABox $\mathcal{A}=\{x:C\}$ and  terminates without a clash, then $\mathcal{A}$ is satisfiable
 \end{mylem}
 \begin{proof}
-Let $\mathcal{A}^\prime$ be the result after the algorithm terminated. Because we work with non-negative integers, the strict partial ordering is indeed well-founded. Since we do not remove any assertion during the algorithm we have $\mathcal{A}\subseteq\mathcal{A}^\prime$. Hence if an interpretation $\mathcal{I}$ satisfies $\mathcal{A}^\prime$ then it also satisfies $\mathcal{A}$. Let $\mathcal{I}(\mathcal{A}^\prime)$ be the induced interpretation of $\mathcal{A}^\prime$. We show that $\mathcal{I}(\mathcal{A}^\prime)$ indeed satisfies $\mathcal{A}^\prime$ by induction over concepts:\\
+Let $\mathcal{A}^\prime$ be the result after the algorithm terminated. From Lemma 2 we know that the tableau algorithm always terminates. Since we do not remove any assertion during the algorithm we have $\mathcal{A}\subseteq\mathcal{A}^\prime$. Hence if an interpretation $\mathcal{I}$ satisfies $\mathcal{A}^\prime$ then it also satisfies $\mathcal{A}$. Let $\mathcal{I}(\mathcal{A}^\prime)$ be the induced interpretation of $\mathcal{A}^\prime$. We show that $\mathcal{I}(\mathcal{A}^\prime)$ indeed satisfies $\mathcal{A}^\prime$ by induction over concepts:\\
 For each concept name $C\in\mathbf{C}$ such that $x:C\in\mathcal{A}^\prime$, we have $x^{\mathcal{I}(\mathcal{A}^\prime)}\in C^{\mathcal{I}(\mathcal{A}^\prime)}$ by the definition of induced interpretation. (induction base)\\
 We consider $x:C$ where $C$ is a compound concept (induction step):
 \begin{itemize}
@@ -608,7 +604,8 @@ We consider $x:C$ where $C$ is a compound concept (induction step):
 \end{itemize}
 Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\prime$ and that $\mathcal{A}\subseteq \mathcal{A}^\prime$, $\mathcal{I}(\mathcal{A}^\prime)$ also satisfies $\mathcal{A}$.
 \end{proof}
-\begin{mylem}
+We now proof that we can return any ABox such that we can induce every possible model within the pre-computed upper bound.
+\begin{mylem}[Completeness]
 If $\mathcal{A}:=\{x:C\}$ is satisfiable then the Tableau-algorithm terminates without a clash.
 \end{mylem}
 \begin{proof}
@@ -654,8 +651,8 @@ Hence we can extend $\mathcal{I}$ by $y_e^\mathcal{I}=e$ which satisfies $\mathc
 \end{itemize}
 \end{proof}
 \chapter{Conclusion}
-The description logic $\mathcal{ALCSCC}$ extends the well-known description logic $\mathcal{ALCQ}$ with set constraints and cardinality constraint over role successors which hard to deal with when checking its satisfiability. We present a tableau algorithm which has only three rules. However the last rule, which consider the role successor, is the most crucial one. We transform a part of the ABox into a QFBAPA formula and let a QFBAPA solver return solutions within a pre-computed upper bound. This upper bound can be computed after \cite{knapsack} and is in the complexity NP. To remain in PSpace we consider for the QFBAPA formula at most $N$ non-empty Venn region. This $N$, which is polynomial in the size of the formula, can be computed in polynomial time after the results of \cite{4},\cite{KuncakRinard}. Therefore our tableau algorithm remains also in PSpace. In Chapter 4 we proof that with the assumption, that we use a correct solver, the algorithm returns satisfiable only if the concept is indeed satisfiable.\\
-For future work one can extend the algorithm for $\mathcal{ALCSCC}$ concepts w.r.t. a TBox. In \cite{4} it is stated that the satisfiability problem w.r.t. a TBox is in ExpTime. One approach can be to add all information we can concluded from the TBox first i.e. if we have in a TBox $C\sqsubseteq D$ (says that every individual name in $C$ is also in $D$) and in an ABox $x:C$ then $x:D$ has to be added to the ABox. Then for each introduced individual name we have to do the same, too. The algorithm can also be extended for whole ABoxes, not only for one concept.
+The description logic $\mathcal{ALCSCC}$ extends the well-known description logic $\mathcal{ALCQ}$ with set constraints and cardinality constraint over role successors which hard to deal with when checking its satisfiability. We present a tableau algorithm which uses a QFBAPA solver to deal with the successors. It is shown that checking satisfiability for this DL is in PSpace, however the tableau algorithm runs in ExpSpace: We know that in each $successor$-rule application we can add in worse case exponential many successors as shown in Section 3.2. Each of the newly added successor is also capable of obtaining as many successors as its predecessor. The advantage of this approach is that we do not only return the statement about the satisfiability but also a satisfied interpretation, a model, for the concept.\\
+For future work one can extend the algorithm for $\mathcal{ALCSCC}$ concepts w.r.t. a TBox. In \cite{4} it is stated that the satisfiability problem w.r.t. a TBox is in ExpTime. One approach can be to add all information we can concluded from the TBox first i.e. if we have $C\sqsubseteq D$ (says that every individual name in $C$ is also in $D$) and $x:C$ then $x:D$ has to be added to the ABox, too. We have do the same for every freshly introduce individual name, too. One can also research for a tableau algorithm which does not use a QFBAPA solver. For that one has most likely to introduce blocking technique because like in for $\mathcal{ALCQ}$ and the $\mathcal{SI}$ families endless loops of adding and merging (or replacing) individual names is possible.
 \normalem
 \bibliographystyle{abbrv}
 \bibliography{ref}
