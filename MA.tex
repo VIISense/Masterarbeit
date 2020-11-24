@@ -334,8 +334,8 @@ Next we define the size of an $\mathcal{ALCSCC}$ concept $C$ inductively over co
 \end{itemize}
 
 \chapter{Tableau for $\mathcal{ALCSCC}$}
-To check whether a concept is satisfiable one can use a tableau algorithm. Even though the complexity of a tableau algorithm can grow exponentially the advantages of it is that it offers a possible satisfied interpretation, a \textit{witness}, for the given ABox if satisfiable. A Tableau-algorithm consists of completion rules to decide satisfiability an ABox. The rules are applied exhaustively on the set until none is applicable anymore. If a choice ends in a \textit{clash} then we back track to the point where we had to choose and take the other choice instead. If all choices end in a clash, then the ABox is unsatisfiable, otherwise it is satisfiable.\\
-We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not by applying the rules on the ABox $\mathcal{A}=\{x:C\}$.\\
+To check whether a concept is satisfiable one can use a tableau algorithm. Even though the complexity of a tableau algorithm can grow exponentially the advantages of it is that it offers a possible satisfied interpretation, a \textit{witness}, for the given ABox if satisfiable. A Tableau-algorithm consists of completion rules to decide satisfiability an ABox. The rules are applied exhaustively on the set until none is applicable anymore. Some rules gives the algorithm a choice to make like in case of disjunctions. If a choice ends in a \textit{clash} then we back track to the point where we had to choose and take the other choice instead. If all choices end in a clash, then the ABox is unsatisfiable, otherwise it is satisfiable.\\
+We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not by applying the rules on the ABox $\mathcal{A}=\{x:C\}$. We use the induced interpretation again for the soundness proof.\\
 To define \textit{clash} we first introduce \textit{induced interpretation} with which we count successors of any individual name after any rule application and hereby detect violated assertions.
 \begin{mydef}[Induced Interpretation]
 An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $\mathcal{A}$ by the following steps:
@@ -348,7 +348,7 @@ An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $\mathc
 \begin{mydef}[Violated assertion]
 Let $\mathcal{A}$ be an ABox, $x$ be an individual name, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion $x:succ(c)$ is \textit{violated} if $x^{\mathcal{I}(\mathcal{A})}\notin succ(c)^{\mathcal{I}(\mathcal{A})}$.
 \end{mydef}
-Like already mentioned an ABox is unsatisfiable if all choices end in a clash.
+Violated assertions are not necessary a clash, but if we can not apply any rules any more then we do not have the possibility to lift the violation. Therefore we define such situation \textit{also} as a clash, beside obvious contradictions.
 \begin{mydef}[Clash]
 An ABox $\mathcal{A}$ contains a \textit{clash} if
 \begin{itemize}
@@ -359,14 +359,19 @@ An ABox $\mathcal{A}$ contains a \textit{clash} if
 \end{itemize}
 \end{mydef}
 \section{Transforming an ABox into a formula}
-Dealing with numerical arithmetic is challenging and hence we use a QFBAPA solver whenever we want to add successors for an individual name $x$. For that we collect all $succ$-assertions regarding $x$ first and then transform them into a QFBAPA formula for the upper \textit{nested level}, which means we consider only the direct the successors of $x$ first. We assume that the ABox is already in $NNF$. As example we look at
-\begin{ex}[Example for transforming ABox into QFBAPA formula]
+One major difficulty of $\mathcal{ALCSCC}$ are the numerical arithmetic, the successor-assertion. Not only because the number of successors in a constraint can vary, but also in combination with \textit{nested levels} which denotes in which "generation" a successor lays. Recall that we describe the tableau algorithm to decide the satisfiability for an concept. 
+\begin{mydef}[Nested Level]
+Let $\mathcal{A}=\{x:C\}$ be an ABox. An individual name lays in the $i$-th nested level if it is the $i$-th individual name in a role chain beginning from $x$. The individual name $x$ is in the $0$th nested level. Every successor of $x$ are in the $1$st nested level. 
+\end{mydef}
+In some DLs we are able to describe the successor of a successor like $\exists r.(\exists r.C)$. But again in $\mathcal{ALCSCC}$ the bond of number for such assertion can vary. Hence we use a QFBAPA solver whenever we want to add successors for an individual name $x$. For that we collect all $succ$-assertions regarding $x$ first and then transform them into a QFBAPA formula for the next nested level, which means we consider only the direct successors of $x$ first. We assume that the ABox is already in $NNF$. As an example for the transformation we look at
+\begin{ex}
 \begin{align*}
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}
 \end{align*}
 with $\mathbf{C}=\{A,B,C\}$ and $\mathbf{R}=\{r\}$
 \end{ex}
-We first gather all $succ$-assertion regarding $x$ together and transform it into a formula by doing the following steps:
+In the example the first assertion says that $x$ must have at least one successor $y$ which has at least as many successors in $B\cap r$ as in $A$. The individual names for $succ(|A|\leq|B\cap r|)$ are on a different nested level than the ones for $succ(|A|\leq |B|)$. Also $x$ has at least as many successors in $B$ as in $A$. By the last conjunction we give the information that every successor must be an $r$-successor.\\
+We first gather all $succ$-assertion regarding $x$ together and transform the cardinality constraint into a formula by doing the following steps:
 \begin{itemize}
 \item replace all role names $r$ with $X_r$
 \item replace all concepts names $C$ with $X_C$
@@ -379,7 +384,7 @@ For our example we have five set variables: $X_A$, $X_B$, $X_r$, $X_{succ(|A|\le
 \begin{align}\label{f}
 \phi=1\leq |X_{succ(|A|\leq |B\cap r|)}|\wedge |X_A|\leq |X_B|\wedge \mathcal{U}=X_r
 \end{align}
-We only replace concepts on one \textit{nested level}. In the example the first assertion says that $x$ must have at least one successor $y$ which has at least as many successors in $B\cap r$ as in $A$. The concept $succ(|A|\leq|B\cap r|)$ is on a different \textit{nested level} than $succ(|A|\leq |B|)$. Also $x$ has at least as many successors in $B$ as in $A$. By the last conjunction we give the information that every successor must be an $r$-successor. We can now let the solver gives us a possible solution, if there is one.
+We can now let the solver gives us a possible solution, if there is one. For the QFBAPA solver we take two assumption about it such that we can work with it in the tableau algorithm.
 \begin{assumption}\label{assumption1}
 We assume that every considered QFABAPA solver is correct which means
 \begin{itemize}
@@ -391,7 +396,7 @@ We assume that every considered QFABAPA solver is correct which means
 Let $\phi$ be an arbitrary QFBAPA formula. We assume that every considered QFABAPA solver is able to return all possible solutions of $\phi$.
 \end{assumption}
 \section{Solution of a formula}
-For our algorithm we assume that we have a solver which can return all possible solutions. However there can be infinitely many solutions. Actually Example 1 can have infinitely many solutions: We can always increase the amount of successors in $B$ as long as we have fewer successors in $A$. However having that means that the tableau algorithm works on an infinite space and/or does not terminate. Therefore we want to only consider solutions inside some \textit{upper bounds}. For an \textit{Integer Linear Programming} (ILP) problem, which is described as a system of linear equalities, possible upper bounds are already investigated (like in \cite{knapsack}). Therefore we want to transform our formula into a linear system of equalities of the form $Ax=b$, where $A$ and $b$ describe our cardinality constraints and $x$ is the solution i.e. denotes the numbers of elements we have to assign to set variables to satisfy the formula. \\
+Since we make Assumption \ref{assumption2} there can be infinitely many solutions. Actually Example 1 can have infinitely many solutions: We can always increase the amount of successors in $B$ as long as we have fewer successors in $A$. However having that means that the tableau algorithm can work on an infinite space and/or might not terminate. Therefore we want to only consider solutions inside some pre-computed \textit{upper bounds}. For an \textit{Integer Linear Programming} (ILP) problem, which is described as a system of linear equalities, possible upper bounds are already investigated like in \cite{knapsack}, which solution we are going to use. Therefore we want to transform our formula into a linear system of equalities of the form $Ax=b$, where $A$ and $b$ describe our cardinality constraints and $x$ is the solution i.e. denotes the numbers of elements we have to assign to set variables to satisfy the formula. \\
 First, we notice that every inequality in a QFBAPA formula can be
 rewritten as $n_1\cdot|X_1|\pm \dots \pm n_i\cdot|X_i|\lesseqgtr I$, $\lesseqgtr\,\in\{\leq,\geq,=\}$, where $n_1,\dots, n_i,I\in\mathbb{Z}$ are a constants. The numbers $n_1,\dots,n_i$ are called \textit{pre-factors}. Let $c={succ(|A|\leq |B\cap r|)}$. We arrange $\phi$ in \eqref{f} into
 \begin{align}
@@ -399,9 +404,10 @@ rewritten as $n_1\cdot|X_1|\pm \dots \pm n_i\cdot|X_i|\lesseqgtr I$, $\lesseqgtr
 \end{align} 
 Then we change each inequalities into equalities by adding two slack variables $I_1$ and $I_2$:
 \begin{align}
-\phi^{\prime\prime}=|X_{c}|- I_1= 1\wedge |X_A|-|X_B|+I_2= 0 \wedge |\mathcal{U}\cap X_r^\neg|=0\wedge |\mathcal{U}^\neg\cap X_r|=0
+\phi^{\prime\prime}=&|X_{c}|- I_1= 1\wedge |X_A|-|X_B|+I_2= 0 \wedge \nonumber\\
+&|\mathcal{U}\cap X_r^\neg|=0\wedge |\mathcal{U}^\neg\cap X_r|=0
 \end{align}
-Right now it is not clear whether the set variables are overlapping or not. Therefore we consider \textit{Venn regions}, which are of the form $X^i_1\cap \dots \cap X^i_k$. The subscript $i$ denotes either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$. Since we have $5$ set variable, we have $2^5=32$ Venn regions. We already see that the number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in the size of $\phi$, such that at most $N$ Venn regions are not empty if there exists a solution.
+Right now it is not clear whether the set variables are overlapping or not which is a problem because for a system of linear equations the variables are always disjunct. Therefore we consider \textit{Venn regions}, which are of the form $X^i_1\cap \dots \cap X^i_k$. The subscript $i$ denotes either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$. Since we have $5$ set variable, we have $2^5=32$ Venn regions. We already see that the number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in the size of $\phi$, such that at most $N$ Venn regions are not empty if there exists a solution.
 \begin{mylem}[Lemma 3 from \cite{4}]
 For every QFBAPA formula $\phi$ a number $N$, which is polynomial in the size of $\phi$, can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that
 \begin{itemize}
@@ -409,7 +415,7 @@ For every QFBAPA formula $\phi$ a number $N$, which is polynomial in the size of
 \item $\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}\subseteq \{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}$
 \end{itemize}
 \end{mylem}
-Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regions, which are non-empty. In Example 1 we can already guess that any Venn region within $X_r^\neg$ or $\mathcal{U}^\neg$ must be empty, because every element must be in $\mathcal{U}$ and since $\mathcal{U}=X_r$ they must be all in $X_r$. Hence we can drop $24$ Venn regions. Therefore we construct $A$ and $b$ such that instead of assigning elements to set variables we assign them to the remaining $8$ Venn regions. That means for the vector $x$ the entry $x_k$, $1\leq k\leq 8$, denotes the number of elements in the $k$-th Venn region. Since we have four equations and two slack variables the matrix $A$ has four rows and $10$ columns with $a_{ij}$, $1\leq i\leq 4$ and $1\leq j\leq 10$, denoting the sum of the pre-factors of the set variables, in which the $j$-th Venn region is included in the $i$-th equation. Let the vectors for the Venn regions be in the following order:
+Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regions, which are non-empty. In Example 1 we can already guess that any Venn region within $X_r^\neg$ or $\mathcal{U}^\neg$ must be empty, because every element must be in $\mathcal{U}$ and since $\mathcal{U}=X_r$ they must be all in $X_r$. Hence we can drop $24$ Venn regions. Therefore we construct $A$ and $b$ such that instead of assigning elements to set variables we assign them to the remaining $8$ Venn regions. That means for the vector $x$ the entry $x_k$, $1\leq k\leq 8$, denotes the number of elements in the $k$-th Venn region. Since we have four equations and two slack variables the matrix $A$ has four rows and $10$ columns with $a_{ij}$, $1\leq i\leq 4$ and $1\leq j\leq 10$, denoting the sum of the pre-factors of the set variables, in which the $j$-th Venn region is included, occurring in the $i$-th equation. Let the vectors for the Venn regions be in the following order:
 \begin{itemize}
 \item $v_1=X_A\cap X_B\cap X_c\cap X_r\cap \mathcal{U}\cap I_1^\neg\cap I_2^\neg$
 \item $v_2=X_A\cap X_B\cap X_c^\neg\cap X_r\cap \mathcal{U}\cap I_1^\neg\cap I_2^\neg$
@@ -438,7 +444,7 @@ x_1\\x_2\\x_3\\x_4\\x_5\\x_6\\x_7\\x_8\\x_9\\x_{10}
 1&0&0&0
 \end{array}\right )
 \end{align*}
-Note that $a_{2,1}$ and $a_{2,2}$ are $0$ because the pre-factors of $|X_A|$ and $|X_B|$ in the second equation are $1$ and $-1$ and the Venn regions $v_1$ and $v_2$ are included both in $X_A$ and $X_B$. If $x_i=0$, then the Venn region $v_i$ is empty. The last two rows of $A$ are lines of zeros because we omit the Venn regions, in which $\mathcal{U}\cap X_r^\neg$ and $\mathcal{U}^\neg\cap X_r$ are included. However we do not loose information because the information is that those Venn regions must be empty.\\
+Note that $a_{2,1}$ and $a_{2,2}$ are $0$ because the pre-factors of $|X_A|$ and $|X_B|$ in the second equation are $1$ and $-1$ and the Venn regions $v_1$ and $v_2$ are included both in $X_A$ and $X_B$. If $x_i=0$, then the $i$-th Venn region is empty. The last two rows of $A$, which present the equations $|\mathcal{U}\cap X^\neg_r|=0$ and $|\mathcal{U}^\neg\cap X_r|=0$, are lines of zeros because we omit the Venn regions, in which $\mathcal{U}\cap X_r^\neg$ and $\mathcal{U}^\neg\cap X_r$ are included. However we do not loose information because the information is that those Venn regions must be empty.\\
 Going back to the upper bound problem: The following result from \cite{knapsack} can be used to establish an upper bound for the solution of the \textit{ILP} in NP:
 \begin{mythe}[Theorem 1 from \cite{knapsack}]\label{upper bound}
 Let $A\in \mathbb{Z}^m\times \mathbb{Z}^n$ be a matrix and $b\in\mathbb{Z}^m$ a vector. If $x\in\mathbb{N}^n$ is a solution of $Ax=b$, then there exists a solution $x^\prime$ such that all entries are integers between $0$ and $n\cdot (m\cdot max_{i,j}\{|a_{ij}|,|b_i|\})^{2\cdot m+1}$.
@@ -451,10 +457,10 @@ We take a look now in the proof of this theorem to understand how the solution i
 h^TA x = h^Tb
 \end{align*}
 \end{itemize}
-Therefore we are able to set an upper bound a priori for the solutions the QFBAPA solver returns. Furthermore we stay in PSpace after Lemma 1 because the calculation of the upper bound use $\leq N$ Venn regions.\\
+Therefore we are able to set an upper bound a priori for the solutions the QFBAPA solver returns, which is important for the termination proof.\\
 In our example the upper bound for all $x_i$ is $10\cdot (4\cdot max\{|1|,|-1|\})^{2\cdot 4+1}=2621440$, which means that we can discard any solution in which a Venn region has more than $2621440$ elements.
 \section{The Tableau Algorithm}\label{Tableau}
-Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. Hence we divide the algorithm in two parts: a boolean part, where the decomposition of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a QFBAPA formula. Then we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
+Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. That means we want to consider conjunctions and disjunctions first and then consider the transformation to a QFBAPA formula. Hence we divide the algorithm in two parts: a boolean part, where the decomposition of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a QFBAPA formula. In the second part we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
 \begin{mydef}[Tableau for $\mathcal{ALCSCC}$]
 The completion rules for a $\mathcal{ALCSCC}$ ABox $\mathcal{A}$ in $NNF$ are the following.\\
 Boolean part:
@@ -476,7 +482,7 @@ If the QFBAPA solver returns \textit{unsatisfiable}, then $\mathcal{A}:=\mathcal
 If the QFBAPA solver returns \textit{satisfiable}, then select one solution $\sigma$ with in the upper bound. For each $e\in\sigma(\mathcal{U})$, we introduce a new individual name $y_e$ and
 \begin{itemize}
 \item if $e\in X_C$ we set $\mathcal{A}:=\mathcal{A}\cup\{y_e:C\}$
-\item if $e\in X_{succ(c)}$ we have $\mathcal{A}=\mathcal{A}\cup\{y_e:succ(c)\}$
+\item if $e\in X_{succ(c)}$ we set $\mathcal{A}=\mathcal{A}\cup\{y_e:succ(c)\}$
 \item if $e\in X_r$, $r\in\mathbf{R}$, we set $\mathcal{A}:=\mathcal{A}\cup\{(x,y_e):r\}$
 \item if $e\notin X_C$ we set $\mathcal{A}:=\mathcal{A}\cup\{y_e:\neg C\}$
 \item if $e\notin X_{succ(c)}$ we set $\mathcal{A}:=\mathcal{A}\cup\{y_e: NNF(\neg succ(c))\}$
@@ -491,7 +497,7 @@ We present a possible run of this algorithm over the following ABox:
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C\}
 \end{align*}
 \end{ex}
-We are able to apply to apply the $\sqcap$-rule and hence we apply them first and derive the ABox in Example 1. Then neither the $\sqcap$- nor the $\sqcup$-rule is applicable. Therefore we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{S}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the QFBAPA formula in (3.1). The upper bound for that formula is 320 (see Section 3.2). If the formula have been unsatisfiable, we would add $x:\perp$ to our ABox. However since the formula is satisfiable we obtain a solution from the solver. We see that the formula is satisfiable with $X_{succ(|A|\leq |B\cap r|)}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$ i.e. every successor is a $r$-successor. Obviously in this solution every Venn-region has less element than 320. We then introduce for $e$ and $f$ two individual names $y_e$ and $y_f$ and the assertion $y_e:X_B$, $(x,y_e):r$, $y_f:succ(|A|\leq|B\cap r|)$ and $(x,y_f):r$ to $\mathcal{A}$. 
+We are able to apply to apply the $\sqcap$-rule and hence we apply them first and derive the ABox in Example 1. Then neither the $\sqcap$- nor the $\sqcup$-rule is applicable. Therefore we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{S}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the QFBAPA formula in (3.1). The upper bound for that formula is 2621440 (see Section 3.2). If the formula have been unsatisfiable, we would add $x:\perp$ to our ABox. this would have led us to the end of the tableau algorithm because this "choice" is the only one possible since we do not have any disjunction. However since the formula is satisfiable we obtain a solution from the solver because of Assumption \ref{assumption1}. We see that the formula is satisfiable with $X_{succ(|A|\leq |B\cap r|)}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$ i.e. every successor is a $r$-successor. The considered QFBAPA formula is capable of returning this solution because of Assumption \ref{assumption2}. Obviously in this solution every Venn-region has less element than 2621440. We then introduce for $e$ and $f$ two individual names $y_e$ and $y_f$ and the assertion $y_e:X_B$, $(x,y_e):r$, $y_f:succ(|A|\leq|B\cap r|)$ and $(x,y_f):r$ to $\mathcal{A}$. 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -505,7 +511,7 @@ We are able to apply to apply the $\sqcap$-rule and hence we apply them first an
 \path[->] (x) edge node[right] {$r$} (f);
 \end{tikzpicture}
 \end{figure}
-Then for $y_f$ we have to apply the $successor$-rule again. Note that no boolean rule is applicable. Since $y_f:succ(|A|\leq |B\cap r|)$ is the only $succ$ assertion we only have to add a successor of the concept $B\cap r$. We assume that the QFBAPA solver returns a solution $X_B=X_r=\{g\}$ and hereby introduce an individual name $y_g$ and add $y_g:B$ and $(x,y_g):r$ to $\mathcal{A}$.
+Then for $y_f$ we have to apply the $successor$-rule because no boolean rule is applicable. Since $y_f:succ(|A|\leq |B\cap r|)$ is the only $succ$ assertion we only have to add an $r$-successor of the concept $B$. We assume that the QFBAPA solver returns a solution $X_B=X_r=\{g\}$ and hereby introduce an individual name $y_g$ and add $y_g:B$ and $(x,y_g):r$ to $\mathcal{A}$.
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -522,7 +528,7 @@ Then for $y_f$ we have to apply the $successor$-rule again. Note that no boolean
 \path[->] (f) edge node[right] {$r$} (g);
 \end{tikzpicture}
 \end{figure}
-In both application of the $successor$-rule we assumed that the solve returns a solution with minimal elements. However note that bigger solutions leads to a clash-free complete ABox. The reason is that if $\mathcal{A}$ is satisfiable, then also every subset of $\mathcal{A}$, hence also $\mathcal{S}$. Because we assume that the QFBAPA solver runs correct it will always return a solution. Also note that the algorithm considers first all assertion of one individual name before consider the next one. In this procedure we do not add any assertions of individual names which are not freshly introduce. Hence if we applied all possible rules on the individual name $x$ and we do not have a clash, then all assertions of $x$ remains satisfied until the tableau algorithm ends. In the next chapter we provide a formal proof of the its correctness.
+In this procedure we do not add any assertions of individual names which are not freshly introduce. Hence if we applied all possible rules on the individual name $x$ and we do not have a clash, then all assertions of $x$ remains satisfied until the tableau algorithm ends. In the next chapter we provide a formal proof of the its correctness.
 \chapter{Correctness}
 For the correctness proof of the Tableau-algorithm we have to show that
 \begin{itemize}
@@ -653,7 +659,7 @@ Hence we can extend $\mathcal{I}$ by $y_e^\mathcal{I}=e$ which satisfies $\mathc
 \end{proof}
 \chapter{Conclusion}
 The description logic $\mathcal{ALCSCC}$ extends the well-known description logic $\mathcal{ALCQ}$ with set constraints and cardinality constraint over role successors which hard to deal with when checking its satisfiability. We present a tableau algorithm which uses a QFBAPA solver to deal with the successors. It is shown that checking satisfiability for this DL is in PSpace, however the tableau algorithm runs in ExpSpace: We know that in each $successor$-rule application we can add in worse case exponential many successors as shown in Section 3.2. Each of the newly added successor is also capable of obtaining as many successors as its predecessor. The advantage of this approach is that we do not only return the statement about the satisfiability but also a satisfied interpretation, a model, for the concept.\\
-For future work one can extend the algorithm for $\mathcal{ALCSCC}$ concepts w.r.t. a TBox. In \cite{4} it is stated that the satisfiability problem w.r.t. a TBox is in ExpTime. One approach can be to add all information we can concluded from the TBox first i.e. if we have $C\sqsubseteq D$ (says that every individual name in $C$ is also in $D$) and $x:C$ then $x:D$ has to be added to the ABox, too. We have do the same for every freshly introduce individual name, too. One can also research for a tableau algorithm which does not use a QFBAPA solver. For that one most likely has to introduce blocking technique because like in for $\mathcal{ALCQ}$ and the $\mathcal{SI}$ families endless loops of adding and merging (or replacing) individual names is possible.
+For future work one can extend the algorithm for $\mathcal{ALCSCC}$ concepts w.r.t. a TBox. In \cite{4} it is stated that the satisfiability problem w.r.t. a TBox is in ExpTime. One approach can be to add all information we can concluded from the TBox first i.e. if we have $C\sqsubseteq D$ (says that every individual name in $C$ is also in $D$) and $x:C$ then $x:D$ has to be added to the ABox, too. We have do the same for every freshly introduce individual name, too. One can also research for a tableau algorithm which does not use a QFBAPA solver. For that one most likely has to introduce blocking technique because like in for $\mathcal{ALCQ}$ and the $\mathcal{SI}$ families endless loops of adding and merging (or replacing) individual names is possible. Another interesting area to do research is the pre-computed upper bound. In this work the bound is exponentially large which is the reason for the ExpSpace complexity. If there exists a smaller upper bound one can run this algorithm in a smaller complexity.
 \normalem
 \bibliographystyle{abbrv}
 \bibliography{ref}
