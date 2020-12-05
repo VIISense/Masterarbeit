@@ -123,17 +123,17 @@ Imagine we want to add data entries for two people (Anna and Beth) to a traditio
 Popular use-cases for ontology-based systems are databases for biological and medical research \cite{bio}. As an example ontologies can be used to automatically fill in missing information about patients which are helpful in diagnostics. Another major use-case for ontologies is the \textit{Semantic Web}, which is an extension of the World Wide Web with standards given by the World Wild Web Consortium (W3C)\footnote{\url{https://www.w3.org/standards/semanticweb/}, last accessed on \today}. These standards allow a more effective way of combining information from different sources.
 \\
 An Ontology (in the field of computer science) can be viewed as formal representation of a certain domain of interest. The relationships between entities in an ontology-based database are formulated by a fragment of first-order logic (FOL). This fragment of FOL is called \textit{Description Logic (DL)} and is a family of knowledge representation systems. DLs mainly consist of concepts, which correspond to unary relations in FOL, and relations between the concepts, which correspond to binary relations in FOL. To create more complex (compound) concepts we can combine concepts by using operators like $\sqcap$, $\sqcup$, $\sqsubseteq$, $\exists$ and $\forall$. For example the statement "All Humans who have children are parents" can be formalized  in DL as $Human\sqcap \exists hasChild.\top \sqsubseteq Parent$, where $Human$ and $Parent$ are concept names and $hasChild$ is a role name. This statement can also be formalized with a a numerical restriction: $Human \,\sqcap \geq 1 hasChild.\top\sqsubseteq Parent$. A knowledge base consists of a \textit{TBox}, which contains the axioms, and an \textit{ABox}, which contains assertions about certain individual names (objects). \\ 
-The process of determining whether some statement can be concluded from a set of information is called \textit{reasoning}. Reasoning can be done by adding this statement in negated form (as an axiom or assertion) to the set of information (TBox or ABox) and then checking whether the updated knowledge base is now \textit{unsatisfiable}. If it is unsatisfiable the statement can be concluded from the information set. Being able to check the satisfiability of DL statements is therefore a valuable tool to conduct reasoning in ontology systems. The DL $\mathcal{ALCQ}$ \cite{1}\cite{6} has been investigated thoroughly and therefore we know a lot about its satisfiability. This DL allows conjunctions ($\sqcap$), disjunctions ($\sqcup$), negations $(\neg)$ and number restrictions ($\leq\,n\,r\, C$ and $\geq \, n\, r\, C$, where $n$ is a number, $r$ a role name and $C$ a concept name). The authors of  \cite{1} proved that checking satisfiability of a $\mathcal{ALCQ}$ concept without a TBox is in PSpace and otherwise in ExpTime.\\
-The DL $\mathcal{ALCSCC}$ \cite{4} extends $\mathcal{ALCQ}$ with \textit{set constraints} and \textit{cardinality constraints} over role successors, which use the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic)\cite{KuncakRinard}. Instead of the quantifiers $\exists$ and $\forall$ we use set expressions (Boolean Algebra) and numerical constraints (Presburger Arithmetic). For example $Human \sqcap \geq 1\,hasChild.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChild|\geq 1)\sqsubseteq Parent$. This DL is more expressive than $\mathcal{ALCQ}$ because every quantified restriction of the form $\leq\,n\,r.C$ or $\geq \, n\, r.C$ can be written in $\mathcal{ALCSCC}$ as $succ(|r\cap C|\leq 1)$ or $succ(|r\cap C|\geq 1)$ respectively. However a constraint like $succ(|r|=|s|)$ can not be formulated in $\mathcal{ALCQ}$ \cite{4}. Because of this extension checking satisfiability over $\mathcal{ALCSCC}$ becomes more complicated. Nevertheless the author in \cite{4} shows that the satisfiability problem for $\mathcal{ALCSCC}$ is still PSpace-complete.\\
+The process of determining whether some statement can be concluded from a set of information is called \textit{reasoning}. Reasoning can be done by adding this statement in negated form (as an axiom or assertion) to the set of information (TBox or ABox) and then checking whether the updated knowledge base is now \textit{unsatisfiable}. If it is unsatisfiable the statement can be concluded from the information set. Being able to check the satisfiability of DL statements is therefore a valuable tool to conduct reasoning in ontology systems. The DL $\mathcal{ALCQ}$ \cite{1}\cite{6} has been investigated thoroughly and therefore we know a lot about its satisfiability. This DL allows conjunctions ($\sqcap$), disjunctions ($\sqcup$), negations $(\neg)$ and number restrictions ($\leq\,n\,r\, C$ and $\geq \, n\, r\, C$, where $n$ is a number, $r$ a role name and $C$ a concept name). In \cite{1} Hollunder and Baader proved that checking satisfiability of a $\mathcal{ALCQ}$ concept without a TBox is in PSpace and otherwise in ExpTime.\\
+The DL $\mathcal{ALCSCC}$ \cite{4} extends $\mathcal{ALCQ}$ with \textit{set constraints} and \textit{cardinality constraints} over role successors, which use the logic of \textit{QFBAPA} (quantifier-free fragment of Boolean Algebra with Presburger Arithmetic)\cite{KuncakRinard}. Instead of the quantifiers $\exists$ and $\forall$ we use set expressions (Boolean Algebra) and numerical constraints (Presburger Arithmetic). For example $Human \sqcap \geq 1\,hasChild.\top\sqsubseteq Parent$ is written in $\mathcal{ALCSCC}$ as $Human\sqcap succ(|hasChild|\geq 1)\sqsubseteq Parent$. This DL is more expressive than $\mathcal{ALCQ}$ because every quantified restriction of the form $\leq\,n\,r.C$ or $\geq \, n\, r.C$ can be written in $\mathcal{ALCSCC}$ as $succ(|r\cap C|\leq 1)$ or $succ(|r\cap C|\geq 1)$ respectively. However a constraint like $succ(|r|=|s|)$ can not be formulated in $\mathcal{ALCQ}$ \cite{4}. Because of this extension checking satisfiability over $\mathcal{ALCSCC}$ becomes more complicated. Nevertheless in \cite{4} Baader has shown that the satisfiability problem for $\mathcal{ALCSCC}$ is still PSpace-complete.\\
 In this work we present a tableau algorithm for $\mathcal{ALCSCC}$. While a tableau algorithm leads to a runtime complexity worse than PSpace-complete the benefit of a tableau algorithm is that we gain a satisfied interpretation (a correct assignment without contradiction) of the concepts, which is also called \textit{witness}. A tableau algorithm consists of completion rules which are applied to the assertions of the ABox. By applying these rules new assertions that can be derived from the original assertions are added to the ABox. If we can no longer apply any rules and the ABox contains a contradiction, then the ABox is unsatisfiable. Otherwise it is satisfiable. The main difficulty in creating the completion rules for $\mathcal{ALCSCC}$ is that unlike in $\mathcal{ALCQ}$, the number of successor is not bounded. By adding role successors the cardinalities in a constraint can vary. For example if we have a constraint $succ(|r|=|s|)$ then the bound for the number of $s$-successors is equal to the number of $r$-successors we already have. During a tableau algorithm we can add, merge or replace $r$-successors which changes the bound for the number of $s$-successors. To deal with the changing cardinalities of $\mathcal{ALCSCC}$ we transform the assertions with cardinalities to a QFBAPA formula and use a QFBAPA solver to determine whether the formula is satisfiable or not. If the formula is not satisfiable, there must be a contradiction. If the solver returns a solution, we add new assertions accordingly. Since we use a solver that is capable of returning every possible solution, there can be an infinite number of solutions. We can show that we can shorten each of these solutions to a bound number of role successors without losing any information.
 \section{Related Works}
-In \cite{1} a \textit{tableau} algorithm is presented for checking satisfiability for an ABox in the DL $\mathcal{ALCQ}$. The satisfiability (of concepts) is stated in \cite{1} as a PSpace-hard problem. The algorithm in \cite{1} consists five rules which can be applied non-deterministically and in any order. Two of the rules are decomposing rules for $\sqcap$ and $\sqcup$. Another rule determines whether a successor of an individual name also contributes in any other numerical assertion, which helps to determine the exact number of each role successor. The last two rules are able to add and replace individual names. The twisted part here is, that an unless loop of adding and replacing invidual names is possible. therefore the author introduce a concept of \textit{safeness}, which has a similar purpose as blocking in other tableau algorithm. In \cite{pspace} an optimized Tableau-algorithm is presented which shows that it is a PSPACE-problem. The optimization is that instead of keeping $n$ successors to satisfy a restriction $\geq\,n\,r.C$ like in \cite{1}, the algorithm instead of saving all successors it only saves an integer which denotes the number of successors and by comparing the numbers detects possible \textit{clashes}.\\
-In \cite{2} two tableau algorithm are presented for $\mathcal{SHIF}$ concepts and $\mathcal{SI}$ concepts. The DL $\mathcal{SI}$ extends the DL $\mathcal{ALC}$ with transitive and inverse role names. The DL $\mathcal{SHIF}$ extends $\mathcal{SHIF}$ with role hierarchy and functional restriction. For both DL the tableau algorithms have to have some blocking technique to avoid infinite chain of introducing elements with the same assertions which can result from the transitive roles and inverse roles. For $\mathcal{SI}$ the tableau algorithm consider not only the successor but also the predecessor of the considered individual name whenever considering $\forall$-assertions. In case of $\exists$-assertions the algorithm first determinates whether the considered individual name $x$ is blocked or not. It is blocked when an ancestor (not directly a predecessor) is blocked or an ancestor has "similar" assertion as $x$. This algorithm runs in PSpace. For $\mathcal{SHIF}$ the tableau algorithm have to consider for every rule that the considered individual name $x$ is not pair-wise blocked. Being pair-wise blocked means that for an predecessor $y$ of $x$ there are two ancestora of $x$, such that they behave "similar" to $y$ and $x$. in \cite{alcqh} a DL called $\mathcal{SHQ}$ (also known $\mathcal{ALCQH}_{R^+}$ from the $SI$ family is presented. This DL does not have inverse role, but role hierarchy and numerical restriction. The problem here is that with numerical restriction an infinite chain of adding individual names can avoid the termination of the tableau algorithm. Hence a blocking technique is also used: An individual name $x$ blocks another individual name $y$ if $x$ was introduced before $y$ and if any assertion about $x$ holds for $y$, too. To deal with the number restriction a reasoner about set of linear inequations is used.\\
-Regarding the DL $\mathcal{ALCSCC}$, which is considered in this work, \cite{4} gives a solution for the satisfiability problem without TBox, which has the complexity PSpace-complete: For an ABox a part we guess the value (true or false) of the top-level atoms (concepts), which can already lead to a \textit{false} result, which means the ABox is unsatisfiable. If not, then the ABox is formulated into a QFBAPA formula. We then extend the formula with constraints over the \textit{Venn regions} of the concepts. For the new formula we test whether it returns true or false with a NP satisfiability algorithm for QFBAPA. If the test returns true we are done. If it returns false, we create for every guessed Venn region a concept corresponding to the Venn region. Then the algorithm is applied on this new concept recursively. If it return false, the ABox is unsatisfiable, otherwise satisfiable. For the satisfiability problem with a TBox a type elimination algorithm is presented.
+The tableau algorithm is a popular tool to solve the satisfiability problem for description logics. Hence a lot of research has been done trying to formulate tableau algorithms for different description logic languages. In \cite{1} Hollunder and Baader present a tableau algorithm for checking the satisfiability of an ABox in the DL $\mathcal{ALCQ}$. This satisfiability problem is PSpace-hard. The presented algorithm consists of five rules which can be applied to the ABox in non-deterministic order. Two of these rules are decomposing rules for $\sqcap$ and $\sqcup$. Furthermore there is a rule that decides whether a successor of an individual name also contributes in any other numerical assertion, which helps to determine the exact number of role successors. The last two rules add and replace individual names to the ABox according to the numerical restrictions. This is can lead to an endless loop of adding and replacing invidual names. To avoid endless loops the author introduces a concept of \textit{safeness}, which has a similar purpose as blocking in other tableau algorithms: Individual names can only be replaced if they fullfill the safeness criteria. In \cite{pspace} Tobies presented an optimized tableau algorithm for $\mathcal{ALCQ}$, which runs in PSpace. This optimization is achieved by saving an integer which denotes the number of successors already introduced to satisfy a restriction $\geq\,n\,r.C$, instead of keeping all $n$ possible successors.\\
+In \cite{2} Horrocks et al. published tableau algorithms for $\mathcal{SHIF}$ concepts and $\mathcal{SI}$ concepts. The DL $\mathcal{SI}$ extends the DL $\mathcal{ALC}$ with transitive and inverse role names. The DL $\mathcal{SHIF}$ further extends $\mathcal{SI}$ with role hierarchy and functional restriction. For both DLs the tableau algorithm has to have a blocking technique to avoid infinite chains of introducing elements with the same properties which can be caused by transitive or inverse roles. For $\mathcal{SI}$ the tableau algorithm does not only look at the successors but also the predecessors of the considered individual names when dealing with a $\forall$-assertion. In case of $\exists$-assertions the algorithm first determines whether the considered individual name $x$ is blocked or not. It is blocked if an ancestor (a non-direct predecessor) is blocked or if an ancestor has "similar" assertions as $x$. This algorithm runs in PSpace. For $\mathcal{SHIF}$ the tableau algorithm has to ensure that the considered individual name $x$ is not pair-wise blocked for any rule. Being pair-wise blocked means that for a predecessor $y$ of $x$ there are two ancestors of $x$, such that they behave "similar" to $y$ and $x$. In \cite{alcqh} a DL called $\mathcal{SHQ}$ (also known $\mathcal{ALCQH}_{R^+}$ from the $SI$ family is presented. This DL does not have inverse roles, but a role hierarchy and numerical restrictions. The difficulty of creating a tableau algorithm for this DL is that with numerical restrictions an infinite chain of adding individual names can prevent the termination of the algorithm. Hence a blocking technique is also needed to ensure termination: An individual name $x$ blocks another individual name $y$ if $x$ was introduced before $y$ and if any assertion about $x$ also holds for $y$. To deal with the number restrictions a reasoner about sets of linear inequations is used.\\
+Regarding the DL $\mathcal{ALCSCC}$, which is considered in this work, Baader provides a solution for the satisfiability problem without a TBox in \cite{4}, which is PSpace-complete: For a part of the Abox we guess the values (true or false) of the top-level atoms (concepts). This can already lead to a \textit{false} result, which would mean that the ABox is unsatisfiable. If not, then the ABox is formulated into a QFBAPA formula. Then the formula is extended with constraints over the \textit{Venn regions} of the concepts. For the new formula we test whether it returns true or false with a satisfiability algorithm for QFBAPA. This satisfiability algorithm runs in NP. If the algorithm returns true we are done. If it returns false, we create a concept for every guessed Venn region. Then the algorithm is applied on these new concepts recursively. If it return false, the ABox is unsatisfiable, otherwise satisfiable.
 \chapter{Preliminaries}
-Before we define the DL $\mathcal{ALCSCC}$ we have to explain first how the language QFBAPA looks like. 
+In order to be able to follow the construction of the tableau algorithm for $\mathcal{ALCSCC}$ this section provides a number of important definitions on QFBAPA and $\mathcal{ALCSCC}$. 
 \section{QFBAPA}
-The logic QFBAPA \cite{KuncakRinard} combines boolean algebra (BA) over a sets of symbols with Presburger arithmetic (PA). A \textit{term} of a boolean algebra over a symbol set $T$ is a conjunction ($\cap$) and/or disjunction ($\cup$) of symbols, which are possibly negated ($s^\neg$, $s\in T$). A term of the Presburger arithmetic are additions of natural numbers. In QFBAPA we construct \textit{set terms} after the boolean algebra and create \textit{cardinality terms} over those set terms with help of the Presburger arithmetic. Since we can construct multiplication with the help of additions, multiplication of cardinality terms is also included. Over the terms we can construct \textit{constraints} in this logic: We can state inclusions of set terms and compare cardinality terms. The formal definition follows.
+The logic QFBAPA \cite{KuncakRinard} combines boolean algebra (BA) over a sets of symbols with Presburger arithmetic (PA). \textit{Terms} in boolean algebra over a symbol set $T$ are comprised of conjunctions ($\cap$) and/or disjunctions ($\cup$) of symbols. These symbols can also be used in negated form ($s^\neg$, $s\in T$). \textit{Terms} in Presburger arithmetic are additions of natural numbers. In QFBAPA we construct \textit{set terms} using boolean algebra and create \textit{cardinality terms} over the cardinalities of those set terms with the help of Presburger arithmetic. As multiplications can be constructed as chained additions, we also allow multiplication in cardinality terms. QFBAPA allows the construction of inclusion and comparison constrains over set and cardinality terms. This is defined as:
 \begin{mydef}[QFBAPA]
 Let $T$ be a finite set of symbols
 \begin{itemize}
@@ -142,7 +142,7 @@ Let $T$ be a finite set of symbols
 \item empty set $\emptyset$ and universal set $
 \mathcal{U}$
 \item every set symbol in $T$
-\item if $s,t$ are set terms then also $s\cap t$, $s\cup t$ and $s^{\neg}$
+\item if $s,t$ are set terms then so are $s\cap t$, $s\cup t$ and $s^{\neg}$
 \end{itemize}
 \item set constraints over $T$ are
 \begin{itemize}
@@ -154,28 +154,28 @@ where $s,t$ are set terms
 \begin{itemize}
 \item every number $n\in \mathbb{N}$
 \item $|s|$ if $s$ is a set term
-\item if $k,l$ are cardinality terms then also $k+l$ and $n\cdot k$, $n\in \mathbb{N}$
+\item if $k,l$ are cardinality terms then so are $k+l$ and $n\cdot k$, $n\in \mathbb{N}$
 \end{itemize}
 \item cardinality constraints over $T$ are:
 \begin{itemize}
 \item $k=l$ and $k\neq l$
 \item $k<l$ and $k\geq l$
 \item $k\leq l$ and $k>l$
-\item $n$ $dvd$ $k$ and $n$ $\neg dvd$ $k$
+\item $n$ $dvd$ $k$ and $n$ $\neg dvd$ $k$ ($n$ $dvd$ $k$: $n$ divides $k$)
 \end{itemize}
 where $k,l$ are cardinality terms and $n\in\mathbb{N}$
 \end{itemize}
-A $QFBABA$ formula $\phi$ is a disjunction ($\vee$) and conjunction ($\wedge$) of (also possible negated) cardinality constraints, where every set symbol is represented as a set variable.
 \end{mydef}
-Since $s\subseteq t$ can be expressed as the cardinality constraint $|s\cap t^\neg|\leq 0$ we will not consider any set constraints further in this work. In case we want to express $x:succ(s=t)$, with $s,t$ being set terms, we write instead $x:succ(|s\cap t^\neg|\leq 0)\sqcap succ(|s^\neg\cap t|\leq 0)$. Furthermore instead of $l\geq k$ we write $k\leq l$, instead of $k<l$ we write $k+1\leq l$ and instead of $k=l$ we write $k\leq l$ and $l\leq k$.\\
-For an example we have a set of symbols $T=\{l, a, n, e, f\}$ and some constraints like $|l|=2$, $|l|=|a|$, $|e\cap f^\neg|=0$, $|n\cap f^\neg|=0$. We can connect those constraints to one formula 
-\begin{equation}
+A QFBAPA formula $\phi$ consists of disjunctions ($\vee$) and/or conjunctions ($\wedge$) of (possible negated) cardinality constraints, where every set symbol is represented as a set variable.\\
+Set constraints of the form $s\subseteq t$ can be expressed as cardinality constraints like $|s\cap t^\neg|\leq 0$. Analogously $s\not\subseteq t$ can be expressed as $|s\cap t^\neg|> 0$. Set constraints of the form $s=t$ can be written as $|s\cap t^\neg|\leq 0$ and $|s^\neg\cap t|\leq 0$. Analogously for $s\neq t$. As all set constraints can be written as cardinality constraints we will not use them any further. For better readability we write $k\leq l$ instead of $l\geq k$, $k+1\leq l$  instead of $k<l$ and $k\leq l$ and $l\leq k$ instead of $k=l$.\\
+As an example for a QFBAPA formula consider the symbols $T=\{l, a, n, e, f\}$ and the constraints $|l|=2$, $|l|=|a|$, $|e\cap f^\neg|=0$, $|n\cap f^\neg|=0$. A formula can be written as: 
+\begin{equation}\label{qfbapa}
 |l|=2\wedge|l|=|a|\wedge |e\cap f^\neg|=0\wedge |n\cap f^\neg|=0
 \end{equation}
-To satisfy the formula we have to create a semantic for it such that all cardinality constraint are true (since all constraint are connected with $\wedge$). In our case we would need two elements which are in the semantic of $l$, hence also two elements in the semantic of $a$.\\
-The semantics of QFBAPA, called substitutions, is defined as follows:
+To satisfy this formula we have to create a semantic that satisfies all cardinality constraints (since all constraints are connected with $\wedge$). In this case we need two elements which are in the semantic of $l$ and therefore also two elements in the semantic of $a$.\\
+The semantics of QFBAPA, called substitutions, are defined as follows:
 \begin{mydef}[Substitutions of QFBAPA]
-A substituations $\sigma$ of a over a symbol set $T$ is a mapping that assign
+A substitution $\sigma$ over a symbol set $T$ is a mapping that assigns
 \begin{itemize}
 \item $\mathcal{U}$ to a finite set $\sigma(\mathcal{U})$
 \item every symbol $a$ in $T$ to $\sigma(a)\subseteq\sigma(\mathcal{U})$
@@ -191,8 +191,8 @@ Given cardinality terms $k,l$ we say that $\sigma$ satisfies
 \item $n\,dvd\,l$ iff $\exists m\in\mathbb{N}:n\cdot m = \sigma(l)$
 \end{itemize}
 \end{mydef}
-The substitution $\sigma$ is a solution of a QFBAPA formula $\phi$ if the formula with $\sigma$ can be evaluated to $\top$. A QFBAPA formula is satisfiable if it has a solution $\sigma$ and is unsatisfiable otherwise.\\
-A solution to (2.1) can the following: Let $\sigma(\mathcal{U})=\{\text{leg1, leg 2, arm1, arm 2, nose, ear1, ear2}\}$ and:
+The substitution $\sigma$ is a solution of a QFBAPA formula $\phi$ if it evaluates the formula to $\top$. A QFBAPA formula is satisfiable if it has a solution $\sigma$ and is unsatisfiable otherwise.\\
+For our example (\ref{qfbapa}) a possible solution $\sigma$ is: Let $\sigma(\mathcal{U})=\{\text{leg1, leg 2, arm1, arm 2, nose, ear1, ear2}\}$ and:
 \begin{figure}[H]
 \begin{minipage}[t]{0.5\textwidth}
 \raggedright
@@ -210,41 +210,41 @@ A solution to (2.1) can the following: Let $\sigma(\mathcal{U})=\{\text{leg1, le
 \end{itemize}
 \end{minipage}
 \end{figure}
-The interpretation satisfies the formula because $\sigma(|l|)=2=\sigma(|k|)$ and $\sigma(|n\cap f^\neg|)=0$ and $\sigma(|e\cap f^\neg|)=0$.\\
-Now we can interpret our formula as 
+This interpretation satisfies the formula because $\sigma(|l|)=2=\sigma(|k|)$, $\sigma(|n\cap f^\neg|)=0$ and $\sigma(|e\cap f^\neg|)=0$.\\
+Now we can interpret our formula as: 
 \begin{itemize}
 \item we have 2 legs
 \item we have as many legs as arms
 \item nose and two ears are both in the same set hence they belong to a common body part (face)
 \end{itemize}
-In \cite{KuncakRinard} it is shown that checking satisfiability of QFBAPA formulas is a NP-complete problem.
+In \cite{KuncakRinard} Kuncak and Rincard show that checking satisfiability of QFBAPA formulas is a NP-complete problem.
 \section{$\mathcal{ALCSCC}$}
-Next we define the description logic $\mathcal{ALCSCC}$ \cite{4}. Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
+Next we define the parts and semantics of the description logic $\mathcal{ALCSCC}$ \cite{4}. Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
-$\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ are defined inductively:
+$\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ are defined inductively as:
 \begin{itemize}
-\item all concept names
-\item if $C,D$ are $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ then:
+\item all concept names in $\mathbf{C}$
+\item if $C,D$ are $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ then so are:
 \begin{itemize}
 \item $\neg C$
-\item $C\sqcup D$
+\item $C\sqcup D$ 
 \item $C\sqcap D$
 \end{itemize}
-\item if $c$ is a QFBAPA cardinality constraint over a set $T$ of role names in $\mathbf{R}$ and $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ then $succ(c)$ is a $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$
+\item if $c$ is a QFBAPA cardinality constraint over a set $T$ of role names in $\mathbf{R}$ and $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ then $succ(c)$ is an $\mathcal{ALCSCC}$ concept over $\mathbf{C}$ and $\mathbf{R}$
 \end{itemize}
 \end{mydef}
 An $\mathcal{ALCSCC}$ ABox $\mathcal{A}$ is a finite set of assertions of the form $x:C$ and $(x,y):r$, where $C$ is a $\mathcal{ALCSCC}$ concept, $r\in\mathbf{R}$ and $x,y$ are individual names. The set $I(\mathcal{A})$ is the set of individual names occurring in $\mathcal{A}$.\\
-Regarding our QFBAPA example 2.1 we can now construct an ABox of specific individual names, in which we describe their bodies. Let $\mathbf{C}=\{Legs,Arms,Female\}$ and $\mathbf{R}=\{bodyParts\}$. A possible ABox, which states that an individual name \textit{Anna} has two legs and two arms and is female, is 
+Regarding our QFBAPA example (\ref{qfbapa}) we can now construct an ABox of specific individual names. Let $\mathbf{C}=\{Legs, Arms, Female\}$ and $\mathbf{R}=\{bodyParts\}$. A possible ABox, which states that an individual name \textit{Anna} has two legs and two arms and is female, is:
 \begin{equation}
 \{Anna:succ(|Legs\cap bodyParts|=2)\sqcap succ(|Legs|=|Arms|)\sqcap Female\}
 \end{equation}
-Similar to the substitutions for QFBAPA we define now the semantics, called interpretations, for $\mathcal{ALCSCC}$
+Similar to the substitutions for QFBAPA we now define the semantics for $\mathcal{ALCSCC}$ which are called interpretations.
 \begin{mydef}[Interpretations of $\mathcal{ALCSCC}$]
 An \textit{interpretation} $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ over an $\mathcal{ALCSCC}$ ABox $\mathcal{A}$ consists of a non-empty set $\Delta^\mathcal{I}$ and a mapping $\cdot^\mathcal{I}$ which maps:
 \begin{itemize}
 \item each individual name $x\in I(\mathcal{A})$ to $x^\mathcal{I}\in \Delta^\mathcal{I}$
-\item every concept names $A\in\mathbf{C}$ to $A^\mathcal{I}\subseteq \Delta^\mathcal{I}$
-\item every role name $r\in\mathbf{R}$ to $r^\mathcal{I}\subseteq\Delta^\mathcal{I}\times\Delta^\mathcal{I}$, such that every element in $\Delta^\mathcal{I}$ has a finite number of successors.
+\item each concept name $A\in\mathbf{C}$ to $A^\mathcal{I}\subseteq \Delta^\mathcal{I}$
+\item each role name $r\in\mathbf{R}$ to $r^\mathcal{I}\subseteq\Delta^\mathcal{I}\times\Delta^\mathcal{I}$, such that every element in $\Delta^\mathcal{I}$ has a finite number of successors.
 \end{itemize}
 The set $r^\mathcal{I}(x)$ contains all elements $y$ such that $(x,y)\in r^\mathcal{I}$ i.e. it contains all $r$-successors of $x$.\\
 For compound concepts the mapping $\cdot^\mathcal{I}$ is extended inductively as follows
@@ -269,38 +269,38 @@ We can define a model $\mathcal{I}$ of the ABox defined in (2.2) by setting $\De
 \item $bodyPart^\mathcal{I}=\{(Anna,Leg1),(Anna,Leg2), (Anna,Arm1), (Anna,Arm2)\}$
 \end{itemize}
 By mapping $Anna$ to $Anna^\mathcal{I}$, $Leg1$ to $Leg1^\mathcal{I}$ and so on we see that this interpretation satisfies the ABox: $Anna^\mathcal{I}$ is indeed in $succ(|Legs\cap bodyParts|=2)^\mathcal{I}$ because $Leg1^\mathcal{I},Leg2^\mathcal{I}\in bodyPart^{\mathcal{I}_{Anna}}\cap Leg^{\mathcal{I}_{Anna}}$. Analogously for the second $succ$-assertion.\\
-Lastly we define the \textit{negated normal form} (NNF) of $\mathcal{ALCSCC}$. By transforming all concept into $NNF$ we avoid nested negation e.g. $\neg(\neg(\neg(A\cup B)))$ which helps to formulate the rules for the Tableau algorithm.
+Next we define the \textit{negated normal form} (NNF) for $\mathcal{ALCSCC}$. By transforming all concepts into $NNF$ we avoid nested negations e.g. $\neg(\neg(\neg(A\cup B)))$ which helps to formulate the rules for the tableau algorithm.
 \begin{mydef}[Negation Normal Form]
-A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ appears only in front of a concept name or above a role name. Let $C$ be a arbitrary $\mathcal{ALCSCC}$ concept. With $NNF(C)$ we denote the concept which is obtained by applying the rules below on $C$ until none is applicable anymore.
+A $\mathcal{ALCSCC}$ concept is in \textit{negation normal form} ($NNF$) if the negation sign $\neg$ only appears in front of a concept name or above a role name. Let $C$ be an arbitrary $\mathcal{ALCSCC}$ concept. With $NNF(C)$ we denote the concept which is obtained by applying the the following rules on $C$ until none of them are applicable anymore.
 \begin{figure}[H]
 \begin{minipage}[t]{.5\textwidth}
 \raggedright
 \begin{itemize}
-\item $\neg\top$ $\rightarrow$ $\perp$
-\item $\neg\perp$ $\rightarrow$ $\top$
-\item $\neg\neg C$ $\rightarrow$ $C$
-\item $\neg(C\sqcap D)$ $\rightarrow$ $\neg C \sqcup \neg D$
-\item $\neg(C\sqcup D)$ $\rightarrow$ $\neg C \sqcap \neg D$
-\item $C^\neg$ $\rightarrow$ $\neg C$
-\item $\neg succ(c)$ $\rightarrow$ $succ(\neg c)$
+\item[1] $\neg\top$ $\rightarrow$ $\perp$
+\item[2] $\neg\perp$ $\rightarrow$ $\top$
+\item[3] $\neg\neg C$ $\rightarrow$ $C$
+\item[4] $\neg(C\sqcap D)$ $\rightarrow$ $\neg C \sqcup \neg D$
+\item[5] $\neg(C\sqcup D)$ $\rightarrow$ $\neg C \sqcap \neg D$
+\item[6] $C^\neg$ $\rightarrow$ $\neg C$
+\item[7] $\neg succ(c)$ $\rightarrow$ $succ(\neg c)$
 \end{itemize}
 \end{minipage}% <---------------- Note the use of "%"
 \begin{minipage}[t]{.5\textwidth}
 \raggedleft
 \begin{itemize}
-\item $\neg (k\leq l)$ $\rightarrow$ $l\leq k$
-\item $\neg (n\text{ } dvd \text{ } k)$ $\rightarrow$ $n\text{ } \neg dvd \text{ } k$
-\item $\neg (n\text{ } \neg dvd \text{ } k)$ $\rightarrow$ $n\text{ } dvd \text{ } k$
-\item $(s\cap t)^\neg$ $\rightarrow$ $s^\neg \cup t^\neg$
-\item $(s\cup t)^\neg$ $\rightarrow$ $s^\neg \cap t^\neg$
-\item $(s^\neg)^\neg$ $\rightarrow$ $s$
+\item[8] $\neg (k\leq l)$ $\rightarrow$ $l\leq k$
+\item[9] $\neg (n\text{ } dvd \text{ } k)$ $\rightarrow$ $n\text{ } \neg dvd \text{ } k$
+\item[10] $\neg (n\text{ } \neg dvd \text{ } k)$ $\rightarrow$ $n\text{ } dvd \text{ } k$
+\item[11] $(s\cap t)^\neg$ $\rightarrow$ $s^\neg \cup t^\neg$
+\item[12] $(s\cup t)^\neg$ $\rightarrow$ $s^\neg \cap t^\neg$
+\item[13] $(s^\neg)^\neg$ $\rightarrow$ $s$
 \end{itemize}
 \end{minipage}
 \end{figure}
 \end{mydef}
-The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. It can be transformed into $\neg C$: For every interpretation $\sigma$ for a concept $C$ based on QFBAPA we have $\sigma(C^\neg)=\sigma(\mathcal{U})\backslash \sigma(C)$ and for every interpretation $\mathcal{I}$ based on $\mathcal{ALCSCC}$ we have $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\sigma(\mathcal{U})\subseteq \Delta^\mathcal{I}$ we can conclude that every element in $\sigma(C^\neg)$ is also in $(\neg C)^\mathcal{I}$.\\
-The first five rules on the left hand side can be applied in linear time \cite{1},\cite{6}. The first four rules on the right hand side and the rules $C^\neg\rightarrow \neg C$ and $\neg succ(c)\rightarrow succ(\neg c)$ can also be applied in linear time since we only shift the negation sign. The rule $(s^\neg)^\neg\rightarrow s$ works similarly to $\neg\neg C\rightarrow C$ and the rules $(s\cap t)^\neg\rightarrow s^\neg\cup t^\neg$ and $(s\cup t)^\neg\rightarrow s^\neg \cap t^\neg$ works similarly to $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$ and $\neg(C\sqcap D)\rightarrow \neg C\sqcup \neg D$. Therefore all of them can also be applied in linear time.\\
-Regarding the normal form we also replace in every $succ(c)$ concept every disjunction and conjunction in form as $\sqcap$ and $\sqcup$ with $\cap$ and $\cup$. We can do this because for an arbitrary interpretation $\mathcal{I}$ for each $x,y\in\Delta^\mathcal{I}$ we have $y\in (C\sqcap D)^{\mathcal{I}_x}$ iff $y\in(C\cap D)^{\mathcal{I}_x}$:
+The rule $C^\neg\rightarrow \neg C$ is necessary because $C^\neg$ can be a result of $s^\neg$, where $s$ is a set term. $C^\neg$ can be transformed into $\neg C$: For every substitution $\sigma$ for a concept $C$ based on QFBAPA it holds that $\sigma(C^\neg)=\sigma(\mathcal{U})\backslash \sigma(C)$ and for every interpretation $\mathcal{I}$ based on $\mathcal{ALCSCC}$ it holds that $(\neg C)^\mathcal{I}=\Delta^\mathcal{I}\backslash C^\mathcal{I}$. Since $\sigma(\mathcal{U})\subseteq \Delta^\mathcal{I}$ we can conclude that every element in $\sigma(C^\neg)$ is also in $(\neg C)^\mathcal{I}$.\\
+All rules used to obtain the NNF can be applied in linear time. For rules 1-5 this is shown in \cite{1},\cite{6}. For rules 6-11 this can be shown analogously because we only shift the negation signs. Rules 11, 12 and 13 work similarly to rules 4, 5 and 3 respectively.\\
+Regarding the normal form we additionally replace every disjunction and conjunction in form as $\sqcap$ and $\sqcup$ in every $succ(c)$ concept with $\cap$ and $\cup$. We can do this because for an arbitrary interpretation $\mathcal{I}$ for each $x,y\in\Delta^\mathcal{I}$ it holds that $y\in (C\sqcap D)^{\mathcal{I}_x}$ iff $y\in(C\cap D)^{\mathcal{I}_x}$:
 \begin{figure}[H]
 \begin{minipage}[t]{0.8\textwidth}
 \begin{align*}
@@ -322,7 +322,7 @@ Regarding the normal form we also replace in every $succ(c)$ concept every disju
 \end{align*}
 \end{minipage}
 \end{figure}
-Next we define the size of an $\mathcal{ALCSCC}$ concept $C$ inductively over concepts, set terms and cardinality constraints. The size is important for the termination proof.
+Next we define the size of an $\mathcal{ALCSCC}$ concept $C$ inductively over concepts, set terms and cardinality constraints. This definition is necessary for the termination proof.
 \begin{itemize}
 \item $size(r)=size(C)=1$ if $r\in\mathbf{R}$, $C\in\mathbf{C}$
 \item $size(n)=size(|k|)=1$ if $n\in\mathbb{N}$, $k$ cardinality term
@@ -336,23 +336,22 @@ Next we define the size of an $\mathcal{ALCSCC}$ concept $C$ inductively over co
 1+size(l)& c= n\,dvd\,l
 \end{cases}$
 \end{itemize}
-
 \chapter{Tableau for $\mathcal{ALCSCC}$}
-To check whether a concept is satisfiable one can use a tableau algorithm. Even though the complexity of a tableau algorithm can grow exponentially the advantages of it is that it offers a possible satisfied interpretation, a \textit{witness}, for the given ABox if satisfiable. A Tableau-algorithm consists of completion rules to decide satisfiability an ABox. The rules are applied exhaustively on the set until none is applicable anymore. Some rules gives the algorithm a choice to make like in case of disjunctions. If a choice ends in a \textit{clash} then we back track to the point where we had to choose and take the other choice instead. If all choices end in a clash, then the ABox is unsatisfiable, otherwise it is satisfiable.\\
-We want to use the Tableau-algorithm to check whether an assertion $x:C$ is satisfiable or not by applying the rules on the ABox $\mathcal{A}=\{x:C\}$. We use the induced interpretation again for the soundness proof.\\
-To define \textit{clash} we first introduce \textit{induced interpretation} with which we count successors of any individual name after any rule application and hereby detect violated assertions.
+The tableau algorithm is a popular tool to check satisfiability. Even though the complexity of tableau algorithms can grow exponentially one advantage of them is that they do not only check if an Abox is satisfiable but also return an interpretation that satisfies this ABox (\textit{witness}) if one exists. A tableau algorithm consists of completion rules that are used to iteratively add new assertions to the ABox that are derived from pre-existing assertions. These rules are exhaustively applied to the Abox until there are no more applicable rules. For some completion rules like the rule for disjunctions ($x:C\sqcap D$), the algorithm can decide which assertion is added to the ABox (either $x:C$ or $x:D$). If such a choice results in a \textit{clash} the algorithm back tracks to the point of the decision and tries an alternative choice instead. If all choices end in a clash, then the ABox is unsatisfiable.\\
+Before \textit{clashes} can be defined we first need to introduce the concept of \textit{induced interpretations}. Induced interpretations can be used to count the number of successors of any individual name after any rule application and hereby detect \textit{violated assertions}.
 \begin{mydef}[Induced Interpretation]
-An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $\mathcal{A}$ by the following steps:
+An interpretation $\mathcal{I}(\mathcal{A})$ can be induced from an ABox $\mathcal{A}$ through the following steps:
 \begin{itemize}
 \item for each individual name $x\in I(\mathcal{A})$ we introduce $x^{\mathcal{I}(\mathcal{A})}$ and add it to $\Delta^{\mathcal{I}(\mathcal{A})}$
 \item for each $x:C$ such that $C$ is a concept name we add $x^{\mathcal{I}(\mathcal{A})}$ to $C^{\mathcal{I}(\mathcal{A})}$
 \item for each $(x,y):r$ such that $r$ is a role name we add $(x^{\mathcal{I}(\mathcal{A})},y^{\mathcal{I}(\mathcal{A})})$ to $r^{\mathcal{I}(\mathcal{A})}$
 \end{itemize}
 \end{mydef}
+
 \begin{mydef}[Violated assertion]
-Let $\mathcal{A}$ be an ABox, $x$ be an individual name, $k$ be a cardinality term and $n\in\mathbb{N}$. An assertion $x:succ(c)$ is \textit{violated} if $x^{\mathcal{I}(\mathcal{A})}\notin succ(c)^{\mathcal{I}(\mathcal{A})}$.
+Let $\mathcal{A}$ be an ABox and $x$ be an individual name in $I(\mathcal{A)}$. An assertion $x:succ(c)$ is \textit{violated} if $x^{\mathcal{I}(\mathcal{A})}\notin succ(c)^{\mathcal{I}(\mathcal{A})}$.
 \end{mydef}
-Violated assertions are not necessary a clash, but if we can not apply any rules any more then we do not have the possibility to lift the violation. Therefore we define such situation \textit{also} as a clash, beside obvious contradictions.
+Violated assertions can sometimes be resolved by applying further completion rules. However if we find a violated assertion and can no longer apply any rules there is a clash. Aside from unresolvable violated assertions there are other kinds of situations that are also labelled as clashes. 
 \begin{mydef}[Clash]
 An ABox $\mathcal{A}$ contains a \textit{clash} if
 \begin{itemize}
@@ -363,19 +362,19 @@ An ABox $\mathcal{A}$ contains a \textit{clash} if
 \end{itemize}
 \end{mydef}
 \section{Transforming an ABox into a formula}
-One major difficulty of $\mathcal{ALCSCC}$ are the numerical arithmetic, the successor-assertion. Not only because the number of successors in a constraint can vary, but also in combination with \textit{nested levels} which denotes in which "generation" a successor lays. Recall that we describe the tableau algorithm to decide the satisfiability for an concept. 
+One major difficulty of creating a tableau algorithm for $\mathcal{ALCSCC}$ is its numerical arithmetic in the form of successor-assertions. The application of rules can change the number of successors which can in turn influence the number of successors that are demanded by certain constraints. Furthermore it introduces the problem of \textit{nested} successor assertions.
 \begin{mydef}[Nested Level]
-Let $\mathcal{A}=\{x:C\}$ be an ABox. An individual name lays in the $i$-th nested level if it is the $i$-th individual name in a role chain beginning from $x$. The individual name $x$ is in the $0$th nested level. Every successor of $x$ are in the $1$st nested level. 
+Let $\mathcal{A}=\{x:C\}$ be an ABox. An individual name lays in the $i$-th nested level if it is the $i$-th individual name in a role chain beginning from $x$, where the individual name $x$ is in the $0$th nested level. A direct successor of $x$ is in the $1$st nested level. 
 \end{mydef}
-In some DLs we are able to describe the successor of a successor like $\exists r.(\exists r.C)$. But again in $\mathcal{ALCSCC}$ the bond of number for such assertion can vary. Hence we use a QFBAPA solver whenever we want to add successors for an individual name $x$. For that we collect all $succ$-assertions regarding $x$ first and then transform them into a QFBAPA formula for the next nested level, which means we consider only the direct successors of $x$ first. We assume that the ABox is already in $NNF$. As an example for the transformation we look at
-\begin{ex}
+In some DLs we are able to describe the successor of a successor like $\exists r.(\exists r.C)$, such that the number of needed successors is fixed. However in $\mathcal{ALCSCC}$ such boundaries can vary like in $x:succ(|succ(|A|<|B|)|>|A|)$. The number of successors needed to satisfy $succ(|A|<|B|)$ depends on how many successors $x$ already has in $A$. By applying rules the number of successors for $x$ in $A$ can change. Hence we use a QFBAPA solver whenever we want to add successors for an individual name $x$. To do this we first collect all $succ$-assertions regarding $x$ and then transform them into a QFBAPA formula for the next nested level, which means we only consider the direct successors of $x$. We assume that the ABox is already in $NNF$. To create an example for a transformation we consider the following ABox:
+\begin{ex}\label{ex1}
 \begin{align*}
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|), x:C\}
 \end{align*}
 with $\mathbf{C}=\{A,B,C\}$ and $\mathbf{R}=\{r\}$
 \end{ex}
-In the example the first assertion says that $x$ must have at least one successor $y$ which has at least as many successors in $B\cap r$ as in $A$. The individual names for $succ(|A|\leq|B\cap r|)$ are on a different nested level than the ones for $succ(|A|\leq |B|)$. Also $x$ has at least as many successors in $B$ as in $A$. By the last conjunction we give the information that every successor must be an $r$-successor.\\
-We first gather all $succ$-assertion regarding $x$ together and transform the cardinality constraint into a formula by doing the following steps:
+In this example the first assertion states that $x$ must have at least one successor $y$ which in turn has at least as many successors in $B\cap r$ as in $A$. The individual names for $succ(|A|\leq|B\cap r|)$ are on a different nested level than the ones for $succ(|A|\leq |B|)$. The second assertion states that $x$ has at least as many successors in $B$ as in $A$.\\
+We start by gathering all $succ$-assertion regarding $x$ and then transform the cardinality constraints into a formula by carrying out the following steps:
 \begin{itemize}
 \item replace all role names $r$ with $X_r$
 \item replace all concepts names $C$ with $X_C$
@@ -383,17 +382,17 @@ We first gather all $succ$-assertion regarding $x$ together and transform the ca
 \item connect all formulas with $\wedge$
 \item include the conjunct $\mathcal{U}=X_{r_1}\cup\dots\cup X_{r_n}$, $r_1,\dots, r_n\in\mathbf{R}$
 \end{itemize}
-We replace (possibly compound) concepts and role names with set variables, for which a solver can assign elements to them. The last bullet point is important because sometimes it is not explicitly stated what kind of successor an individual name has. That means that every successor is connected to its predecessor by at least one role name.\\
-For our example we have five set variables: $X_A$, $X_B$, $X_r$, $X_{succ(|A|\leq |B\cap r|)}$ and $\mathcal{U}$. The QFBAPA formula for Example 1 is 
+We replace (compound) concepts and role names with set variables, so a solver can assign elements to them. The last step is important because sometimes it is not explicitly stated what kind of successor an individual name has. However a successor must always be "connected" to its predecessor by at least one role name. Through the last step we ensure that every element (successor) is assigned to a set variable, which represents a role name.\\
+In our example we have five set variables: $X_A$, $X_B$, $X_r$, $X_{succ(|A|\leq |B\cap r|)}$ and $\mathcal{U}$. The QFBAPA formula for Example \ref{ex1} is:
 \begin{align}\label{f}
 \phi=1\leq |X_{succ(|A|\leq |B\cap r|)}|\wedge |X_A|\leq |X_B|\wedge \mathcal{U}=X_r
 \end{align}
-We can now let the solver gives us a possible solution, if there is one. For the QFBAPA solver we take two assumption about it such that we can work with it in the tableau algorithm.
+We can use the solver to get a possible solution, if there is one. We make two assumptions about the QFBAPA solver so we can use it in the tableau algorithm.
 \begin{assumption}\label{assumption1}
 We assume that every considered QFABAPA solver is correct which means
 \begin{itemize}
-\item it terminates for all QFBAPA formulas (which are finite)
-\item the formula is satisfiable iff it returns a solution
+\item it terminates for all QFBAPA formulas
+\item a formula is satisfiable iff it returns a solution
 \end{itemize}
 \end{assumption}
 \begin{assumption}\label{assumption2}
@@ -464,7 +463,7 @@ h^TA x = h^Tb
 Therefore we are able to set an upper bound a priori for the solutions the QFBAPA solver returns, which is important for the termination proof.\\
 In our example the upper bound for all $x_i$ is $10\cdot (4\cdot max\{|1|,|-1|\})^{2\cdot 4+1}=2621440$, which means that we can discard any solution in which a Venn region has more than $2621440$ elements.
 \section{The Tableau Algorithm}\label{Tableau}
-Finally we can present the Tableau-algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. That means we want to consider conjunctions and disjunctions first and then consider the transformation to a QFBAPA formula. Hence we divide the algorithm in two parts: a boolean part, where the decomposition of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a QFBAPA formula. In the second part we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
+Finally we can present the tableau algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. That means we want to consider conjunctions and disjunctions first and then consider the transformation to a QFBAPA formula. Hence we divide the algorithm in two parts: a boolean part, where the decomposition of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a QFBAPA formula. In the second part we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
 \begin{mydef}[Tableau for $\mathcal{ALCSCC}$]
 The completion rules for a $\mathcal{ALCSCC}$ ABox $\mathcal{A}$ in $NNF$ are the following.\\
 Boolean part:
@@ -494,7 +493,7 @@ If the QFBAPA solver returns \textit{satisfiable}, then select one solution $\si
 \end{itemize}
 \end{itemize}
 \end{mydef}
-A \textit{complete} ABox is an ABox to which no more rules of the Tableau-algorithm are applicable.\\
+A \textit{complete} ABox is an ABox to which no more rules of the tableau algorithm are applicable.\\
 We present a possible run of this algorithm over the following ABox:
 \begin{ex}
 \begin{align*}
@@ -534,11 +533,11 @@ Then for $y_f$ we have to apply the $successor$-rule because no boolean rule is 
 \end{figure}
 In this procedure we do not add any assertions of individual names which are not freshly introduce. Hence if we applied all possible rules on the individual name $x$ and we do not have a clash, then all assertions of $x$ remains satisfied until the tableau algorithm ends. In the next chapter we provide a formal proof of the its correctness.
 \chapter{Correctness}
-For the correctness proof of the Tableau-algorithm we have to show the following:
+For the correctness proof of the tableau algorithm we have to show the following:
 \begin{itemize}
-\item For every input the Tableau-algorithm terminates.
+\item For every input the tableau algorithm terminates.
 \item If no more rules are applicable on a clash-free ABox $\mathcal{A}$, then $\mathcal{A}$ is satisfiable.
-\item If $\mathcal{A}$ is satisfiable, then the Tableau-algorithm terminates without a clash.
+\item If $\mathcal{A}$ is satisfiable, then the tableau algorithm terminates without a clash.
 \end{itemize}
 In all proofs we consider Assumption 1 and 2. First we prove that the algorithm always terminates.
 \section{Termination}
@@ -581,7 +580,7 @@ We then apply the last $successor$-rule to $y_f$ and gain
 The newly introduced triple $\psi_{\mathcal{A}^3}(y_g)$ is smaller then $\psi_{\mathcal{A}^2}(y_f)$, because $\psi_{\mathcal{A}^3,1}(y_g)<\psi_{\mathcal{A}^2,1}(y_f)$, and hence we have $\Psi(\mathcal{A}^3)\prec \Psi(\mathcal{A}^2)\prec\Psi(\mathcal{A}^1)\prec\Psi(\mathcal{A})$.\\
 We are now able to finally prove the termination of the algorithm.
 \begin{mylem}
-For any ABox $\mathcal{A}=\{x:C\}$ the Tableau-algorithm terminates
+For any ABox $\mathcal{A}=\{x:C\}$ the tableau algorithm terminates
 \end{mylem}
 \begin{proof}
 We show that if $\mathcal{A}^\prime$ is derivable from $\mathcal{A}$ by a rule from Definition \ref{Tableau}, then we have $\Psi(\mathcal{A}^\prime)\prec \Psi(\mathcal{A})$.\\
@@ -600,7 +599,7 @@ Because we work with natural numbers the ordering $<$ over them is well-founded.
 After we proved that the algorithm terminates, we continue with the correctness of the algorithm e.g. the algorithm terminates with a clash-free ABox iff the ABox is satisfiable.\\
 We start with one direction of the \textit{iff} statement.
 \begin{mylem}[Soundness]
-If the Tableau-algorithm is applied on an ABox $\mathcal{A}=\{x:C\}$ and  terminates without a clash, then $\mathcal{A}$ is satisfiable
+If the tableau algorithm is applied on an ABox $\mathcal{A}=\{x:C\}$ and  terminates without a clash, then $\mathcal{A}$ is satisfiable
 \end{mylem}
 \begin{proof}
 Let $\mathcal{A}^\prime$ be the result after the algorithm terminated. From Lemma 2 we know that the tableau algorithm always terminates. Since we do not remove any assertion during the algorithm we have $\mathcal{A}\subseteq\mathcal{A}^\prime$. Hence if an interpretation $\mathcal{I}$ satisfies $\mathcal{A}^\prime$ then it also satisfies $\mathcal{A}$. Let $\mathcal{I}(\mathcal{A}^\prime)$ be the induced interpretation of $\mathcal{A}^\prime$. We show that $\mathcal{I}(\mathcal{A}^\prime)$ indeed satisfies $\mathcal{A}^\prime$ by induction over concepts:\\
@@ -616,7 +615,7 @@ Since we know that $\mathcal{I}(\mathcal{A}^\prime)$ satisfies $\mathcal{A}^\pri
 \end{proof}
 We now proof that we can return any ABox such that we can induce every possible model within the pre-computed upper bound.
 \begin{mylem}[Completeness]
-If $\mathcal{A}:=\{x:C\}$ is satisfiable then the Tableau-algorithm terminates without a clash.
+If $\mathcal{A}:=\{x:C\}$ is satisfiable then the tableau algorithm terminates without a clash.
 \end{mylem}
 \begin{proof}
 By Lemma 1 we know that the algorithm always terminates. It remains to show that the algorithm terminates with a clash-free ABox. Since $\mathcal{A}$ is satisfiable it does not contain a clash. Let $\mathcal{I}=(\Delta^\mathcal{I},\cdot^\mathcal{I})$ be an interpretation which satisfies $\mathcal{A}$. We show that if $\mathcal{A}_i$ does not contain a clash and $\mathcal{I}$ satisfies $\mathcal{A}_i$, then $\mathcal{A}_{i+1}$ can be obtained from $\mathcal{A}_i$ by applying a rule while maintaining clash-freeness and satisfiability by $\mathcal{I}$.\\
