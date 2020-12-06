@@ -42,16 +42,7 @@
     \vbox to#1{\kern-2\ex@
     \hbox{$\scriptstyle#2$}\vss}}}}
 \makeatother
-\pgfplotsset{
-    standard/.style={
-        axis x line=middle,
-        axis y line=middle,
-        enlarge x limits=0.1,
-        enlarge y limits=0.15,
-        every axis x label/.style={at={(current axis.right of origin)},anchor= north west},
-        every axis y label/.style={at={(current axis.above origin)},anchor= east}
-    }
-}
+
 \begin{document}
 \begin{titlepage}
 	\centering
@@ -399,26 +390,27 @@ We assume that every considered QFABAPA solver is correct which means
 Let $\phi$ be an arbitrary QFBAPA formula. We assume that every considered QFABAPA solver is able to return all possible solutions of $\phi$.
 \end{assumption}
 \section{Solution of a formula}
-Since we make Assumption \ref{assumption2} there can be infinitely many solutions. Actually Example 1 can have infinitely many solutions: We can always increase the amount of successors in $B$ as long as we have fewer successors in $A$. However having that means that the tableau algorithm can work on an infinite space and/or might not terminate. Therefore we want to only consider solutions inside some pre-computed \textit{upper bounds}. For an \textit{Integer Linear Programming} (ILP) problem, which is described as a system of linear equalities, possible upper bounds are already investigated like in \cite{knapsack}, which solution we are going to use. Therefore we want to transform our formula into a linear system of equalities of the form $Ax=b$, where $A$ and $b$ describe our cardinality constraints and $x$ is the solution i.e. denotes the numbers of elements we have to assign to set variables to satisfy the formula. \\
+By Assumption \ref{assumption2} the QFBAPA solver can return infinitely many solutions for some formulas. For instance the solver can find infinitely many solutions for Example \ref{ex1}: Increasing the number of successors in $B$ will always yield new valid solutions as long as the number of successors in $A$ is kept lower. However this means that the tableau algorithm is sometimes working on an infinite solution space and hence might not terminate. Therefore we limit the considered solutions to some pre-computed \textit{upper bound}. For \textit{Integer Linear Programming} (ILP) problems, that can be described as systems of linear equalities, there are already known ways to compute upper bounds as is shown in \cite{knapsack}. Thus we want to transform our formulas into a linear system of equalities of the form $Mx=b$, where $M$ and $b$ describe our cardinality constraints and $x$ is the solution i.e. denotes the numbers of elements we have to assign to set variables to satisfy the formula. \\
+
 First, we notice that every inequality in a QFBAPA formula can be
-rewritten as $n_1\cdot|X_1|\pm \dots \pm n_i\cdot|X_i|\lesseqgtr I$, $\lesseqgtr\,\in\{\leq,\geq,=\}$, where $n_1,\dots, n_i,I\in\mathbb{Z}$ are a constants. The numbers $n_1,\dots,n_i$ are called \textit{pre-factors}. Let $c={succ(|A|\leq |B\cap r|)}$. We arrange $\phi$ in \eqref{f} into
+rewritten as $n_1\cdot|X_1|\pm \dots \pm n_i\cdot|X_i|\lesseqgtr I$, $\lesseqgtr\,\in\{\leq,\geq,=\}$, where $n_1,\dots, n_i,I\in\mathbb{Z}$ are a constants. The numbers $n_1,\dots,n_i$ are called \textit{pre-factors}. Let $c={succ(|A|\leq |B\cap r|)}$. We can rearrange $\phi$   of Example \ref{ex1} \eqref{f} as:
 \begin{align}
 \phi^\prime=|X_{c}|\geq 1\wedge |X_A|- |X_B|\leq 0 \wedge |\mathcal{U}\cap X_r^\neg|=0\wedge |\mathcal{U}^\neg\cap X_r|=0
 \end{align} 
-Then we change each inequalities into equalities by adding two slack variables $I_1$ and $I_2$:
+Next we transform the two inequalities into equalities by adding slack variables $I_1$ and $I_2$:
 \begin{align}
 \phi^{\prime\prime}=&|X_{c}|- I_1= 1\wedge |X_A|-|X_B|+I_2= 0 \wedge \nonumber\\
 &|\mathcal{U}\cap X_r^\neg|=0\wedge |\mathcal{U}^\neg\cap X_r|=0
 \end{align}
-Right now it is not clear whether the set variables are overlapping or not which is a problem because for a system of linear equations the variables are always disjunct. Therefore we consider \textit{Venn regions}, which are of the form $X^i_1\cap \dots \cap X^i_k$. The subscript $i$ denotes either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$. Since we have $5$ set variable, we have $2^5=32$ Venn regions. We already see that the number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in the size of $\phi$, such that at most $N$ Venn regions are not empty if there exists a solution.
+At the moment it is not clear whether the set variables are overlapping which would be problematic for a system of linear equations because its variables must be disjunct. To ensure disjunct variables we consider \textit{Venn regions}, which are of the form $X^i_1\cap \dots \cap X^i_k$. The subscript $i$ is either $0$ or $1$. $X^0_1$ denotes $X^\neg_1$ and $X^1_1$ denotes $X_1$. As we have $5$ set variables, there are $2^5=32$ Venn regions. The number of Venn regions grows exponentially with the number of set variables. In \cite{4} it is stated that there exists a number $N$, which is polynomial in the size of $\phi$, such that at most $N$ Venn regions are not empty if there exists a solution.
 \begin{mylem}[Lemma 3 from \cite{4}]
-For every QFBAPA formula $\phi$ a number $N$, which is polynomial in the size of $\phi$, can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that
+For every QFBAPA formula $\phi$ there is a number $N$, which is polynomial in the size of $\phi$ and can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that:
 \begin{itemize}
 \item $|\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}|\leq N$
-\item $\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}\subseteq \{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}$
+\item $\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}\subseteq \{v|v\text{ is a Venn region and }\sigma(v)\neq \emptyset\}$
 \end{itemize}
 \end{mylem}
-Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regions, which are non-empty. In Example 1 we can already guess that any Venn region within $X_r^\neg$ or $\mathcal{U}^\neg$ must be empty, because every element must be in $\mathcal{U}$ and since $\mathcal{U}=X_r$ they must be all in $X_r$. Hence we can drop $24$ Venn regions. Therefore we construct $A$ and $b$ such that instead of assigning elements to set variables we assign them to the remaining $8$ Venn regions. That means for the vector $x$ the entry $x_k$, $1\leq k\leq 8$, denotes the number of elements in the $k$-th Venn region. Since we have four equations and two slack variables the matrix $A$ has four rows and $10$ columns with $a_{ij}$, $1\leq i\leq 4$ and $1\leq j\leq 10$, denoting the sum of the pre-factors of the set variables, in which the $j$-th Venn region is included, occurring in the $i$-th equation. Let the vectors for the Venn regions be in the following order:
+We can guess a number $N$ of Venn regions, which are non-empty (in non-deterministic polynomial time). For Example \ref{ex1} we know that any Venn region within $X_r^\neg$ or $\mathcal{U}^\neg$ must be empty, because every element must be in $\mathcal{U}$ and since $\mathcal{U}=X_r$ they must all be in $X_r$. Therefore we can drop $24$ Venn regions. We construct $M$ and $b$ such that instead of assigning elements to set variables we assign them to the remaining $8$ Venn regions. That means that for the vector $x$ the entry $x_k$, $1\leq k\leq 8$, denotes the number of elements in the $k$-th Venn region. As there are four equations and two slack variables the matrix $M$ has four rows and ten columns with $m_{ij}$, $1\leq i\leq 4$ and $1\leq j\leq 10$, denoting the sum of pre-factors of the set variables, in which the $j$-th Venn region is included, occurring in the $i$-th equation. Let the column vectors describing the Venn regions be in the following order:
 \begin{itemize}
 \item $v_1=X_A\cap X_B\cap X_c\cap X_r\cap \mathcal{U}\cap I_1^\neg\cap I_2^\neg$
 \item $v_2=X_A\cap X_B\cap X_c^\neg\cap X_r\cap \mathcal{U}\cap I_1^\neg\cap I_2^\neg$
@@ -429,12 +421,12 @@ Hence we guess (in non-deterministic polynomial time) a number $N$ of Venn regio
 \item $v_7=X_A^\neg\cap X_B^\neg\cap X_c\cap X_r\cap \mathcal{U}\cap I_1^\neg\cap I_2^\neg$
 \item $v_8=X_A^\neg\cap X_B^\neg\cap X_c^\neg\cap X_r\cap \mathcal{U}\cap I_1^\neg\cap I_2^\neg$
 \end{itemize}
-The last two vectors denote the slack variables
+The last two vectors describe the slack variables:
 \begin{itemize}
 \item $v_9=X_A^\neg\cap X_B^\neg\cap X_c^\neg\cap X_r^\neg\cap \mathcal{U}^\neg\cap I_1\cap I_2^\neg$
 \item $v_{10}=X_A^\neg\cap X_B^\neg\cap X_c^\neg\cap X_r^\neg\cap \mathcal{U}^\neg\cap I_1^\neg\cap I_2$
 \end{itemize}
-We create now the linear system of equation:
+We now create the linear system of equations:
 \begin{align*}
 \left ( \begin{array}{cccccccccc}
 1&0&1&0&1&0&1&0&1&0\\
@@ -447,8 +439,8 @@ x_1\\x_2\\x_3\\x_4\\x_5\\x_6\\x_7\\x_8\\x_9\\x_{10}
 1&0&0&0
 \end{array}\right )
 \end{align*}
-Note that $a_{2,1}$ and $a_{2,2}$ are $0$ because the pre-factors of $|X_A|$ and $|X_B|$ in the second equation are $1$ and $-1$ and the Venn regions $v_1$ and $v_2$ are included both in $X_A$ and $X_B$. If $x_i=0$, then the $i$-th Venn region is empty. The last two rows of $A$, which present the equations $|\mathcal{U}\cap X^\neg_r|=0$ and $|\mathcal{U}^\neg\cap X_r|=0$, are lines of zeros because we omit the Venn regions, in which $\mathcal{U}\cap X_r^\neg$ and $\mathcal{U}^\neg\cap X_r$ are included. However we do not loose information because the information is that those Venn regions must be empty.\\
-Going back to the upper bound problem: The following result from \cite{knapsack} can be used to establish an upper bound for the solution of the \textit{ILP} in NP:
+Note that $a_{2,1}$ and $a_{2,2}$ are $0$ because the pre-factors of $|X_A|$ and $|X_B|$ in the second equation are $1$ and $-1$ and the Venn regions $v_1$ and $v_2$ are both included in $X_A$ and $X_B$. If $x_i=0$, then the $i$-th Venn region is empty. The last two rows of $M$, which represent the equations $|\mathcal{U}\cap X^\neg_r|=0$ and $|\mathcal{U}^\neg\cap X_r|=0$, are lines of zeros because we omit the Venn regions, in which $\mathcal{U}\cap X_r^\neg$ and $\mathcal{U}^\neg\cap X_r$ are included.\\
+Now that we have created a linear system of equations we are able to calculate an upper bound for the number of elements within the Venn regions. The following theorem from \cite{knapsack} can be used to establish an upper bound for the solution of the \textit{ILP} problem in NP:
 \begin{mythe}[Theorem 1 from \cite{knapsack}]\label{upper bound}
 Let $A\in \mathbb{Z}^m\times \mathbb{Z}^n$ be a matrix and $b\in\mathbb{Z}^m$ a vector. If $x\in\mathbb{N}^n$ is a solution of $Ax=b$, then there exists a solution $x^\prime$ such that all entries are integers between $0$ and $n\cdot (m\cdot max_{i,j}\{|a_{ij}|,|b_i|\})^{2\cdot m+1}$.
 \end{mythe}
@@ -460,8 +452,8 @@ We take a look now in the proof of this theorem to understand how the solution i
 h^TA x = h^Tb
 \end{align*}
 \end{itemize}
-Therefore we are able to set an upper bound a priori for the solutions the QFBAPA solver returns, which is important for the termination proof.\\
-In our example the upper bound for all $x_i$ is $10\cdot (4\cdot max\{|1|,|-1|\})^{2\cdot 4+1}=2621440$, which means that we can discard any solution in which a Venn region has more than $2621440$ elements.
+Therefore we are able to calculate an upper bound for the number of elements in each Venn region of the solutions returned by the QFBAPA solver a priori, which is important for the termination proof.\\
+In Example \ref{ex1} the upper bound for all $x_i$ is $10\cdot (4\cdot max\{|1|,|-1|\})^{2\cdot 4+1}=2621440$, which means that we can discard any solution in which a Venn region has more than $2621440$ elements.
 \section{The Tableau Algorithm}\label{Tableau}
 Finally we can present the tableau algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. That means we want to consider conjunctions and disjunctions first and then consider the transformation to a QFBAPA formula. Hence we divide the algorithm in two parts: a boolean part, where the decomposition of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a QFBAPA formula. In the second part we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
 \begin{mydef}[Tableau for $\mathcal{ALCSCC}$]
