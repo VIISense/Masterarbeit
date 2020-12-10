@@ -352,7 +352,7 @@ An ABox $\mathcal{A}$ contains a \textit{clash} if
 \item $x:succ(c)\in \mathcal{A}$ violated and no more rules are applicable
 \end{itemize}
 \end{mydef}
-\section{Transforming an ABox into a formula}
+\section{Transforming an ABox into a formula}\label{transform}
 One major difficulty of creating a tableau algorithm for $\mathcal{ALCSCC}$ is its numerical arithmetic in the form of successor-assertions. The application of rules can change the number of successors which can in turn influence the number of successors that are demanded by certain constraints. Furthermore it introduces the problem of \textit{nested} successor assertions.
 \begin{mydef}[Nested Level]
 Let $\mathcal{A}=\{x:C\}$ be an ABox. An individual name lays in the $i$-th nested level if it is the $i$-th individual name in a role chain beginning from $x$, where the individual name $x$ is in the $0$th nested level. A direct successor of $x$ is in the $1$st nested level. 
@@ -389,7 +389,7 @@ We assume that every considered QFABAPA solver is correct which means
 \begin{assumption}\label{assumption2}
 Let $\phi$ be an arbitrary QFBAPA formula. We assume that every considered QFABAPA solver is able to return all possible solutions of $\phi$.
 \end{assumption}
-\section{Solution of a formula}
+\section{Solution of a formula}\label{solution}
 By Assumption \ref{assumption2} the QFBAPA solver can return infinitely many solutions for some formulas. For instance the solver can find infinitely many solutions for Example \ref{ex1}: Increasing the number of successors in $B$ will always yield new valid solutions as long as the number of successors in $A$ is kept lower. However this means that the tableau algorithm is sometimes working on an infinite solution space and hence might not terminate. Therefore we limit the considered solutions to some pre-computed \textit{upper bound}. For \textit{Integer Linear Programming} (ILP) problems, that can be described as systems of linear equalities, there are already known ways to compute upper bounds as is shown in \cite{knapsack}. Thus we want to transform our formulas into a linear system of equalities of the form $Mx=b$, where $M$ and $b$ describe our cardinality constraints and $x$ is the solution i.e. denotes the numbers of elements we have to assign to set variables to satisfy the formula. \\
 
 First, we notice that every inequality in a QFBAPA formula can be
@@ -455,26 +455,26 @@ h^TA x = h^Tb
 Therefore we are able to calculate an upper bound for the number of elements in each Venn region of the solutions returned by the QFBAPA solver a priori, which is important for the termination proof.\\
 In Example \ref{ex1} the upper bound for all $x_i$ is $10\cdot (4\cdot max\{|1|,|-1|\})^{2\cdot 4+1}=2621440$, which means that we can discard any solution in which a Venn region has more than $2621440$ elements.
 \section{The Tableau Algorithm}\label{Tableau}
-Finally we can present the tableau algorithm for an ABox in $\mathcal{ALCSCC}$. Before we handle the numerical arithmetic of $\mathcal{ALCSCC}$ we want to decompose compound concepts first. That means we want to consider conjunctions and disjunctions first and then consider the transformation to a QFBAPA formula. Hence we divide the algorithm in two parts: a boolean part, where the decomposition of compound concepts takes place, and a numerical part, where a part of the ABox is transformed into a QFBAPA formula. In the second part we calculate an upper bound and let a solver return a possible solution within this bound, in case the ABox is satisfiable. The boolean part has a higher priority than the numerical part. 
+Now that we have described how to deal with the numerical challenges of $\mathcal{ALCSCC}$ we construct a tableau algorithm for an ABox in $\mathcal{ALCSCC}$. The algorithm can be divided into two repeating steps. The first step decomposes disjunctions and conjunctions of concepts into basic concepts. This step considers disjunctions before conjunctions. The second step transforms successor assertions of a selected individual name into a QFBAPA formula. In the second step an upper bound for the number of elements in each Venn region is calculated. Then a solver is used to find a possible solution within this bound, if the ABox is satisfiable. The second step can only be applied if all conjunctions and disjunctions have already been decomposed by the first step. 
 \begin{mydef}[Tableau for $\mathcal{ALCSCC}$]
-The completion rules for a $\mathcal{ALCSCC}$ ABox $\mathcal{A}$ in $NNF$ are the following.\\
-Boolean part:
+The completion rules for an $\mathcal{ALCSCC}$ ABox $\mathcal{A}$ in $NNF$ are as follows.\\
+First step:
 \begin{itemize}
 \item\label{cap} $\sqcap$-rule: $\mathcal{A}$ contains $x:C_1\sqcap C_2$ but not both $x:C_1$ and $x:C_2$\\
 $\rightarrow$ $\mathcal{A}:=\mathcal{A}\cup\{x:C_1, x:C_2\}$
 \item\label{cup} $\sqcup$-rule: $\mathcal{A}$ contains $x:C_1\sqcup C_2$ but neither $x:C_1$ nor $x:C_2$\\
 $\rightarrow$ $\mathcal{A}:=\mathcal{A}\cup\{x:C_1\}$ or $\mathcal{A}:=\mathcal{A}\cup\{x:C_2\}$
 \end{itemize}
-Numerical part:
+Second step:
 \begin{itemize}
-\item\label{succ} $successor$-rule: $\mathcal{A}$ contains for an individual name $x$ at least one violated assertion of the form $x:succ(c)$, this rule has not been applied for $x$ yet and no boolean rules are applicable:
+\item\label{succ} $successor$-rule: $\mathcal{A}$ contains an individual name $x$ which has at least one violated assertion of the form $x:succ(c)$, this rule has not been applied for $x$ yet and no rules from step 1 are applicable:
 \begin{itemize}
 \item gather all assertions of the form $x:succ(c)$ into a set $\mathcal{S}$
-\item transform $\mathcal{S}$ into a QFBAPA formula $\phi$ as in Section 3.1
+\item transform $\mathcal{S}$ into a QFBAPA formula $\phi$ as in Section \ref{transform}
 \item calculate the upper bound as in Theorem \ref{upper bound}
 \end{itemize}
 If the QFBAPA solver returns \textit{unsatisfiable}, then $\mathcal{A}:=\mathcal{A}\cup\{x:\perp\}$\\
-If the QFBAPA solver returns \textit{satisfiable}, then select one solution $\sigma$ with in the upper bound. For each $e\in\sigma(\mathcal{U})$, we introduce a new individual name $y_e$ and
+If the QFBAPA solver returns \textit{satisfiable}, then select one solution $\sigma$ within the upper bound. For each $e\in\sigma(\mathcal{U})$, we introduce a new individual name $y_e$ and
 \begin{itemize}
 \item if $e\in X_C$ we set $\mathcal{A}:=\mathcal{A}\cup\{y_e:C\}$
 \item if $e\in X_{succ(c)}$ we set $\mathcal{A}=\mathcal{A}\cup\{y_e:succ(c)\}$
@@ -485,14 +485,14 @@ If the QFBAPA solver returns \textit{satisfiable}, then select one solution $\si
 \end{itemize}
 \end{itemize}
 \end{mydef}
-A \textit{complete} ABox is an ABox to which no more rules of the tableau algorithm are applicable.\\
-We present a possible run of this algorithm over the following ABox:
+A \textit{complete} ABox is an ABox for which no more rules of the tableau algorithm are applicable.\\
+Next an example run of this algorithm over the following ABox is given:
 \begin{ex}
 \begin{align*}
 \mathcal{A}=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C\}
 \end{align*}
 \end{ex}
-We are able to apply to apply the $\sqcap$-rule and hence we apply them first and derive the ABox in Example 1. Then neither the $\sqcap$- nor the $\sqcup$-rule is applicable. Therefore we apply the $successor$-rule: We collect every $succ$-assertion regarding $x$ to a set $\mathcal{S}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and convert $\mathcal{A}$ to the QFBAPA formula in (3.1). The upper bound for that formula is 2621440 (see Section 3.2). If the formula have been unsatisfiable, we would add $x:\perp$ to our ABox. this would have led us to the end of the tableau algorithm because this "choice" is the only one possible since we do not have any disjunction. However since the formula is satisfiable we obtain a solution from the solver because of Assumption \ref{assumption1}. We see that the formula is satisfiable with $X_{succ(|A|\leq |B\cap r|)}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Since we have $\mathcal{U}=\{X_r\}$ every element must be in $X_r$ i.e. every successor is a $r$-successor. The considered QFBAPA formula is capable of returning this solution because of Assumption \ref{assumption2}. Obviously in this solution every Venn-region has less element than 2621440. We then introduce for $e$ and $f$ two individual names $y_e$ and $y_f$ and the assertion $y_e:X_B$, $(x,y_e):r$, $y_f:succ(|A|\leq|B\cap r|)$ and $(x,y_f):r$ to $\mathcal{A}$. 
+Initially the $\sqcap$-rule is applicable hence it is applied first which results in an ABox identical to the one given in Example \ref{ex1}. Now neither the $\sqcap$- nor the $\sqcup$-rule is applicable. Therefore the $successor$-rule as applied: Every $succ$-assertion regarding $x$ is gathered in a set $\mathcal{S}:=\{x:succ(1\leq|succ(|A|\leq|B\cap r|)|), x:succ(|A|\leq |B|)\}$ and then converted to a QFBAPA formula which is identical to the one presented in (\ref{f}). The upper bound for the number of elements in this formula is 2621440 (see Section \ref{solution}). If the formula had been unsatisfiable, $x:\perp$ would have been added to the ABox. This would result in the termination of the tableau algorithm as there would be no more applicable rules and no point to backtrack to. However as the formula is satisfiable the solver must return a solution, because of Assumption \ref{assumption1}. We see that the formula is satisfiable with $X_{succ(|A|\leq |B\cap r|)}=\{f\},X_A=\{\},X_B=\{e\}$ and $X_r=\{e,f\}$. Because of the constraint $\mathcal{U}=\{X_r\}$ contained in the formula every element must be in $X_r$ i.e. every successor is an $r$-successor. The QFBAPA solver is capable of returning this solution because of Assumption \ref{assumption2}. Obviously in this solution every Venn-region has less than 2621440 elements. Next two individual names $y_e$ and $y_f$ are introduced for the elements $e$ and $f$ and the assertions $y_e:X_B$, $(x,y_e):r$, $y_f:succ(|A|\leq|B\cap r|)$ and $(x,y_f):r$ are added to $\mathcal{A}$. For the next two graphics we omitted the information, that $x$ is of the concepts $succ(1\leq|succ(|A|\leq|B\cap r|)|)\sqcap succ(|A|\leq |B|)\sqcap C, succ(1\leq|succ(|A|\leq|B\cap r|)|)$ and $succ(|A|\leq |B|)$ due to readability:
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -506,7 +506,7 @@ We are able to apply to apply the $\sqcap$-rule and hence we apply them first an
 \path[->] (x) edge node[right] {$r$} (f);
 \end{tikzpicture}
 \end{figure}
-Then for $y_f$ we have to apply the $successor$-rule because no boolean rule is applicable. Since $y_f:succ(|A|\leq |B\cap r|)$ is the only $succ$ assertion we only have to add an $r$-successor of the concept $B$. We assume that the QFBAPA solver returns a solution $X_B=X_r=\{g\}$ and hereby introduce an individual name $y_g$ and add $y_g:B$ and $(x,y_g):r$ to $\mathcal{A}$.
+Then the $successor$-rule is applied to $y_f$ because no rules of step 1 are applicable. Since $y_f:succ(|A|\leq |B\cap r|)$ is the only $succ$-assertion it is sufficient to introduce an $r$-successor of the concept $B$. We assume that the QFBAPA solver returns the solution $X_B=X_r=\{g\}$. Therefore the algorithm introduces an individual name $y_g$ and adds $y_g:B$ and $(y_f,y_g):r$ to $\mathcal{A}$.
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -523,7 +523,7 @@ Then for $y_f$ we have to apply the $successor$-rule because no boolean rule is 
 \path[->] (f) edge node[right] {$r$} (g);
 \end{tikzpicture}
 \end{figure}
-In this procedure we do not add any assertions of individual names which are not freshly introduce. Hence if we applied all possible rules on the individual name $x$ and we do not have a clash, then all assertions of $x$ remains satisfied until the tableau algorithm ends. In the next chapter we provide a formal proof of the its correctness.
+The algorithm only adds assertions for individual names, which are currently considered in the first step or which are introduced in the second step. Hence if all possible rules are applied to the individual name $x$ and there is no clash, then all assertions of $x$ must remain satisfied until the tableau algorithm terminates. In the next chapter we formally prove the correctness of this algorithm.
 \chapter{Correctness}
 For the correctness proof of the tableau algorithm we have to show the following:
 \begin{itemize}
