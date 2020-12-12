@@ -209,7 +209,7 @@ Now we can interpret our formula as:
 \item nose and two ears are both in the same set hence they belong to a common body part (face)
 \end{itemize}
 In \cite{KuncakRinard} Kuncak and Rincard show that checking satisfiability of QFBAPA formulas is a NP-complete problem.
-\section{$\mathcal{ALCSCC}$}
+\section{$\mathcal{ALCSCC}$} \label{alcscc}
 Next we define the parts and semantics of the description logic $\mathcal{ALCSCC}$ \cite{4}. Let $\mathbf{C}$ be a set of concept names and $\mathbf{R}$ a set of role names, such that $\mathbf{C}$ and $\mathbf{R}$ are disjoint.
 \begin{mydef}[$\mathcal{ALCSCC}$]
 $\mathcal{ALCSCC}$ concepts over $\mathbf{C}$ and $\mathbf{R}$ are defined inductively as:
@@ -525,67 +525,69 @@ Then the $successor$-rule is applied to $y_f$ because no rules of step 1 are app
 \end{figure}
 The algorithm only adds assertions for individual names, which are currently considered in the first step or which are introduced in the second step. Hence if all possible rules are applied to the individual name $x$ and there is no clash, then all assertions of $x$ must remain satisfied until the tableau algorithm terminates. In the next chapter we formally prove the correctness of this algorithm.
 \chapter{Correctness}
-For the correctness proof of the tableau algorithm we have to show the following:
+To prove the correctness of the tableau algorithm we have to show the following statements:
 \begin{itemize}
-\item For every input the tableau algorithm terminates.
+\item The tableau algorithm terminates for every input.
 \item If no more rules are applicable on a clash-free ABox $\mathcal{A}$, then $\mathcal{A}$ is satisfiable.
 \item If $\mathcal{A}$ is satisfiable, then the tableau algorithm terminates without a clash.
 \end{itemize}
-In all proofs we consider Assumption 1 and 2. First we prove that the algorithm always terminates.
+For all proofs we make use of Assumptions 1 and 2. First we prove that the algorithm always terminates.
 \section{Termination}
-We define a \textit{derived} ABox as an ABox $\mathcal{A}_2$ after a finite number of rule applications on an ABox $\mathcal{A}_1$. Each rule terminates:
+An ABox is called a \textit{derived} ABox if it is the result of a finite number of rule applications on an ABox. \\
+
+We can show that each of the completion rules must terminate:
 \begin{itemize}
-\item $\sqcap$- and $\sqcup$-rule: Obviously both rule terminates because we decompose finite compound concepts.
-\item $successor$-rule: Since ABoxes are finite we can only have a finite subset $\mathcal{S}$ of $successor$-assertions and therefore can always form a (finite) QFBAPA formula. By Assumption \ref{assumption1}  the QFBAPA solver always terminates and we gain a finite solution. Therefore we always add a finite number of successor in this rule. Hence this rule application always terminates.
+\item $\sqcap$- and $\sqcup$-rule: Both rules terminate because they decompose finite compound concepts.
+\item $successor$-rule: Since ABoxes are finite they can only have a finite subset $\mathcal{S}$ of $successor$-assertions and therefore the algorithm can always create a (finite) QFBAPA formula. By Assumption \ref{assumption1}  the QFBAPA solver always terminates and returns a finite solution. Therefore only a finite number of successors are added during the application of this rule. Hence this rule application always terminates.
 \end{itemize}
-For the termination proof we map every ABox $\mathcal{A}$ to an element $\Psi(\mathcal{A})$ of a set $Q$. Each $\Psi(\mathcal{A})$ consists of triples $\psi_\mathcal{A}(x)$ for each individual name $x$. Let $\prec$ be an strict partial ordering, which is a irreflexive (if $a\prec b$ then $b\not\prec a$) and transitive (if $a\prec b$ and $b\prec c$ then $a\prec c$) relation (with $a,b,c$ being comparable elements). If we show that $\prec$ is well-founded, e.g. there is no infinite decreasing chain, and that for every ABox $\mathcal{A}^\prime$, which is derivable from an ABox $\mathcal{A}$, we can only have $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ then the termination of the algorithm can be concluded.\\
-Each triple in $Q$ consists of a multiset of natural numbers and two natural numbers. A multiset of natural numbers $M$ is smaller than another multiset of natural numbers $M^\prime$ if we can obtain $M$ from $M^\prime$ by replacing at least one number $n$ of $M^\prime$ with a set of natural numbers, which are all smaller than $n$, or by deleting at least the number $n$. For example $M=\{2,2,2,1,5\}$ is smaller than $M^\prime=\{2,3,5\}$ because the second entry $\{3\}$ of $M^\prime$ can be replaced by $\{2,2,1\}$. We say that the empty mutliset $\{\}$ is always smaller than any multiset of natural numbers. Since the multisets consist of natural numbers, which can be ordered by the strict partial order $<$, they can be ordered by $\prec$, too. A triple $T_1=(x_1,x_2, x_3)$ is smaller than a triple $T_2=(y_1,y_2,y_3)$ if $T_1$ is lexicographically smaller (from right to left) than $T_2$ which means that for the first $i\in\{1,2,3\}$ such that $x_i\neq y_i$ it holds that $x_i$ is smaller than $y_i$. Again because we have triples of numbers they can be ordered by $\prec$, too. Therefore $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ if we can replace one triple $\psi_\mathcal{A}(x)$ in $\Psi(\mathcal{A})$ with at least one triple $\psi_{\mathcal{A}^\prime}(x^\prime)$, such that $\psi_\mathcal{A}(x)\prec\psi_{\mathcal{A}^\prime}(x^\prime)$ to obtain $\Psi(\mathcal{A}^\prime)$ or if we remove at least one triple $\psi_\mathcal{A}(x)$.\\
-Note that we assume earlier in Section 2.2 that each $C\sqcap D$ and $C\sqcup D$ in a cardinality term is replaced by $C\cap D$ and $C\cup D$ respectively.\\
-We describe now how the triples in $Q$ looks like.
-\begin{mydef}
-Let $\mathcal{A}$ be a derived ABox. The multiset $\Psi(\mathcal{A})$ consists of triples. Each triple $\psi_\mathcal{A}(x)$ represent one individual name $x$:
+To prove termination we map every ABox $\mathcal{A}$ to an element $\Psi(\mathcal{A})$ of a set $Q$. Each $\Psi(\mathcal{A})$ consists of triples $\psi_\mathcal{A}(x)$ for each individual name $x$. Let $\prec$ be an strict partial ordering, which is an irreflexive (if $a\prec b$ then $b\not\prec a$) and transitive (if $a\prec b$ and $b\prec c$ then $a\prec c$) relation (with $a,b,c$ being comparable elements). If we can show that $\prec$ is well-founded (e.g. there is no infinite decreasing chain) and that for every ABox $\mathcal{A}^\prime$, which is derivable from an ABox $\mathcal{A}$, it must hold that $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ and $\Psi(\mathcal{A})\not\prec\Psi(\mathcal{A}^\prime)$, then the termination of the algorithm can be concluded.\\
+Each triple in $Q$ consists of a multiset of natural numbers and two natural numbers. A multiset of natural numbers $M^\prime$ is smaller than another multiset of natural numbers $M$ if we can obtain $M^\prime$ from $M$ by replacing at least one number $n$ of $M$ with natural numbers, which are all smaller than $n$, or by deleting at least one number of $M$. For example $M^\prime=\{2,2,2,1,5\}$ is smaller than $M=\{2,3,5\}$ because it can be obtained by replacing the second entry $3$ of $M$ with $2,2,1$. We say that the empty multiset $\{\}$ is always smaller than any multiset of natural numbers. Since the multisets consist of natural numbers, which can be ordered by the strict partial order $<$, they can also be ordered by $\prec$. A triple $T_1=(x_1,x_2, x_3)$ is smaller than a triple $T_2=(y_1,y_2,y_3)$ if $T_1$ is lexicographically smaller (from left to right) than $T_2$ which means that for the first $i\in\{1,2,3\}$ where $x_i\neq y_i$ it holds that $x_i$ is smaller than $y_i$. Because we have triples of numbers they can also be ordered by $\prec$. Therefore $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$ if we can replace at least one triple $\psi_\mathcal{A}(x)$ in $\Psi(\mathcal{A})$ with at least one triple $\psi_{\mathcal{A}^\prime}(x^\prime)$, such that $\psi_\mathcal{A^\prime}(x^\prime)\prec\psi_{\mathcal{A}}(x)$ or if we can remove at least one triple from $\Psi(\mathcal{A})$ in order to obtain $\Psi(\mathcal{A}^\prime)$.\\
+Note that in Section \ref{alcscc} we require that each instance of $C\sqcap D$ and $C\sqcup D$ in a cardinality term is replaced by $C\cap D$ and $C\cup D$ respectively.\\
+Now we describe what the triples in $Q$ look like.
+\begin{mydef} \label{triples}
+Let $\mathcal{A}$ be a derived ABox. The multiset $\Psi(\mathcal{A})$ consists of triples. Each triple $\psi_\mathcal{A}(x)$ represents one individual name $x$:
 \begin{itemize}
 \item The first component $\psi_{\mathcal{A},1}(x)$ is the natural number $max\{size(C)|x:C\in\mathcal{A}\}$.
-\item The second component $\psi_{\mathcal{A},2}(x)$ is a multiset which contains for each assertion $x:C\sqcap D\in\mathcal{A}$ for which the $\sqcap$-rule is applicable the natural number $size(C\sqcap D)$. Respectively for $x:C\sqcup D$.
-\item The third component $\psi_{\mathcal{A},3}(x)$ is the number $1$ if the $successor$-rule is applicable, $0$ otherwise.
+\item The second component $\psi_{\mathcal{A},2}(x)$ is a multiset which contains the natural numbers $size(C\sqcap D)$ for each assertion $x:C\sqcap D\in\mathcal{A}$ for which the $\sqcap$-rule is applicable. Respectively for $x:C\sqcup D$.
+\item The third component $\psi_{\mathcal{A},3}(x)$ is the number $1$ if the $successor$-rule is applicable and $0$ otherwise.
 \end{itemize}
 \end{mydef}
 For the ABox $\mathcal{A}$ in Example 2 we have the following multiset:
 \begin{align}
 \Psi(\mathcal{A})=\{\psi_\mathcal{A}(x)\}=\{(7,\{7,7\},0)\}
 \end{align}
-After the decomposing we got the ABox $\mathcal{A}^1$, which is stated in Example 1.
+After decomposing we get the ABox $\mathcal{A}^1$, which is used in Example 1.
 \begin{align}
 \Psi(\mathcal{A}^1)=\{\psi_{\mathcal{A}^1}(x)\}=\{(7,\{\},2)\}
 \end{align}
-We can see that $\psi_{\mathcal{A}^\prime,2}(x)\prec\psi_{\mathcal{A},2}(x)$ because we do not have any conjunction anymore. Therefore he increment of the third entry does not matter. Hence $\psi_{\mathcal{A}^\prime}(x)\prec\psi_\mathcal{A}(x)$ which means $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
-Then the $successor$-rule is applied and we add two new individual names $y_e$ and $y_f$ to obtain $\mathcal{A}^2$, hence two new multisets have to be added.
+We can see that $\psi_{\mathcal{A}^\prime,2}(x)\prec\psi_{\mathcal{A},2}(x)$ because $\mathcal{A}^1$ does not contain any conjunctions on which the $\sqcap$-rule is applicable anymore. Therefore it does not matter that the third entry of the triple $\psi_{\mathcal{A}}(x)$ has grown. Hence $\psi_{\mathcal{A}^\prime}(x)\prec\psi_\mathcal{A}(x)$ which means $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
+Next the $successor$-rule is applied and we add two new individual names $y_e$ and $y_f$ to obtain $\mathcal{A}^2$. Therefore two new triples have to be added:
 \begin{align}
 \Psi(\mathcal{A}^2)=\{\psi_{\mathcal{A}^2}(x),\psi_{\mathcal{A}^2}(y_e), \psi_{\mathcal{A}^2}(y_f)\}=\{(7,\{\},0),(1,\{\},0),(3,\{\},1)\}
 \end{align}
-We see that $\psi_{\mathcal{A}^2}(x)$, $\psi_{\mathcal{A}^2}(y_e)$ and $\psi_{\mathcal{A}^2}(y_f)$ are smaller than $\psi_{\mathcal{A}^1}(x)$ hence $\Psi(\mathcal{A}^2)\prec \Psi(\mathcal{A}^1)$.\\
-We then apply the last $successor$-rule to $y_f$ and gain
+We see that $\psi_{\mathcal{A}^2}(x)$, $\psi_{\mathcal{A}^2}(y_e)$ and $\psi_{\mathcal{A}^2}(y_f)$ are smaller than $\psi_{\mathcal{A}^1}(x)$ so it holds that $\Psi(\mathcal{A}^2)\prec \Psi(\mathcal{A}^1)$.\\
+We then apply the $successor$-rule on last time to $y_f$ which results in the multiset:
 \begin{align}
 \Psi(\mathcal{A}^3)=\{\psi_{\mathcal{A}^3}(x),\psi_{\mathcal{A}^3}(y_e), \psi_{\mathcal{A}^3}(y_f),\psi_{\mathcal{A}^3}(y_g)\}=\nonumber\\
 \{(7,\{\},0),(1,\{\},0),(3,\{\},0),(2,\{\},0)\}
 \end{align}
-The newly introduced triple $\psi_{\mathcal{A}^3}(y_g)$ is smaller then $\psi_{\mathcal{A}^2}(y_f)$, because $\psi_{\mathcal{A}^3,1}(y_g)<\psi_{\mathcal{A}^2,1}(y_f)$, and hence we have $\Psi(\mathcal{A}^3)\prec \Psi(\mathcal{A}^2)\prec\Psi(\mathcal{A}^1)\prec\Psi(\mathcal{A})$.\\
-We are now able to finally prove the termination of the algorithm.
+The newly introduced triple $\psi_{\mathcal{A}^3}(y_g)$ is smaller then $\psi_{\mathcal{A}^2}(y_f)$, because $\psi_{\mathcal{A}^3,1}(y_g)<\psi_{\mathcal{A}^2,1}(y_f)$, and therefore $\Psi(\mathcal{A}^3)\prec \Psi(\mathcal{A}^2)\prec\Psi(\mathcal{A}^1)\prec\Psi(\mathcal{A})$.\\
+We finally prove the termination of the algorithm.
 \begin{mylem}
-For any ABox $\mathcal{A}=\{x:C\}$ the tableau algorithm terminates
+For any ABox $\mathcal{A}=\{x:C\}$ the tableau algorithm terminates.
 \end{mylem}
 \begin{proof}
-We show that if $\mathcal{A}^\prime$ is derivable from $\mathcal{A}$ by a rule from Definition \ref{Tableau}, then we have $\Psi(\mathcal{A}^\prime)\prec \Psi(\mathcal{A})$.\\
+We show that if $\mathcal{A}^\prime$ is derivable from $\mathcal{A}$ by applying a rule from Definition \ref{Tableau}, then it holds that: $\Psi(\mathcal{A}^\prime)\prec \Psi(\mathcal{A})$.\\
 \begin{itemize}
-\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcap$-rule on $x:C\sqcap D$: The first component remains unchanged because $size(C)\leq size(C\sqcap D)$ and $size(D)\leq size(C\sqcap D)$. We have $\psi_{\mathcal{A}^\prime,2}(x)\prec\psi_{\mathcal{A},2}(x)$ because the integer for $size(C\sqcap D)$ is removed (because we cannot apply this rule anymore after one application). In case $C$ and/or $D$ happens to be a disjunction or conjunction $\psi_{\mathcal{A}^\prime,2}(x)$ still becomes smaller because $size(C)< size(C)+size(D)+1=size(C\sqcap D)$ (respectively for $size(D)$). Hence $\psi_{\mathcal{A}^\prime}(x)\prec\psi_{\mathcal{A}}(x)$.\\
-For any other individual name $y$, such that $y\neq x$, the triple $\psi_\mathcal{A}(y)$ remains unchanged.
-\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcup$-rule on $x:C\sqcap D$: similar to above
-\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule on $x:succ(c)$: $\psi_{\mathcal{A},1}(x)$ remains unchanged because we do not add any assertion for $x$. We are able to apply this rule, because both $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$ and we do not have applied this rule for $x$ yet. Because we do not add assertions for $x$ and do not decompose any disjunction or conjunction we know that $\psi_{\mathcal{A},2}(x)$ remains unchanged. We also know that $\psi_{\mathcal{A},3}(x)=1$ because we are able to apply the $successor$-rule on an assertion of $x$. Afterwards we have $\psi_{\mathcal{A}^\prime,3}(x)=0$. Therefore $\psi_{\mathcal{A}^\prime}(x)\prec\psi_\mathcal{A}(x)$.\\
-For every freshly introduced individual name $y$ we have to add a triple $\psi_{\mathcal{A}^\prime}(y)$ to $\Psi(\mathcal{A}^\prime)$. For each $y:C\in\mathcal{A}^\prime$ we know that $C$ must be part of a cardinality constraint $c$ such that $x:succ(c)\in\mathcal{A}$ and therefore $size(succ(c))>size(C)$. That means that $max\{size(C)|y:C\in\mathcal{A}^\prime\}$ is always smaller then $max\{size(C)|x:C\in\mathcal{A}^\prime\}$ by the definition of $size(C)$. Therefore $\psi_{\mathcal{A}^\prime,1}(y)<\psi_{\mathcal{A}^\prime,1}(x)$ and hence $\psi_{\mathcal{A}^\prime}(y)\prec\psi_{\mathcal{A}^\prime}(x)$.\\
-For any other individual name $z$, such that $z\neq x$ and $z=y$, the triple $\psi_\mathcal{A}(y)$ remains unchanged.
+\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcap$-rule on $x:C\sqcap D$: The first component remains unchanged because $size(C)\leq size(C\sqcap D)$ and $size(D)\leq size(C\sqcap D)$. It holds that $\psi_{\mathcal{A}^\prime,2}(x)\prec\psi_{\mathcal{A},2}(x)$ because the number $size(C\sqcap D)$ is removed from $\psi_{\mathcal{A},2}(x)$ (as we can only apply the $\sqcap$-rule once on $x:C\sqcap D$). In case $C$ and/or $D$ happen to be disjunctions or conjunctions $\psi_{\mathcal{A}^\prime,2}(x)$ still becomes smaller because $size(C)< size(C)+size(D)+1=size(C\sqcap D)$ (respectively for $size(D)$). Hence $\psi_{\mathcal{A}^\prime}(x)\prec\psi_{\mathcal{A}}(x)$.\\
+For any other individual name $y$, where $y\neq x$, the triple $\psi_\mathcal{A}(y)$ remains unchanged.
+\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $\sqcup$-rule on $x:C\sqcup D$: analogously as for the $\sqcap$-rule.
+\item $\mathcal{A}^\prime$ is obtained from $\mathcal{A}$ by applying the $successor$-rule on $x:succ(c)$: $\psi_{\mathcal{A},1}(x)$ remains unchanged because no assertions are added for $x$. This rule is applicable, as both the $\sqcap$-rule and $\sqcup$-rule are not applicable on $\mathcal{A}$ and we have not applied this rule for $x$ yet. Because neither the $\sqcap$-rule nor the $\sqcup$-rule is applied, $\psi_{\mathcal{A},2}(x)$ remains unchanged. It also holds that $\psi_{\mathcal{A},3}(x)=1$ because the $successor$-rule can be applied on an assertion of $x$. After applying the $successor$-rule it holds that $\psi_{\mathcal{A}^\prime,3}(x)=0$. Therefore $\psi_{\mathcal{A}^\prime}(x)\prec\psi_\mathcal{A}(x)$.\\
+For every freshly introduced individual name $y$ we have to add a triple $\psi_{\mathcal{A}^\prime}(y)$ to $\Psi(\mathcal{A}^\prime)$. For every $y:C\in\mathcal{A}^\prime$ we know that $C$ must be part of a cardinality constraint $c$ such that $x:succ(c)\in\mathcal{A}$ and therefore $size(succ(c))>size(C)$. That means that $max\{size(C)|y:C\in\mathcal{A}^\prime\}$ is always smaller then $max\{size(C)|x:C\in\mathcal{A}^\prime\}$ by the definition of $size(C)$. Hence $\psi_{\mathcal{A}^\prime,1}(y)<\psi_{\mathcal{A}^\prime,1}(x)$ and therefore $\psi_{\mathcal{A}^\prime}(y)\prec\psi_{\mathcal{A}^\prime}(x)$.\\
+For any other individual name $z$, where $z\neq x$ and $z=y$, the triple $\psi_\mathcal{A}(y)$ remains unchanged.
 \end{itemize}
-Hence in all three cases we can obtain $\Psi(\mathcal{A}^\prime)$ from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller triple $\psi_{\mathcal{A}^\prime}(x)$. For any newly introduced individual names we showed that the new triples are always smaller than $\psi_{\mathcal{A}^\prime}(x)$. Therefore $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
-Because we work with natural numbers the ordering $<$ over them is well-founded. Therefore we also know that $\prec$ multisets over natural numbers is also well-founded \cite{bn}(Theorem 2.5.5). Since the natural numbers and multisets of natural numbers can be ordered by a well-founded ordering, the triples after Definition 11, which are "lexicographical products of two terminating relation"\cite{bn}(Theorem 2.4.2), can be ordered by a well-founded ordering as well. Therefore $\prec$ over the multisets of these triples is well-founded, too \cite{bn}(Theorem 2.5.5).  
+Hence in all three cases $\Psi(\mathcal{A}^\prime)$ can be obtained from $\Psi(\mathcal{A})$ by replacing $\psi_\mathcal{A}(x)$ with the smaller triple $\psi_{\mathcal{A}^\prime}(x)$. For any newly introduced individual names we showed that the new triples must be smaller than $\psi_{\mathcal{A}^\prime}(x)$. Therefore $\Psi(\mathcal{A}^\prime)\prec\Psi(\mathcal{A})$.\\
+Because we work with natural numbers the ordering $<$ over them is well-founded. Therefore we also know that $\prec$ for multisets over natural numbers is also well-founded \cite{bn}(Theorem 2.5.5). Since the natural numbers and multisets of natural numbers can be ordered by a well-founded ordering, the triples which are constructed after Definition \ref{triples}, which are "lexicographical products of two terminating relations"\cite{bn}(Theorem 2.4.2), can be ordered by a well-founded ordering as well. Therefore $\prec$ over the multisets of these triples is well-founded, too \cite{bn}(Theorem 2.5.5).  
 \end{proof}
 \section{Soundness and Completeness}
 After we proved that the algorithm terminates, we continue with the correctness of the algorithm e.g. the algorithm terminates with a clash-free ABox iff the ABox is satisfiable.\\
