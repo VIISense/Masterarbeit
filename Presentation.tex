@@ -1,0 +1,142 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm,algorithmic} 
+\usepackage{amsmath}
+\usepackage{ulem}
+\usepackage{ amssymb }
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{ stmaryrd }
+\usepackage{ dsfont }
+\theoremstyle{definition}
+\newtheorem{mydef}{Definition}
+\newtheorem{mylem}{Lemma}
+\newtheorem{mythe}{Theorem}
+\newtheorem{mycol}{Corollary}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{paralist}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{scopes}
+\usetikzlibrary{shapes,snakes}
+\usepackage[absolute,overlay]{textpos}
+\usetheme{Warsaw}  %% Themenwahl
+\tikzset{cloud/.pic={
+\node[cloud, cloud puffs=8.5,cloud puff arc=90, aspect=2, draw, text width=2.5cm
+    ] () at (0,0) {\tikzpictext};
+}}
+\makeatletter
+\newenvironment<>{proofs}[1][\proofname]{%
+    \par
+    \def\insertproofname{#1\@addpunct{.}}%
+    \usebeamertemplate{proof begin}#2}
+  {\usebeamertemplate{proof end}}
+\makeatother
+\setbeamertemplate{footline}[frame number]
+\title{A Tableau algorithm for $\mathcal{ALCSCC}$}
+\author{Ryny Khy}
+\date{\today}
+\begin{document}
+\maketitle
+\frame{\tableofcontents}
+\section{Introduction}
+\begin{frame}\frametitle{Tableau Algorithm}
+Main Idea:
+\begin{align*}
+x:A\sqcap B\sqcap \exists r.C
+\end{align*}
+\begin{tikzpicture}
+\pic (c1) at (0,0) [pic text=$x$ must be in $A$]{cloud};
+\pic (c2) at (6.5,0) [pic text=$x$ must have an $r$-successor in $C$]{cloud};
+\pic (c2) at (3.1,-1.5) [pic text=$x$ must be in $B$]{cloud};
+\end{tikzpicture}
+\end{frame}
+\begin{frame}\frametitle{$\mathcal{ALCSCC}$: successors}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,cross out] at (0,0) {$\exists r.C$};
+\node[draw=black,cross out] at (2.5,0) {$\forall r.C$};
+\node[draw=black,cross out] at (5.25,0) {$\leq\,m\, r.C$};
+\node[draw=black,cross out] at (8.25,0) {$\geq\,m\, r.C$};
+\node[draw=black] at (4,-1.75){$succ(c)$};
+\end{tikzpicture}
+\end{center}
+$c$: \textbf{set constraint} or a \textbf{cardinality constraint}
+\end{frame}
+\begin{frame}\frametitle{$\mathcal{ALCSCC}$: constraints}
+\begin{minipage}[t]{0.5\textwidth}
+\raggedright
+\textbf{set constraint:}
+\begin{itemize}
+\item $r\subseteq s$
+\item $C\cap r\subseteq D$
+\item $succ(C\cap r)\subseteq succ(D)$
+\end{itemize}
+\end{minipage}%
+\begin{minipage}[t]{0.5\textwidth}
+\raggedright
+\textbf{cardinality constraint}
+\begin{itemize}
+\item $3\,dvd\,|r|$
+\item $|C\cap r|\leq |D|$
+\item $|succ(C\cap r)|\leq |succ(D)|$
+\end{itemize}
+\end{minipage}
+\end{frame}
+\section{Tableau for $\mathcal{ALCSCC}$}
+\begin{frame}\frametitle{Problem with successors constraints}
+\only<1>{
+\begin{align*}
+x:\, succ(|s|>1)\,\sqcap\, succ(|r|=|s|)\, \sqcap\,succ(|r|>|s|)
+\end{align*}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,ellipse] (s) at (0,0) {0};
+\node[draw=black,ellipse] (r) at (4,0) {0};
+\node[above = 0.3cm of s] {$s$-successors};
+\node[above = 0.3cm of r] {$r$-successors};
+\end{tikzpicture}
+\end{center}
+}
+\only<2>{
+\begin{align*}
+x:\, \underline{succ(|s|>1)}\,\sqcap\, succ(|r|=|s|)\, \sqcap\,succ(|r|>|s|)
+\end{align*}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,ellipse] (s) at (0,0) {1};
+\node[draw=black,ellipse] (r) at (4,0) {0};
+\node[above = 0.3cm of s] {$s$-successors};
+\node[above = 0.3cm of r] {$r$-successors};
+\end{tikzpicture}
+\end{center}
+}
+\only<3>{
+\begin{align*}
+x:\, succ(|s|>1)\,\sqcap\, \underline{succ(|r|=|s|)}\, \sqcap\,succ(|r|>|s|)
+\end{align*}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,ellipse] (s) at (0,0) {1};
+\node[draw=black,ellipse] (r) at (4,0) {1};
+\node[above = 0.3cm of s] {$s$-successors};
+\node[above = 0.3cm of r] {$r$-successors};
+\end{tikzpicture}
+\end{center}
+}
+\only<4>{
+\begin{align*}
+x:\, succ(|s|>1)\,\sqcap\, succ(|r|=|s|)\, \sqcap\,\underline{succ(|r|>|s|)}
+\end{align*}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,ellipse] (s) at (0,0) {1};
+\node[draw=black,ellipse] (r) at (4,0) {2};
+\node[above = 0.3cm of s] {$s$-successors};
+\node[above = 0.3cm of r] {$r$-successors};
+\end{tikzpicture}
+\end{center}
+}
+\end{frame}
+\end{document}
