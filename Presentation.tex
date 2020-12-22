@@ -19,9 +19,13 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 \usetikzlibrary{scopes}
+
 \usetikzlibrary{shapes,snakes}
 \usepackage[absolute,overlay]{textpos}
 \usetheme{Warsaw}  %% Themenwahl
+\newcommand{\xdownarrow}[1]{%
+  {\left\downarrow\vbox to #1{}\right.\kern-\nulldelimiterspace}
+}
 \tikzset{cloud/.pic={
 \node[cloud, cloud puffs=8.5,cloud puff arc=90, aspect=2, draw, text width=2.5cm
     ] () at (0,0) {\tikzpictext};
@@ -78,7 +82,7 @@ $c$: \textbf{set constraint} or a \textbf{cardinality constraint}
 \raggedright
 \textbf{cardinality constraint}
 \begin{itemize}
-\item $3\,dvd\,|r|$
+\item $2\,dvd\,|r|$
 \item $|C\cap r|\leq |D|$
 \item $|succ(C\cap r)|\leq |succ(D)|$
 \end{itemize}
@@ -138,5 +142,61 @@ x:\, succ(|s|>1)\,\sqcap\, succ(|r|=|s|)\, \sqcap\,\underline{succ(|r|>|s|)}
 \end{tikzpicture}
 \end{center}
 }
+\end{frame}
+\begin{frame}\frametitle{Problem with blocking}
+\only<1>{
+\begin{align*}
+x:succ(2\cdot |r|\leq 5\cdot|s|)\,\sqcap\,succ(5\cdot|s|\leq 2\cdot|r|)\,\sqcap\,succ(|r|>1)
+\end{align*}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,ellipse] (s) at (0,0) {0};
+\node[draw=black,ellipse] (r) at (4,0) {0};
+\node[above = 0.3cm of s] {$s$-successors};
+\node[above = 0.3cm of r] {$r$-successors};
+\end{tikzpicture}
+\end{center}
+}
+\only<2>{
+\begin{align*}
+x:succ(2\cdot |r|\leq 5\cdot|s|)\,\sqcap\,succ(5\cdot|s|\leq 2\cdot|r|)\,\sqcap\,\underline{succ(|r|>1)}
+\end{align*}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,ellipse] (s) at (0,0) {0};
+\node[draw=black,ellipse] (r) at (4,0) {1};
+\node[above = 0.3cm of s] {$s$-successors};
+\node[above = 0.3cm of r] {$r$-successors};
+\end{tikzpicture}
+\end{center}
+}
+\only<3>{
+\begin{align*}
+x:\underline{succ(2\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,succ(5\cdot|s|\leq 2\cdot|r|)\,\sqcap\,succ(|r|>1)
+\end{align*}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,ellipse] (s) at (0,0) {1};
+\node[draw=black,ellipse] (r) at (4,0) {1};
+\node[above = 0.3cm of s] {$s$-successors};
+\node[above = 0.3cm of r] {$r$-successors};
+\end{tikzpicture}
+\end{center}
+}
+\end{frame}
+\begin{frame}\frametitle{QFBAPA formula and solver}
+\begin{align*}
+x:\textcolor{red}{succ(2\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,\textcolor{blue}{succ(5\cdot|s|\leq 2\cdot|r|)}\,\sqcap\,\textcolor{orange}{succ(|r|>1)}
+\end{align*}
+\pause
+\centering $\Big\downarrow$
+\begin{align*}
+\textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
+\end{align*}
+\pause
+\centering $\Big\downarrow$
+\begin{align*}
+|X_r|=5\text{ and }|X_s|=2
+\end{align*}
 \end{frame}
 \end{document}
