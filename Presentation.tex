@@ -19,7 +19,7 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 \usetikzlibrary{scopes}
-
+\usepackage{kbordermatrix}
 \usetikzlibrary{shapes,snakes}
 \usepackage[absolute,overlay]{textpos}
 \usetheme{Warsaw}  %% Themenwahl
@@ -198,5 +198,88 @@ x:\textcolor{red}{succ(2\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,\textcolor{blue}{succ
 \begin{align*}
 |X_r|=5\text{ and }|X_s|=2
 \end{align*}
+\end{frame}
+\begin{frame}\frametitle{QFBAPA formula and solver}
+What about
+\begin{align*}
+\textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
+\end{align*}
+\centering $\Big\downarrow$
+\begin{align*}
+|X_r|=10\text{ and }|X_s|=4
+\end{align*}
+\end{frame}
+\begin{frame}\frametitle{QFBAPA formula and solver}
+What about
+\begin{align*}
+\textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
+\end{align*}
+\centering $\Big\downarrow$
+\begin{align*}
+|X_r|=100\text{ and }|X_s|=40
+\end{align*}
+\end{frame}
+\begin{frame}\frametitle{QFBAPA formula and solver}
+\begin{itemize}
+\item[] We have infinite possible solutions\pause
+\item[] Do we need all of them?\pause
+\item[] No: Consider formula as ILP and calculate an upper bound
+\end{itemize}
+\end{frame}
+\begin{frame}\frametitle{ILP and upper bound}
+\begin{align*}
+\textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
+\end{align*}
+\centering $\Big\downarrow$
+\begin{align*}
+\textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|\leq 0}\\
+\textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|\leq 0}\\
+\textcolor{orange}{-|X_r|<-1}
+\end{align*}
+\centering $\Big\downarrow$
+\begin{align*}
+\textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|+I_1 = 0}\\
+\textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|+I_2= 0}\\
+\textcolor{orange}{-|X_r|+I_3=-1}
+\end{align*}
+\end{frame}
+\begin{frame}\frametitle{ILP and upper bound}
+\begin{itemize}
+\item[]\textbf{Problem}: Are the variables disjoint or not?\pause
+\item[]\textbf{Solution}: Venn region
+\end{itemize}
+\end{frame}
+\begin{frame}{Venn regions}
+Two variables $X_s$ and $X_r$ $\rightarrow$ four Venn regions:
+\begin{align*}
+&v_1=X_s\cap X_r\\
+&v_2=X_s^\neg\cap X_r\\
+&v_3=X_s\cap X_r^\neg\\
+&v_4=X_s^\neg\cap X_r^\neg
+\end{align*}
+\pause
+$X_s=v_1\cup v_3$ and $X_r=v_1\cup v_2$
+\end{frame}
+\begin{frame}{ILP}
+\renewcommand{\kbldelim}{(}% Left delimiter
+\renewcommand{\kbrdelim}{)}% Right delimiter
+\[
+  \kbordermatrix{
+    & v_1 & v_2 & v_3 & v_4 & I_1 & I_2 & I_3\\
+    -5\cdot |X_s|+2\cdot |X_r|+I_1 & -5+2 & 2 & -5 & 0 & 1 & 0 & 0\\
+5\cdot |X_s|-2\cdot |X_r|+I_2 & 5-3 & -2 & 5 & 0 & 0 & 1 & 0\\
+    -|X_r|+I_3 & -1 & -1 & 0 & 0 & 0 & 0 & 1\\
+    } \cdot  \left( \begin{array}{c}
+x_1 \\
+x_2 \\
+x_3 \\
+x_4 \\
+x_5 \\
+x_6 \\
+x_7 \end{array} \right)
+\]\\
+\centering $= \left( \begin{array}{ccc}
+0 & 0 & -1
+\end{array} \right)$
 \end{frame}
 \end{document}
