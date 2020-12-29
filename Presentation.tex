@@ -66,7 +66,7 @@ x:A\sqcap B\sqcap \exists r.C
 \node[draw=black] at (4,-1.75){$succ(c)$};
 \end{tikzpicture}
 \end{center}
-$c$: \textbf{set constraint} or a \textbf{cardinality constraint}
+$c$: \textbf{set constraint} or \textbf{cardinality constraint}
 \end{frame}
 \begin{frame}\frametitle{$\mathcal{ALCSCC}$: constraints}
 \begin{minipage}[t]{0.5\textwidth}
@@ -248,6 +248,24 @@ What about
 \item[]\textbf{Problem}: Are the variables disjoint or not?\pause
 \item[]\textbf{Solution}: Venn region
 \end{itemize}
+\centering
+\begin{tikzpicture}
+% left hand
+\scope
+\clip
+      (1.5,0) circle (1.5);
+ (0,0) circle (1.5);
+\endscope
+% right hand
+\scope
+\clip
+      (0,0) circle (1.5);
+ (1.5,0) circle (1.5);
+\endscope
+% outline
+\draw (0,0) circle (1.5) (0,1.5)  node [text=black,above = 0.1cm] {$X_s$}
+      (1.5,0) circle (1.5) (1.5,1.5)  node [text=black,above = 0.1cm] {$X_r$} ;
+\end{tikzpicture}
 \end{frame}
 \begin{frame}{Venn regions}
 Two variables $X_s$ and $X_r$ $\rightarrow$ four Venn regions:
@@ -281,5 +299,17 @@ x_7 \end{array} \right)
 \centering $= \left( \begin{array}{ccc}
 0 & 0 & -1
 \end{array} \right)$
+\end{frame}
+\begin{frame}\frametitle{ILP and upper bound}
+Christos H. Papadimitriou\footnote{\tiny{On the Complexity of Integer Programming. J. ACM,28(4):765-768, Oct. 1981.}}:\\
+\vspace*{1cm}
+\centering
+There exists an upper bound $M$ such that for each ILP $Ax=b$, $A$ a $m\times n$ matrix, $x\in \mathbb{N}^n$ and $b\in\mathbb{R}^m$ there exists a solution $x^\prime\in \{0,\dots ,M\}^n$.
+\end{frame}
+\begin{frame}\frametitle{Tableau algorithm}
+\begin{itemize}
+\item $\sqcap$-rule: 
+\item $\sqcup$-rule:
+\end{itemize}
 \end{frame}
 \end{document}
