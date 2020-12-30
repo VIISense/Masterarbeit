@@ -56,6 +56,17 @@ x:A\sqcap B\sqcap \exists r.C
 \pic (c2) at (3.1,-1.5) [pic text=$x$ must be in $B$]{cloud};
 \end{tikzpicture}
 \end{frame}
+\begin{frame}\frametitle{Tableau Algorithm}
+Main Idea:
+\begin{align*}
+x:A\sqcap \neg A\sqcap \exists r.C
+\end{align*}
+\begin{tikzpicture}
+\pic (c1) at (0,0) [pic text=$x$ must be in $A$]{cloud};
+\pic (c2) at (6.5,0) [pic text=$x$ must have an $r$-successor in $C$]{cloud};
+\pic (c2) at (3.1,-1.5) [pic text=$x$ must not be in $B$]{cloud};
+\end{tikzpicture}
+\end{frame}
 \begin{frame}\frametitle{$\mathcal{ALCSCC}$: successors}
 \begin{center}
 \begin{tikzpicture}
@@ -308,8 +319,42 @@ There exists an upper bound $M$ such that for each ILP $Ax=b$, $A$ a $m\times n$
 \end{frame}
 \begin{frame}\frametitle{Tableau algorithm}
 \begin{itemize}
-\item $\sqcap$-rule: 
-\item $\sqcup$-rule:
+\item $\sqcap$-rule:\\
+If $x:A\sqcap B$ is in ABox then $x:A$ and $x:B$ must be in ABox
+\item $\sqcup$-rule:\\
+If $x:A\sqcup B$ is in ABox then $x:A$ or $x:B$ must be in ABox
 \end{itemize}
+\end{frame}
+\begin{frame}\frametitle{Tableau algorithm}
+\begin{itemize}
+\item $successor$-rule:
+\end{itemize}
+\begin{tikzpicture}
+\node[draw=black,ellipse](x) at (0,0) {$x$};
+\node at (0,-2) {rule not applied yet};
+\node[draw=black, ellipse, align=left](set) at (4,0) {$x:succ(c),$\\$x:succ(d),$\\\dots};
+\node at (4,-2) {set of successor assertions};
+\node[draw=black, ellipse, align=left](f) at (8,0) {$|X_r|\leq |X_s|$\\$\wedge\dots$};
+\node at (8,-2) {QFBAPA formula};
+\draw[->] (x) -- (set);
+\draw[->] (set) -- (f);
+\end{tikzpicture}
+\end{frame}
+\begin{frame}\frametitle{Tableau algorithm}
+\begin{itemize}
+\item $successor$-rule:
+\end{itemize}
+\centering
+\begin{tikzpicture}
+\node[draw=black, ellipse, align=left](f) at (0,0) {$|X_r|\leq |X_s|$\\$\wedge\dots$};
+\node (b) at (-3,-2) {calculate upper bound};
+\draw[->](f)--(b);
+\pause
+\node (s) at (0,-3.5) {use QFBAPA solver};
+\draw[->](f)--(s);
+\pause
+\node (a) at (3,-2) {add variables accordingly};
+\draw[->](f)--(a);
+\end{tikzpicture}
 \end{frame}
 \end{document}
