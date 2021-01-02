@@ -45,27 +45,75 @@
 \maketitle
 \frame{\tableofcontents}
 \section{Introduction}
+\begin{frame}\frametitle{Motivation}
+\begin{itemize}
+\item Reasoning in data base
+\pause
+\item Satiasfiability check for reasoning
+\pause
+\item Tableau algorithm for satisfiabilty check
+\end{itemize}
+\end{frame}
 \begin{frame}\frametitle{Tableau Algorithm}
 Main Idea:
 \begin{align*}
 x:A\sqcap B\sqcap \exists r.C
 \end{align*}
+\only<1>{
+\centering
 \begin{tikzpicture}
 \pic (c1) at (0,0) [pic text=$x$ must be in $A$]{cloud};
-\pic (c2) at (6.5,0) [pic text=$x$ must have an $r$-successor in $C$]{cloud};
-\pic (c2) at (3.1,-1.5) [pic text=$x$ must be in $B$]{cloud};
+\node[draw=black,ellipse] (x) at (5,1.5) {$x$};
+\node (s) at (5,-1.5){};
 \end{tikzpicture}
-\end{frame}
-\begin{frame}\frametitle{Tableau Algorithm}
-Main Idea:
-\begin{align*}
-x:A\sqcap \neg A\sqcap \exists r.C
-\end{align*}
+}
+\only<2>{
+\centering
 \begin{tikzpicture}
 \pic (c1) at (0,0) [pic text=$x$ must be in $A$]{cloud};
-\pic (c2) at (6.5,0) [pic text=$x$ must have an $r$-successor in $C$]{cloud};
-\pic (c2) at (3.1,-1.5) [pic text=$x$ must not be in $B$]{cloud};
+\node[draw=black,ellipse] (x) at (5,1.5) {$x$};
+\node at (6,1.5) {$A$};
+\node (s) at (5,-1.5){};
 \end{tikzpicture}
+}
+\only<3>{
+\centering
+\begin{tikzpicture}
+\pic (c1) at (0,0) [pic text=$x$ must be in $B$]{cloud};
+\node[draw=black,ellipse] (x) at (5,1.5) {$x$};
+\node at (6,1.5) {$A$};
+\node (s) at (5,-1.5){};
+\end{tikzpicture}
+}
+\only<4>{
+\centering
+\begin{tikzpicture}
+\pic (c1) at (0,0) [pic text=$x$ must be in $B$]{cloud};
+\node[draw=black,ellipse] (x) at (5,1.5) {$x$};
+\node at (6,1.5) {$A,B$};
+\node (s) at (5,-1.5){};
+\end{tikzpicture}
+}
+\only<5>{
+\centering
+\begin{tikzpicture}
+\pic (c1) at (0,0) [pic text=$x$ must have an $r$-successor in $C$]{cloud};
+\node[draw=black,ellipse] (x) at (5,1.5) {$x$};
+\node at (6,1.5) {$A,B$};
+\node(y) at (5,-1.5){};
+\end{tikzpicture}
+}
+\only<6>{
+\centering
+\begin{tikzpicture}
+\pic (c1) at (0,0) [pic text=$x$ must have an $r$-successor in $C$]{cloud};
+\node[draw=black,ellipse] (x) at (5,1.5) {$x$};
+\node at (6,1.5) {$A,B$};
+\node[draw=black,ellipse] (y) at (5,-1.5){$y$};
+\node at (6,-1.5) {$C$};
+\draw[->] (x) edge node[left] {$r$} (y);
+\end{tikzpicture}
+}
 \end{frame}
 \begin{frame}\frametitle{$\mathcal{ALCSCC}$: successors}
 \begin{center}
@@ -99,60 +147,17 @@ $c$: \textbf{set constraint} or \textbf{cardinality constraint}
 \end{itemize}
 \end{minipage}
 \end{frame}
-\section{Tableau for $\mathcal{ALCSCC}$}
+\section{Difficulties with $\mathcal{ALCSCC}$}
 \begin{frame}\frametitle{Problem with successors constraints}
-\only<1>{
 \begin{align*}
-x:\, succ(|s|>1)\,\sqcap\, succ(|r|=|s|)\, \sqcap\,succ(|r|>|s|)
+x:\, succ(|s|>1)\,\sqcap\, succ(|r\leq|s|)\, \sqcap\,succ(|r|>|s|)
 \end{align*}
-\begin{center}
-\begin{tikzpicture}
-\node[draw=black,ellipse] (s) at (0,0) {0};
-\node[draw=black,ellipse] (r) at (4,0) {0};
-\node[above = 0.3cm of s] {$s$-successors};
-\node[above = 0.3cm of r] {$r$-successors};
-\end{tikzpicture}
-\end{center}
-}
-\only<2>{
-\begin{align*}
-x:\, \underline{succ(|s|>1)}\,\sqcap\, succ(|r|=|s|)\, \sqcap\,succ(|r|>|s|)
-\end{align*}
-\begin{center}
-\begin{tikzpicture}
-\node[draw=black,ellipse] (s) at (0,0) {1};
-\node[draw=black,ellipse] (r) at (4,0) {0};
-\node[above = 0.3cm of s] {$s$-successors};
-\node[above = 0.3cm of r] {$r$-successors};
-\end{tikzpicture}
-\end{center}
-}
-\only<3>{
-\begin{align*}
-x:\, succ(|s|>1)\,\sqcap\, \underline{succ(|r|=|s|)}\, \sqcap\,succ(|r|>|s|)
-\end{align*}
-\begin{center}
-\begin{tikzpicture}
-\node[draw=black,ellipse] (s) at (0,0) {1};
-\node[draw=black,ellipse] (r) at (4,0) {1};
-\node[above = 0.3cm of s] {$s$-successors};
-\node[above = 0.3cm of r] {$r$-successors};
-\end{tikzpicture}
-\end{center}
-}
-\only<4>{
-\begin{align*}
-x:\, succ(|s|>1)\,\sqcap\, succ(|r|=|s|)\, \sqcap\,\underline{succ(|r|>|s|)}
-\end{align*}
-\begin{center}
-\begin{tikzpicture}
-\node[draw=black,ellipse] (s) at (0,0) {1};
-\node[draw=black,ellipse] (r) at (4,0) {2};
-\node[above = 0.3cm of s] {$s$-successors};
-\node[above = 0.3cm of r] {$r$-successors};
-\end{tikzpicture}
-\end{center}
-}
+\pause
+\begin{itemize}
+\item endless loop of adding $r$- and $s$-successors
+\pause
+\item blocking?
+\end{itemize}
 \end{frame}
 \begin{frame}\frametitle{Problem with blocking}
 \only<1>{
@@ -207,9 +212,10 @@ x:\textcolor{red}{succ(2\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,\textcolor{blue}{succ
 \pause
 \centering $\Big\downarrow$
 \begin{align*}
-|X_r|=5\text{ and }|X_s|=2
+X_r=\{r_1,r_2,\dots,r_5\}\text{ and }X_s=\{s_1,s_2\}
 \end{align*}
 \end{frame}
+\section{Dealing with successor constraints}
 \begin{frame}\frametitle{QFBAPA formula and solver}
 What about
 \begin{align*}
@@ -317,6 +323,7 @@ Christos H. Papadimitriou\footnote{\tiny{On the Complexity of Integer Programmin
 \centering
 There exists an upper bound $M$ such that for each ILP $Ax=b$, $A$ a $m\times n$ matrix, $x\in \mathbb{N}^n$ and $b\in\mathbb{R}^m$ there exists a solution $x^\prime\in \{0,\dots ,M\}^n$.
 \end{frame}
+\section{Tableau for $\mathcal{ALCSCC}$}
 \begin{frame}\frametitle{Tableau algorithm}
 \begin{itemize}
 \item $\sqcap$-rule:\\
@@ -324,20 +331,62 @@ If $x:A\sqcap B$ is in ABox then $x:A$ and $x:B$ must be in ABox
 \item $\sqcup$-rule:\\
 If $x:A\sqcup B$ is in ABox then $x:A$ or $x:B$ must be in ABox
 \end{itemize}
+\vspace*{1cm}
+\pause
+Always apply when possible (higher priority)
 \end{frame}
+
 \begin{frame}\frametitle{Tableau algorithm}
 \begin{itemize}
 \item $successor$-rule:
 \end{itemize}
 \begin{tikzpicture}
 \node[draw=black,ellipse](x) at (0,0) {$x$};
-\node at (0,-2) {rule not applied yet};
-\node[draw=black, ellipse, align=left](set) at (4,0) {$x:succ(c),$\\$x:succ(d),$\\\dots};
-\node at (4,-2) {set of successor assertions};
-\node[draw=black, ellipse, align=left](f) at (8,0) {$|X_r|\leq |X_s|$\\$\wedge\dots$};
-\node at (8,-2) {QFBAPA formula};
+\node at (0,-2) {\begin{tabular}{c}
+    rule not \\
+    applied yet
+\end{tabular}};
+\node[draw=black, ellipse](set) at (3.5,0) {\begin{tabular}{c}
+    $x:succ(c),$ \\
+    $x:succ(d),$\\ 
+    $\dots$
+\end{tabular}};
+\node at (3.5,-2) {\begin{tabular}{c}
+    set of \\
+    successor constraints
+\end{tabular}};
+\node[draw=black, ellipse](f) at (7.5,0) {\begin{tabular}{c}
+    $|X_r|\leq |X_s|$\\
+    $\wedge\dots$
+\end{tabular}};
+\node at (7.5,-2) {QFBAPA formula};
 \draw[->] (x) -- (set);
 \draw[->] (set) -- (f);
+\end{tikzpicture}
+\end{frame}
+
+\begin{frame}\frametitle{Tableau algorithm}
+\begin{itemize}
+\item $successor$-rule:
+\end{itemize}
+\centering
+\begin{tikzpicture}
+\node[draw=black, ellipse](f) at (0,0) {\begin{tabular}{c}
+    $|X_r|\leq |X_s|$\\
+    $\wedge\dots$
+\end{tabular}};
+\node (b) at (4,0) {\begin{tabular}{c}
+    calculate \\
+    upper bound
+\end{tabular}};
+\draw[->](f)--(b);
+\pause
+\node (a) at (8,0) {\begin{tabular}{c}
+    use\\
+    QFBAPA\\
+    solver
+\end{tabular}};
+\draw[->](b)--(a);
 \end{tikzpicture}
 \end{frame}
 \begin{frame}\frametitle{Tableau algorithm}
@@ -346,15 +395,99 @@ If $x:A\sqcup B$ is in ABox then $x:A$ or $x:B$ must be in ABox
 \end{itemize}
 \centering
 \begin{tikzpicture}
-\node[draw=black, ellipse, align=left](f) at (0,0) {$|X_r|\leq |X_s|$\\$\wedge\dots$};
-\node (b) at (-3,-2) {calculate upper bound};
+\node(f) at (0,0) {use QFBAPA solver};
+\node (b) at (-2,-2) {If it returns unsatisfiable};
 \draw[->](f)--(b);
+\node (c) at (-2,-4) {add $x:\perp$};
+\draw[->](b)--(c);
 \pause
-\node (s) at (0,-3.5) {use QFBAPA solver};
-\draw[->](f)--(s);
-\pause
-\node (a) at (3,-2) {add variables accordingly};
+\node (a) at (2,-2) {If it returns a solution};
 \draw[->](f)--(a);
+\node (s) at (2,-4) {add variables and its constraints};
+\draw[->](a)--(s);
 \end{tikzpicture}
+\end{frame}
+\section{Example}
+\begin{frame}\frametitle{Example}
+\begin{gather}
+fruitcake: succ(|need\cap Cake|\geq 1)\sqcap\nonumber 
+\end{gather}
+\begin{gather}
+succ(|need\cap succ(|is\cap (Strawberry\cup 
+Tangerine\cup Apple)|\geq1)|\geq1)\nonumber
+\end{gather}
+\end{frame}
+\begin{frame}\frametitle{Example}
+Apply $\sqcap$-rule first:\\
+\pause
+\begin{gather}
+fruitcake: \textcolor{blue}{succ(|need\cap Cake|\geq 1)}\sqcap\nonumber 
+\end{gather}
+\begin{gather}
+\textcolor{red}{succ(|need\cap succ(|is\cap (Strawberry\cup 
+Tangerine\cup Apple)|\geq1)|\geq1)},\nonumber
+\end{gather}
+\begin{gather}
+\textcolor{blue}{fruitcake:succ(|need\cap Cake|\geq 1)},\textcolor{red}{ fruitcake:succ(|need\cap }\nonumber
+\end{gather}
+\begin{gather}
+\textcolor{red}{succ(|is\cap (Strawberry\cup 
+Tangerine\cup Apple)|\geq 1)|\geq1)}\nonumber
+\end{gather}
+\end{frame}
+\begin{frame}\frametitle{Example}
+\begin{itemize}
+\item impossible to decompose further
+\item $successor$-rule has not been applied yet
+\end{itemize}
+\vspace*{1cm}
+\pause
+$\rightarrow$ Apply $successor$-rule next!\\
+\end{frame}
+\begin{frame}\frametitle{Example}
+Let $c=|is\cap(Strawberry\cup Tangerine\cup Apple)|\geq 1$\\
+\vspace*{0.1cm}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\node[draw=black, ellipse](set) at (0,0) {\begin{tabular}{c}
+    $fruitcake:succ(|need\cap Cake|\geq 1),$ \\
+    $fruitcake:succ(|need\cap succ(c)|\geq1)$\\ 
+\end{tabular}};
+\end{tikzpicture}
+\end{figure}
+\vspace*{-0.1cm}
+\pause
+\noindent
+\centering $\Big\downarrow$
+\vspace*{-0.1cm}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\node[draw=black, ellipse](set) at (0,0) {\begin{tabular}{c}
+    $|X_{need}\cap X_{Cake}|\geq 1 \wedge$ \\
+    $ |X_{need}\cap X_{succ(c)}|\geq 1$
+\end{tabular}};
+\end{tikzpicture}
+\end{figure}
+\end{frame}
+\begin{frame}\frametitle{Example}
+Assume solver returns:\\
+$X_{need}\cap X_{Cake}=\{cake\}$ and $X_{need}\cap X_{succ(c)}=\{fruit\}$\\
+\vspace*{0.5cm}
+\pause
+\centering
+\begin{tikzpicture}
+\node[draw=black, ellipse] (f) at (0,0) {$fruitcake$};
+\node[draw=black, ellipse] (c) at (-1.5,-2) {$cake$};
+\node at (-3,-2) {$Cake$};
+\node[draw=black, ellipse] (i) at (1.5,-2) {$fruit$};
+\node at (3,-2) {$succ(c)$};
+\draw[->] (f) edge node[left] {$need$} (c);
+\draw[->] (f) edge node[right] {$need$} (i);
+\end{tikzpicture}
+\end{frame}
+\begin{frame}\frametitle{Example}
+Same procedure for $fruit:succ(c)$
 \end{frame}
 \end{document}
