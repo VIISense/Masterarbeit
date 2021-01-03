@@ -40,7 +40,7 @@
 \setbeamertemplate{footline}[frame number]
 \title{A Tableau algorithm for $\mathcal{ALCSCC}$}
 \author{Ryny Khy}
-\date{\today}
+\date{January 12, 2021}
 \begin{document}
 \maketitle
 \frame{\tableofcontents}
@@ -115,6 +115,10 @@ x:A\sqcap B\sqcap \exists r.C
 \end{tikzpicture}
 }
 \end{frame}
+\begin{frame}\frametitle{Goal}
+\centering
+Tableau algorithm for $\mathcal{ALCSCC}$ concepts
+\end{frame}
 \begin{frame}\frametitle{$\mathcal{ALCSCC}$: successors}
 \begin{center}
 \begin{tikzpicture}
@@ -150,7 +154,7 @@ $c$: \textbf{set constraint} or \textbf{cardinality constraint}
 \section{Difficulties with $\mathcal{ALCSCC}$}
 \begin{frame}\frametitle{Problem with successors constraints}
 \begin{align*}
-x:\, succ(|s|>1)\,\sqcap\, succ(|r\leq|s|)\, \sqcap\,succ(|r|>|s|)
+x:\, succ(|s|>1)\,\sqcap\, succ(|r|\leq|s|)\, \sqcap\,succ(|r|>|s|)
 \end{align*}
 \pause
 \begin{itemize}
@@ -227,7 +231,7 @@ What about
 \end{align*}
 \end{frame}
 \begin{frame}\frametitle{QFBAPA formula and solver}
-What about
+or
 \begin{align*}
 \textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
 \end{align*}
@@ -235,29 +239,25 @@ What about
 \begin{align*}
 |X_r|=100\text{ and }|X_s|=40
 \end{align*}
-\end{frame}
-\begin{frame}\frametitle{QFBAPA formula and solver}
-\begin{itemize}
-\item[] We have infinite possible solutions\pause
-\item[] Do we need all of them?\pause
-\item[] No: Consider formula as ILP and calculate an upper bound
-\end{itemize}
+\pause
+$\rightarrow$ upper bound
 \end{frame}
 \begin{frame}\frametitle{ILP and upper bound}
 \begin{align*}
 \textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
 \end{align*}
-\centering $\Big\downarrow$
+\centering $\big\downarrow$
 \begin{align*}
 \textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|\leq 0}\\
 \textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|\leq 0}\\
-\textcolor{orange}{-|X_r|<-1}
+\textcolor{orange}{|X_r|>1}
 \end{align*}
-\centering $\Big\downarrow$
+\pause
+\centering $\big\downarrow$
 \begin{align*}
 \textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|+I_1 = 0}\\
 \textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|+I_2= 0}\\
-\textcolor{orange}{-|X_r|+I_3=-1}
+\textcolor{orange}{|X_r|-I_3=1}
 \end{align*}
 \end{frame}
 \begin{frame}\frametitle{ILP and upper bound}
@@ -295,6 +295,16 @@ Two variables $X_s$ and $X_r$ $\rightarrow$ four Venn regions:
 \pause
 $X_s=v_1\cup v_3$ and $X_r=v_1\cup v_2$
 \end{frame}
+\begin{frame}{Venn regions}
+Franz Baader \footnote{\tiny{A New Description Logic with Set Constraints and Cardinality
+Constraints on Role Successors. Springer International Publishing: 43-59, 2017}}:\\
+\vspace*{0.5cm}
+For every QFBAPA formula $\phi$ there is a number $N$, which is polynomial in the size of $\phi$ and can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that:
+\begin{itemize}
+\item $|\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}|\leq N$
+\item $\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}\subseteq \{v|v\text{ is a Venn region and }\sigma(v)\neq \emptyset\}$
+\end{itemize}
+\end{frame}
 \begin{frame}{ILP}
 \renewcommand{\kbldelim}{(}% Left delimiter
 \renewcommand{\kbrdelim}{)}% Right delimiter
@@ -303,7 +313,7 @@ $X_s=v_1\cup v_3$ and $X_r=v_1\cup v_2$
     & v_1 & v_2 & v_3 & v_4 & I_1 & I_2 & I_3\\
     -5\cdot |X_s|+2\cdot |X_r|+I_1 & -5+2 & 2 & -5 & 0 & 1 & 0 & 0\\
 5\cdot |X_s|-2\cdot |X_r|+I_2 & 5-3 & -2 & 5 & 0 & 0 & 1 & 0\\
-    -|X_r|+I_3 & -1 & -1 & 0 & 0 & 0 & 0 & 1\\
+    |X_r|-I_3 & 1 & 1 & 0 & 0 & 0 & 0 & -1\\
     } \cdot  \left( \begin{array}{c}
 x_1 \\
 x_2 \\
@@ -314,17 +324,20 @@ x_6 \\
 x_7 \end{array} \right)
 \]\\
 \centering $= \left( \begin{array}{ccc}
-0 & 0 & -1
+0 & 0 & 1
 \end{array} \right)$
 \end{frame}
 \begin{frame}\frametitle{ILP and upper bound}
 Christos H. Papadimitriou\footnote{\tiny{On the Complexity of Integer Programming. J. ACM,28(4):765-768, Oct. 1981.}}:\\
 \vspace*{1cm}
 \centering
-There exists an upper bound $M$ such that for each ILP $Ax=b$, $A$ a $m\times n$ matrix, $x\in \mathbb{N}^n$ and $b\in\mathbb{R}^m$ there exists a solution $x^\prime\in \{0,\dots ,M\}^n$.
+There exists an upper bound $M$ and $\alpha\in\{0,\dots ,M\}^n$ such that for each ILP $Ax=b$, $A$ a $m\times n$ matrix, $x\in \mathbb{N}^n$ and $b\in\mathbb{R}^m$ there exists a solution $x^\prime\in \{0,\dots ,M\}^n$ such that:
+\begin{align*}
+x-\alpha=x^\prime
+\end{align*}
 \end{frame}
 \section{Tableau for $\mathcal{ALCSCC}$}
-\begin{frame}\frametitle{Tableau algorithm}
+\begin{frame}\frametitle{Decomposing rules}
 \begin{itemize}
 \item $\sqcap$-rule:\\
 If $x:A\sqcap B$ is in ABox then $x:A$ and $x:B$ must be in ABox
@@ -336,10 +349,7 @@ If $x:A\sqcup B$ is in ABox then $x:A$ or $x:B$ must be in ABox
 Always apply when possible (higher priority)
 \end{frame}
 
-\begin{frame}\frametitle{Tableau algorithm}
-\begin{itemize}
-\item $successor$-rule:
-\end{itemize}
+\begin{frame}\frametitle{$successor$-rule:}
 \begin{tikzpicture}
 \node[draw=black,ellipse](x) at (0,0) {$x$};
 \node at (0,-2) {\begin{tabular}{c}
@@ -365,10 +375,7 @@ Always apply when possible (higher priority)
 \end{tikzpicture}
 \end{frame}
 
-\begin{frame}\frametitle{Tableau algorithm}
-\begin{itemize}
-\item $successor$-rule:
-\end{itemize}
+\begin{frame}\frametitle{$successor$-rule}
 \centering
 \begin{tikzpicture}
 \node[draw=black, ellipse](f) at (0,0) {\begin{tabular}{c}
@@ -389,10 +396,7 @@ Always apply when possible (higher priority)
 \draw[->](b)--(a);
 \end{tikzpicture}
 \end{frame}
-\begin{frame}\frametitle{Tableau algorithm}
-\begin{itemize}
-\item $successor$-rule:
-\end{itemize}
+\begin{frame}\frametitle{$successor$-rule}
 \centering
 \begin{tikzpicture}
 \node(f) at (0,0) {use QFBAPA solver};
@@ -407,8 +411,7 @@ Always apply when possible (higher priority)
 \draw[->](a)--(s);
 \end{tikzpicture}
 \end{frame}
-\section{Example}
-\begin{frame}\frametitle{Example}
+\begin{frame}\frametitle{Example Concept}
 \begin{gather}
 fruitcake: succ(|need\cap Cake|\geq 1)\sqcap\nonumber 
 \end{gather}
@@ -417,16 +420,17 @@ succ(|need\cap succ(|is\cap (Strawberry\cup
 Tangerine\cup Apple)|\geq1)|\geq1)\nonumber
 \end{gather}
 \end{frame}
-\begin{frame}\frametitle{Example}
+\begin{frame}\frametitle{Decomposing}
 Apply $\sqcap$-rule first:\\
-\pause
 \begin{gather}
-fruitcake: \textcolor{blue}{succ(|need\cap Cake|\geq 1)}\sqcap\nonumber 
+fruitcake: \textcolor{blue}{succ(|need\cap Cake|\geq 1)}\,\sqcap\nonumber 
 \end{gather}
 \begin{gather}
 \textcolor{red}{succ(|need\cap succ(|is\cap (Strawberry\cup 
 Tangerine\cup Apple)|\geq1)|\geq1)},\nonumber
 \end{gather}
+\vspace{-0.5cm}
+\pause
 \begin{gather}
 \textcolor{blue}{fruitcake:succ(|need\cap Cake|\geq 1)},\textcolor{red}{ fruitcake:succ(|need\cap }\nonumber
 \end{gather}
@@ -435,17 +439,8 @@ Tangerine\cup Apple)|\geq1)|\geq1)},\nonumber
 Tangerine\cup Apple)|\geq 1)|\geq1)}\nonumber
 \end{gather}
 \end{frame}
-\begin{frame}\frametitle{Example}
-\begin{itemize}
-\item impossible to decompose further
-\item $successor$-rule has not been applied yet
-\end{itemize}
-\vspace*{1cm}
-\pause
-$\rightarrow$ Apply $successor$-rule next!\\
-\end{frame}
-\begin{frame}\frametitle{Example}
-Let $c=|is\cap(Strawberry\cup Tangerine\cup Apple)|\geq 1$\\
+\begin{frame}\frametitle{Consider successor constraints}
+\small{Let $c=|is\cap(Strawberry\cup Tangerine\cup Apple)|\geq 1$}\\
 \vspace*{0.1cm}
 \begin{figure}[H]
 \centering
@@ -471,7 +466,7 @@ Let $c=|is\cap(Strawberry\cup Tangerine\cup Apple)|\geq 1$\\
 \end{tikzpicture}
 \end{figure}
 \end{frame}
-\begin{frame}\frametitle{Example}
+\begin{frame}\frametitle{Consider successor constraints}
 Assume solver returns:\\
 $X_{need}\cap X_{Cake}=\{cake\}$ and $X_{need}\cap X_{succ(c)}=\{fruit\}$\\
 \vspace*{0.5cm}
@@ -487,7 +482,55 @@ $X_{need}\cap X_{Cake}=\{cake\}$ and $X_{need}\cap X_{succ(c)}=\{fruit\}$\\
 \draw[->] (f) edge node[right] {$need$} (i);
 \end{tikzpicture}
 \end{frame}
-\begin{frame}\frametitle{Example}
-Same procedure for $fruit:succ(c)$
+\begin{frame}\frametitle{Consider next individual name $fruit$}
+Same procedure for $fruit:succ(c)$:\\
+\pause
+\vspace*{1cm}
+\begin{minipage}[t]{0.5\textwidth}
+\begin{tikzpicture}[scale=0.7, every node/.style={scale=0.7}]
+\node[draw=black, ellipse] (f) at (0,0) {$fruitcake$};
+\node[draw=black, ellipse] (c) at (-1,-2) {$cake$};
+\node at (-2.5,-2) {$Cake$};
+\node[draw=black, ellipse] (i) at (1,-2) {$fruit$};
+\node at (2.5,-2) {$succ(c)$};
+\draw[->] (f) edge node[left] {$need$} (c);
+\draw[->] (f) edge node[right] {$need$} (i);
+\node[draw=black, ellipse] (s) at (1,-4) {$strawberry$};
+\node at (1,-5) {$Strawberry$};
+\draw[->] (i) edge node[right] {$is$} (s);
+\end{tikzpicture}
+\end{minipage}%
+\pause
+\begin{minipage}[t]{0.5\textwidth}
+\begin{tikzpicture}[scale=0.7, every node/.style={scale=0.7}]
+\node[draw=black, ellipse] (f) at (5,0) {$fruitcake$};
+\node[draw=black, ellipse] (c) at (4,-2) {$cake$};
+\node at (2.5,-2) {$Cake$};
+\node[draw=black, ellipse] (i) at (6,-2) {$fruit$};
+\node at (7.5,-2) {$succ(c)$};
+\draw[->] (f) edge node[left] {$need$} (c);
+\draw[->] (f) edge node[right] {$need$} (i);
+\node[draw=black, ellipse] (s) at (4.5,-4) {$strawberry$};
+\node at (4.5,-5) {$Strawberry$};
+\draw[->] (i) edge node[right] {$is$} (s);
+\node[draw=black, ellipse] (a) at (8,-4) {$apple$};
+\node at (8,-5) {$Apple$};
+\draw[->] (i) edge node[right] {$is$} (a);
+\end{tikzpicture}
+\end{minipage}
+\end{frame}
+\section{Conclusion}
+\begin{frame}
+\begin{itemize}
+\item Tableau for $\mathcal{ALCSCC}$
+\item 2ExpSpace because of upper bound
+\end{itemize}
+\pause
+For the future:
+\begin{itemize}
+\item use/find smaller upper bound
+\item extend tableau for whole knowledge base
+\item tableau without QFBAPA solver
+\end{itemize}
 \end{frame}
 \end{document}
