@@ -20,9 +20,10 @@
 \usetikzlibrary{positioning}
 \usetikzlibrary{scopes}
 \usepackage{kbordermatrix}
-\usetikzlibrary{shapes,snakes}
+\usetikzlibrary{shapes,snakes,backgrounds}
 \usepackage[absolute,overlay]{textpos}
 \usetheme{Warsaw}  %% Themenwahl
+\beamertemplatenavigationsymbolsempty
 \newcommand{\xdownarrow}[1]{%
   {\left\downarrow\vbox to #1{}\right.\kern-\nulldelimiterspace}
 }
@@ -30,6 +31,8 @@
 \node[cloud, cloud puffs=8.5,cloud puff arc=90, aspect=2, draw, text width=2.5cm
     ] () at (0,0) {\tikzpictext};
 }}
+\def\firstcircle{(0,0) circle (1.5cm)}
+\def\secondcircle{(0:2cm) circle (1.5cm)}
 \makeatletter
 \newenvironment<>{proofs}[1][\proofname]{%
     \par
@@ -49,13 +52,13 @@
 \begin{itemize}
 \item Reasoning in data base
 \pause
-\item Satiasfiability check for reasoning
+\item Satisfiability check for reasoning
 \pause
-\item Tableau algorithm for satisfiabilty check
+\item Tableau algorithm for satisfiability check
 \end{itemize}
 \end{frame}
 \begin{frame}\frametitle{Tableau Algorithm}
-Main Idea:
+Main Idea (for $\mathcal{ALCQ}$):
 \begin{align*}
 x:A\sqcap B\sqcap \exists r.C
 \end{align*}
@@ -130,17 +133,17 @@ $c$: \textbf{set constraint} or \textbf{cardinality constraint}
 \raggedright
 \textbf{set constraint:}
 \begin{itemize}
-\item $r\subseteq s$
-\item $C\cap r\subseteq D$
-\item $succ(C\cap r)\subseteq succ(D)$
+\item $hasChild\cap Female$\\ $\subseteq Mother$
+\item $succ(2\,dvd\,|Edges|)$\\
+		$\subseteq succ(|Edges|=|Nodes|)$
 \end{itemize}
 \end{minipage}%
 \begin{minipage}[t]{0.5\textwidth}
 \raggedright
 \textbf{cardinality constraint}
 \begin{itemize}
-\item $2\,dvd\,|r|$
-\item $|C\cap r|\leq |D|$
+\item $2\,dvd\,|hasLegs|$
+\item $|Edges|\leq |Nodes|$
 \item $|succ(C\cap r)|\leq |succ(D)|$
 \end{itemize}
 \end{minipage}
@@ -231,7 +234,7 @@ x:\textcolor{red}{succ(2\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,\textcolor{blue}{succ
 \pause
 \centering $\Big\downarrow$
 \begin{align*}
-\textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
+\textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\,\wedge\, \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\,\wedge\, \textcolor{orange}{|X_r|>1}
 \end{align*}
 \pause
 \centering $\Big\downarrow$
@@ -251,7 +254,7 @@ What about
 \end{align*}
 \end{frame}
 \begin{frame}\frametitle{QFBAPA formula and solver}
-or
+What about
 \begin{align*}
 \textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
 \end{align*}
@@ -260,27 +263,11 @@ or
 |X_r|=100\text{ and }|X_s|=40
 \end{align*}
 \pause
-$\rightarrow$ upper bound
-\end{frame}
-\begin{frame}\frametitle{ILP and upper bound}
-\begin{align*}
-\textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
-\end{align*}
-\centering $\big\downarrow$
-\begin{align*}
-\textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|\leq 0}\\
-\textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|\leq 0}\\
-\textcolor{orange}{|X_r|>1}
-\end{align*}
+$\rightarrow$ upper bound\\
 \pause
-\centering $\big\downarrow$
-\begin{align*}
-\textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|+I_1 = 0}\\
-\textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|+I_2= 0}\\
-\textcolor{orange}{|X_r|-I_3=1}
-\end{align*}
+$\rightarrow$ ILP
 \end{frame}
-\begin{frame}\frametitle{ILP and upper bound}
+\begin{frame}\frametitle{Venn regions}
 \begin{itemize}
 \item[]\textbf{Problem}: Are the variables disjoint or not?\pause
 \item[]\textbf{Solution}: Venn region
@@ -290,14 +277,14 @@ $\rightarrow$ upper bound
 % left hand
 \scope
 \clip
-      (1.5,0) circle (1.5);
- (0,0) circle (1.5);
+(1.5,0) circle (1.5);
+(0,0) circle (1.5);
 \endscope
 % right hand
 \scope
 \clip
-      (0,0) circle (1.5);
- (1.5,0) circle (1.5);
+(0,0) circle (1.5);
+(1.5,0) circle (1.5);
 \endscope
 % outline
 \draw (0,0) circle (1.5) (0,1.5)  node [text=black,above = 0.1cm] {$X_s$}
@@ -305,29 +292,56 @@ $\rightarrow$ upper bound
 \end{tikzpicture}
 \end{frame}
 \begin{frame}{Venn regions}
-Two variables $X_s$ and $X_r$ $\rightarrow$ four Venn regions:
+Two variables $X_s$ and $X_r$ $\rightarrow$ four Venn regions:\\
+\begin{minipage}[t]{0.5\textwidth}
 \begin{align*}
-&v_1=X_s\cap X_r\\
-&v_2=X_s^\neg\cap X_r\\
-&v_3=X_s\cap X_r^\neg\\
+&\textcolor{red}{v_1=X_s\cap X_r}\\
+&\textcolor{green}{v_2=X_s^\neg\cap X_r}\\
+&\textcolor{blue}{v_3=X_s\cap X_r^\neg}\\
 &v_4=X_s^\neg\cap X_r^\neg
 \end{align*}
+\vspace*{0.75cm}
+\end{minipage}%
+\begin{minipage}[t]{0.5\textwidth}
+
+\vspace*{1.75cm}
+\hspace*{1.5cm}
+\begin{tikzpicture}[transform canvas={scale=.75}]
+\begin{scope}
+      \clip \firstcircle;
+      \fill[red] \secondcircle;
+    \end{scope}
+\begin{scope}
+        \begin{scope}[even odd rule]% first circle without the second
+            \clip \secondcircle (-3,-3) rectangle (3,3);
+        \fill[green] \firstcircle;
+        \end{scope}
+    \end{scope}
+    \begin{scope}
+        \begin{scope}[even odd rule]% first circle without the second
+            \clip \firstcircle (-3,-3) rectangle (4,3);
+        \fill[blue] \secondcircle;
+        \end{scope}
+        \draw \firstcircle node {$X_r$};
+        \draw \secondcircle node {$X_s$};
+    \end{scope}
+\end{tikzpicture}
+\end{minipage}
 \pause
-$X_s=v_1\cup v_3$ and $X_r=v_1\cup v_2$
+$X_s=\textcolor{red}{v_1}\cup \textcolor{blue}{v_3}$ and $X_r=\textcolor{red}{v_1}\cup \textcolor{green}{v_2}$
 \end{frame}
 \begin{frame}{Venn regions}
 Franz Baader \footnote{\tiny{A New Description Logic with Set Constraints and Cardinality
 Constraints on Role Successors. Springer International Publishing: 43-59, 2017}}:\\
 \vspace*{0.5cm}
-For every QFBAPA formula $\phi$ there is a number $N$, which is polynomial in the size of $\phi$ and can be computed in polynomial time such that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that:
+For every QFBAPA formula $\phi$ there is a number $N$, which is polynomial in the size of $\phi$ and can be computed in polynomial time such, that for every solution $\sigma$ of $\phi$ there exists a solution $\sigma^\prime$ of $\phi$ such that:
 \begin{itemize}
 \item $|\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}|\leq N$
 \item $\{v|v\text{ is a Venn region and }\sigma^\prime(v)\neq \emptyset\}\subseteq \{v|v\text{ is a Venn region and }\sigma(v)\neq \emptyset\}$
 \end{itemize}
 \end{frame}
 \begin{frame}{Venn regions}
-Franz Baader \footnote{\tiny{A New Description Logic with Set Constraints and Cardinality
-Constraints on Role Successors. Springer International Publishing: 43-59, 2017}}:\\
+In short:
 \vspace*{0.5cm}
 \begin{minipage}[t]{0.5\textwidth}
 \begin{align*}
@@ -335,16 +349,56 @@ Constraints on Role Successors. Springer International Publishing: 43-59, 2017}}
 &n:\text{ amount of set variables}
 \end{align*}
 \centering
+\vspace*{0.5cm}
 \includegraphics[scale=0.3]{redcross}
 \end{minipage}%
 \begin{minipage}[t]{0.5\textwidth}
 \begin{align*}
 &N \text{ Venn regions, } \\
-&N: \text{ polynomiel to size of formula}
+&N: \text{ polynomial in the size of formula}
 \end{align*}
 \centering
-\includegraphics[scale=0.45]{greentick}
+\includegraphics[scale=0.5]{greentick}
 \end{minipage}%
+\end{frame}
+\begin{frame}\frametitle{Transforming formula into ILP}
+\begin{align*}
+\textcolor{red}{2\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 2\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
+\end{align*}
+\centering $\big\downarrow$
+\begin{align*}
+\textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|\leq 0}\\
+\textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|\leq 0}\\
+\textcolor{orange}{|X_r|>1}
+\end{align*}
+\end{frame}
+\begin{frame}{Transforming formula into ILP}
+\centering $\big\downarrow$
+\begin{align*}
+\textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|\leq 0}\\
+\textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|\leq 0}\\
+\textcolor{orange}{|X_r|>1}
+\end{align*}
+\centering $\big\downarrow$
+\begin{align*}
+\textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|+I_1 = 0}\\
+\textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|+I_2= 0}\\
+\textcolor{orange}{|X_r|-I_3=2}
+\end{align*}
+\end{frame}
+\begin{frame}{Transforming formula into ILP}
+\centering $\big\downarrow$
+\begin{align*}
+\textcolor{red}{-5\cdot |X_s|+2\cdot |X_r|+I_1 = 0}\\
+\textcolor{blue}{5\cdot |X_s|-2\cdot |X_r|+I_2= 0}\\
+\textcolor{orange}{|X_r|-I_3=2}
+\end{align*}
+\centering $\big\downarrow$
+\begin{align*}
+\textcolor{red}{-5\cdot |v_1\cup v_3|+2\cdot |v_1\cup v_2|+I_1 = 0}\\
+\textcolor{blue}{5\cdot |v_1\cup v_3|-2\cdot |v_1\cup v_2|+I_2= 0}\\
+\textcolor{orange}{|v_1\cup v_2|-I_3=2}
+\end{align*}
 \end{frame}
 \begin{frame}{ILP}
 \renewcommand{\kbldelim}{(}% Left delimiter
@@ -353,7 +407,7 @@ Constraints on Role Successors. Springer International Publishing: 43-59, 2017}}
   \kbordermatrix{
     & v_1 & v_2 & v_3 & v_4 & I_1 & I_2 & I_3\\
     -5\cdot |X_s|+2\cdot |X_r|+I_1 & -5+2 & 2 & -5 & 0 & 1 & 0 & 0\\
-5\cdot |X_s|-2\cdot |X_r|+I_2 & 5-3 & -2 & 5 & 0 & 0 & 1 & 0\\
+5\cdot |X_s|-2\cdot |X_r|+I_2 & 5-2 & -2 & 5 & 0 & 0 & 1 & 0\\
     |X_r|-I_3 & 1 & 1 & 0 & 0 & 0 & 0 & -1\\
     } \cdot  \left( \begin{array}{c}
 x_1 \\
@@ -364,17 +418,17 @@ x_5 \\
 x_6 \\
 x_7 \end{array} \right)
 \]\\
-\centering $= \left( \begin{array}{ccc}
-0 & 0 & 1
+\centering $= \left( \begin{array}{c}
+0\\0\\2
 \end{array} \right)$
 \end{frame}
-\begin{frame}\frametitle{ILP and upper bound}
+\begin{frame}\frametitle{Upper bound}
 Christos H. Papadimitriou\footnote{\tiny{On the Complexity of Integer Programming. J. ACM,28(4):765-768, Oct. 1981.}}:\\
 \vspace*{1cm}
 \centering
-There exists an upper bound $M$ and $\alpha\in\{0,\dots ,M\}^n$ such that for each ILP $Ax=b$, $A$ a $m\times n$ matrix, $x\in \mathbb{N}^n$ and $b\in\mathbb{R}^m$ there exists a solution $x^\prime\in \{0,\dots ,M\}^n$ such that:
+For each ILP $Ax=b$, $A$ $m\times n$ matrix, $x\in \mathbb{N}^n$ and $b\in\mathbb{R}^m$ there exists an upper bound $M$ and a solution $x^\prime\in\{0,\dots,M\}^n$ such that 
 \begin{align*}
-x-\alpha=x^\prime
+Ax^\prime =b
 \end{align*}
 \end{frame}
 \section{Tableau for $\mathcal{ALCSCC}$}
