@@ -134,8 +134,8 @@ $c$: \textbf{set constraint} or \textbf{cardinality constraint}
 \textbf{set constraint:}
 \begin{itemize}
 \item $hasChild\cap Female$\\ $\subseteq Mother$
-\item $succ(2\,dvd\,|Edges|)$\\
-		$\subseteq succ(|Edges|=|Nodes|)$
+\item $succ(2\,dvd\,|Edges|)\subseteq$\\
+		$ succ(|Edges|=|Nodes|)$
 \end{itemize}
 \end{minipage}%
 \begin{minipage}[t]{0.5\textwidth}
@@ -144,7 +144,8 @@ $c$: \textbf{set constraint} or \textbf{cardinality constraint}
 \begin{itemize}
 \item $2\,dvd\,|hasLegs|$
 \item $|Edges|\leq |Nodes|$
-\item $|succ(C\cap r)|\leq |succ(D)|$
+\item $succ(2\,dvd\,|Edges|)\leq$\\
+		$ succ(|Edges|=|Nodes|)$
 \end{itemize}
 \end{minipage}
 \end{frame}
@@ -432,6 +433,10 @@ Ax^\prime =b
 \end{align*}
 \end{frame}
 \section{Tableau for $\mathcal{ALCSCC}$}
+\begin{frame}\frametitle{Tableau for $\mathcal{ALCSCC}$}
+\centering
+\large{Now we consider the rules for the tableau algorithm.}
+\end{frame}
 \begin{frame}\frametitle{Decomposing rules}
 \begin{itemize}
 \item $\sqcap$-rule:\\
@@ -495,124 +500,101 @@ Always apply when possible (higher priority)
 \centering
 \begin{tikzpicture}
 \node(f) at (0,0) {use QFBAPA solver};
-\node (b) at (-2,-2) {If it returns unsatisfiable};
+\node (b) at (-2,-2) {\begin{tabular}{c}
+    If it returns \\
+    unsatisfiable
+\end{tabular} };
 \draw[->](f)--(b);
 \node (c) at (-2,-4) {add $x:\perp$};
 \draw[->](b)--(c);
 \pause
-\node (a) at (2,-2) {If it returns a solution};
+\node (a) at (2,-2) {\begin{tabular}{c}
+    If it returns \\
+    a solution
+\end{tabular}};
 \draw[->](f)--(a);
 \node (s) at (2,-4) {add variables and its constraints};
 \draw[->](a)--(s);
 \end{tikzpicture}
 \end{frame}
 \begin{frame}\frametitle{Example: Concept}
+\only<1>{
 \begin{gather}
-fruitcake: succ(|need\cap Cake|\geq 1)\sqcap\nonumber 
+pancake: succ(|contains\cap Milk|\geq |contains\cap Flavour|)\,\sqcap\nonumber 
 \end{gather}
 \begin{gather}
-succ(|need\cap succ(|is\cap (Strawberry\cup 
-Tangerine\cup Apple)|\geq1)|\geq1)\nonumber
+succ(|contains\cap Milk|\leq 2\cdot|contains\cap Flavour|)\,\sqcap \nonumber
 \end{gather}
+\begin{gather}
+succ(|contains\cap Egg|\geq 1)\nonumber
+\end{gather}
+}
+\only<2>{
+\begin{gather}
+pancake: succ(|contains\cap Milk|\geq |contains\cap Flavour|)\,\textcolor{red}{\sqcap}\nonumber 
+\end{gather}
+\begin{gather}
+succ(|contains\cap Milk|\leq 2\cdot|contains\cap Flavour|)\,\textcolor{red}{\sqcap }\nonumber
+\end{gather}
+\begin{gather}
+succ(|contains\cap Egg|\geq 1)\nonumber
+\end{gather}
+}
 \end{frame}
 \begin{frame}\frametitle{Example: Decomposing}
-Apply $\sqcap$-rule first:\\
-\begin{gather}
-fruitcake: \textcolor{blue}{succ(|need\cap Cake|\geq 1)}\,\sqcap\nonumber 
-\end{gather}
-\begin{gather}
-\textcolor{red}{succ(|need\cap succ(|is\cap (Strawberry\cup 
-Tangerine\cup Apple)|\geq1)|\geq1)},\nonumber
-\end{gather}
-\vspace{-0.5cm}
+We use the $\sqcap$-twice and add \\
 \pause
 \begin{gather}
-\textcolor{blue}{fruitcake:succ(|need\cap Cake|\geq 1)},\textcolor{red}{ fruitcake:succ(|need\cap }\nonumber
+pancake: succ(|contains\cap Milk|\geq |contains\cap Flavour|),\nonumber 
 \end{gather}
 \begin{gather}
-\textcolor{red}{succ(|is\cap (Strawberry\cup 
-Tangerine\cup Apple)|\geq 1)|\geq1)}\nonumber
+pancake: succ(|contains\cap Milk|\leq 2\cdot|contains\cap Flavour|),\nonumber
+\end{gather}
+\begin{gather}
+pancake: succ(|contains\cap Egg|\geq 1)\nonumber 
 \end{gather}
 \end{frame}
-\begin{frame}\frametitle{Consider successor constraints}
-\small{Let $c=|is\cap(Strawberry\cup Tangerine\cup Apple)|\geq 1$}\\
-\vspace*{0.1cm}
-\begin{figure}[H]
+\begin{frame}\frametitle{Example: $successor$-rule}
 \centering
 \begin{tikzpicture}
-\node[draw=black, ellipse](set) at (0,0) {\begin{tabular}{c}
-    $fruitcake:succ(|need\cap Cake|\geq 1),$ \\
-    $fruitcake:succ(|need\cap succ(c)|\geq1)$\\ 
-\end{tabular}};
-\end{tikzpicture}
-\end{figure}
-\vspace*{-0.1cm}
+\node (s) at (0,0) {\begin{tabular}{c}
+    $succ(|contains\cap Milk|\geq |contains\cap Flavour|)$\\
+    $succ(|contains\cap Milk|\leq 2\cdot|contains\cap Flavour|)$\\
+    $succ(|contains\cap Egg|\geq 1)$
+\end{tabular} };
 \pause
-\noindent
-\centering $\Big\downarrow$
-\vspace*{-0.1cm}
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\node[draw=black, ellipse](set) at (0,0) {\begin{tabular}{c}
-    $|X_{need}\cap X_{Cake}|\geq 1 \wedge$ \\
-    $ |X_{need}\cap X_{succ(c)}|\geq 1$
-\end{tabular}};
-\end{tikzpicture}
-\end{figure}
-\end{frame}
-\begin{frame}\frametitle{Example: successor constraints}
-Assume solver returns:\\
-$X_{need}\cap X_{Cake}=\{cake\}$ and $X_{need}\cap X_{succ(c)}=\{fruit\}$\\
-\vspace*{0.5cm}
-\pause
-\centering
-\begin{tikzpicture}
-\node[draw=black, ellipse] (f) at (0,0) {$fruitcake$};
-\node[draw=black, ellipse] (c) at (-1.5,-2) {$cake$};
-\node at (-3,-2) {$Cake$};
-\node[draw=black, ellipse] (i) at (1.5,-2) {$fruit$};
-\node at (3,-2) {$succ(c)$};
-\draw[->] (f) edge node[left] {$need$} (c);
-\draw[->] (f) edge node[right] {$need$} (i);
+\node (q) at (0,-3)
+{\begin{tabular}{c}
+    $|X_{contains}\cap X_{Milk}|\geq |X_{contains}\cap X_{Flavour}|\,\wedge$\\
+    $|X_{contains}\cap X_{Milk}|\leq 2\cdot|X_{contains}\cap X_{Flavour}|\,\wedge$\\
+    $|X_{contains}\cap X_{Egg}|\geq 1)$
+\end{tabular} };
+\draw[->] (s) -- (q);
 \end{tikzpicture}
 \end{frame}
-\begin{frame}\frametitle{Example: individual name $fruit$}
-Same procedure for $fruit:succ(c)$:\\
+\begin{frame}\frametitle{Example: $successor$-rule}
+Assume the solver returns\\
+\vspace*{-0.5cm}
+\begin{align*}
+&X_{Milk}=\{cup_m\},\\
+&X_{Flavour}=\{cup_f\}\\
+&X_{egg}=\{egg1,egg2\} \text{ and }\\
+&X_{contains}=X_{Milk}\cup X_{Flavour}\cup X_{Egg}
+\end{align*}
 \pause
 \vspace*{1cm}
-\begin{minipage}[t]{0.5\textwidth}
-\begin{tikzpicture}[scale=0.7, every node/.style={scale=0.7}]
-\node[draw=black, ellipse] (f) at (0,0) {$fruitcake$};
-\node[draw=black, ellipse] (c) at (-1,-2) {$cake$};
-\node at (-2.5,-2) {$Cake$};
-\node[draw=black, ellipse] (i) at (1,-2) {$fruit$};
-\node at (2.5,-2) {$succ(c)$};
-\draw[->] (f) edge node[left] {$need$} (c);
-\draw[->] (f) edge node[right] {$need$} (i);
-\node[draw=black, ellipse] (s) at (1,-4) {$strawberry$};
-\node at (1,-5) {$Strawberry$};
-\draw[->] (i) edge node[right] {$is$} (s);
+\centering
+\begin{tikzpicture}[scale=0.6,every node/.style={scale=0.6}]
+\node[draw=black, ellipse] (p) at (0,0) {$pancake$};
+\node[draw=black, ellipse] (m) at (-6.5,-2.5) {$cup_m$};
+\node[draw=black, ellipse] (f) at (-2,-2.5) {$cup_f$};
+\node[draw=black, ellipse] (1) at (2,-2.5) {$egg1$};
+\node[draw=black, ellipse] (2) at (6,-2.5) {$egg2$};
+\draw[->] (p) edge node[left] {$contains$} (m);
+\draw[->] (p) edge node[left] {$contains$} (f);
+\draw[->] (p) edge node[right] {$contains$} (1);
+\draw[->] (p) edge node[right] {$contains$} (2);
 \end{tikzpicture}
-\end{minipage}%
-\pause
-\begin{minipage}[t]{0.5\textwidth}
-\begin{tikzpicture}[scale=0.7, every node/.style={scale=0.7}]
-\node[draw=black, ellipse] (f) at (5,0) {$fruitcake$};
-\node[draw=black, ellipse] (c) at (4,-2) {$cake$};
-\node at (2.5,-2) {$Cake$};
-\node[draw=black, ellipse] (i) at (6,-2) {$fruit$};
-\node at (7.5,-2) {$succ(c)$};
-\draw[->] (f) edge node[left] {$need$} (c);
-\draw[->] (f) edge node[right] {$need$} (i);
-\node[draw=black, ellipse] (s) at (4.5,-4) {$strawberry$};
-\node at (4.5,-5) {$Strawberry$};
-\draw[->] (i) edge node[right] {$is$} (s);
-\node[draw=black, ellipse] (a) at (8,-4) {$apple$};
-\node at (8,-5) {$Apple$};
-\draw[->] (i) edge node[right] {$is$} (a);
-\end{tikzpicture}
-\end{minipage}
 \end{frame}
 \section{Conclusion}
 \begin{frame}
