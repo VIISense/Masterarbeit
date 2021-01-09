@@ -60,7 +60,7 @@
 \begin{frame}\frametitle{Tableau Algorithm}
 Main Idea (for $\mathcal{ALCQ}$):
 \begin{align*}
-x:A\sqcap B\sqcap \exists r.C
+x:A\sqcap B\,\sqcap \geq\, 2\,r.C
 \end{align*}
 \vspace*{-1cm}
 \begin{minipage}[t]{0.6\textwidth}
@@ -75,9 +75,9 @@ x:A\sqcap B\sqcap \exists r.C
 \pic (c1) at (0,0) [pic text=$x$ must be in $B$]{cloud};
 \end{tikzpicture}
 }
-\only<5,6>{
+\only<5,6,7>{
 \begin{tikzpicture}
-\pic (c1) at (0,0) [pic text=$x$ must have an $r$-successor in $C$]{cloud};
+\pic (c1) at (0,0) [pic text=$x$ has at least two $r$-successor in $C$]{cloud};
 \end{tikzpicture}
 }
 \end{minipage}%
@@ -85,7 +85,7 @@ x:A\sqcap B\sqcap \exists r.C
 \centering
 \begin{tikzpicture}
 \node[draw=black,ellipse] (x) at (5,1.5) {$x$};
-\only<1,2,3>{
+\only<2,3>{
 \node[right = 0.5cm of x] {$A$\hphantom{$, B$}};
 }
 \only<4,5,6>{
@@ -96,9 +96,13 @@ x:A\sqcap B\sqcap \exists r.C
 \pause
 \pause
 \pause
-\node[draw=black,ellipse] (y) at (5,-1.25){$y$};
-\node at (6,-1.25) {$C$};
-\draw[->] (x) edge node[left] {$r$} (y);
+\node[draw=black,ellipse] (y1) at (4,-1.25){$y_1$};
+\node [right = 0.5cm of y1] {$C$};
+\draw[->] (x) edge node[left] {$r$} (y1);
+\pause
+\node[draw=black,ellipse] (y2) at (6,-1.25){$y_2$};
+\node [right = 0.5cm of y2] {$C$};
+\draw[->] (x) edge node[left] {$r$} (y2);
 \end{tikzpicture}
 \end{minipage}
 \end{frame}
@@ -123,7 +127,7 @@ $c$: \textbf{set constraint} or \textbf{cardinality constraint}
 \raggedright
 \textbf{set constraint:}
 \begin{itemize}
-\item $hasChild\cap Female$\\ $\subseteq Mother$
+\item $isChild\cap Female$\\ $\subseteq Daughter$
 \end{itemize}
 \end{minipage}%
 \begin{minipage}[t]{0.5\textwidth}
@@ -262,6 +266,19 @@ x:succ(3\cdot |r|\leq 5\cdot|s|)\,\sqcap\,\underline{succ(5\cdot|s|\leq 3\cdot|r
 \end{center}
 }
 \only<6>{
+\begin{align*}
+x:succ(3\cdot |r|\leq 5\cdot|s|)\,\sqcap\,\underline{succ(5\cdot|s|\leq 3\cdot|r|)}\,\sqcap\,succ(|r|>1)
+\end{align*}
+\begin{center}
+\begin{tikzpicture}
+\node[draw=black,ellipse] (s) at (0,0) {1};
+\node[draw=black,ellipse] (r) at (4,0) {2};
+\node[above = 0.3cm of s] {$s$-successors};
+\node[above = 0.3cm of r] {$r$-successors};
+\end{tikzpicture}
+\end{center}
+}
+\only<7>{
 \begin{align*}
 x:\underline{succ(3\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,succ(5\cdot|s|\leq 3\cdot|r|)\,\sqcap\,succ(|r|>1)
 \end{align*}
@@ -570,7 +587,6 @@ Always apply when possible (higher priority)
 \end{tikzpicture}
 \end{frame}
 \begin{frame}\frametitle{Example: Concept}
-\only<1>{
 \begin{gather}
 pancake: succ(|contains\cap Milk|\geq |contains\cap Flavour|)\,\textcolor{black}{\sqcap}\nonumber 
 \end{gather}
@@ -580,18 +596,6 @@ succ(|contains\cap Milk|\leq 2\cdot|contains\cap Flavour|)\,\textcolor{black}{\s
 \begin{gather}
 succ(|contains\cap Egg|\geq 1)\nonumber
 \end{gather}
-}
-\only<2>{
-\begin{gather}
-pancake: succ(|contains\cap Milk|\geq |contains\cap Flavour|)\,\textcolor{red}{\sqcap}\nonumber 
-\end{gather}
-\begin{gather}
-succ(|contains\cap Milk|\leq 2\cdot|contains\cap Flavour|)\,\textcolor{red}{\sqcap }\nonumber
-\end{gather}
-\begin{gather}
-succ(|contains\cap Egg|\geq 1)\nonumber
-\end{gather}
-}
 \end{frame}
 \begin{frame}\frametitle{Example: Decomposing}
 We use the $\sqcap$-rule twice and add \\
@@ -643,7 +647,7 @@ pancake: succ(|contains\cap Egg|\geq 1)\nonumber
 \[
   \kbordermatrix{
     & X_{M} & X_{F} & X_{E} & X_{c} & I_1 & I_2 & I_3\\
-    \text{Milk}<\text{Flavour} & 1 & -1 & 0 & 1 & -1 & 0 & 0\\
+    \text{Milk}>\text{Flavour} & 1 & -1 & 0 & 1 & -1 & 0 & 0\\
 	\text{not to much milk} & 1 & -2 & 0 & 1 & 0 & 1 & 0\\
     \text{Eggs} & 0 & 0 & 1 & 1 & 0 & 0 & -1\\
     } \cdot  \left( \begin{array}{c}
@@ -659,7 +663,7 @@ x_7\end{array} \right)
 0\\0\\1
 \end{array} \right)$
 \end{frame}
-\begin{frame}\frametitle{Example: $successor$-rule}
+\begin{frame}\frametitle{Example: Solution of the solver}
 Assume the solver returns\\
 \vspace*{-0.5cm}
 \begin{align*}
