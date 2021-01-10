@@ -86,10 +86,10 @@ x:A\sqcap B\,\sqcap \geq\, 2\,r.C
 \begin{tikzpicture}
 \node[draw=black,ellipse] (x) at (5,1.5) {$x$};
 \only<2,3>{
-\node[right = 0.5cm of x] {$A$\hphantom{$, B$}};
+\node[right = 0.4cm of x] {$A$\hphantom{$, B$}};
 }
 \only<4,5,6>{
-\node[right = 0.5cm of x] {$A,B$};
+\node[right = 0.4cm of x] {$A,B$};
 }
 \pause
 \pause
@@ -97,11 +97,11 @@ x:A\sqcap B\,\sqcap \geq\, 2\,r.C
 \pause
 \pause
 \node[draw=black,ellipse] (y1) at (4,-1.25){$y_1$};
-\node [right = 0.5cm of y1] {$C$};
+\node [left = 0.4cm of y1] {$C$};
 \draw[->] (x) edge node[left] {$r$} (y1);
 \pause
 \node[draw=black,ellipse] (y2) at (6,-1.25){$y_2$};
-\node [right = 0.5cm of y2] {$C$};
+\node [right = 0.4cm of y2] {$C$};
 \draw[->] (x) edge node[left] {$r$} (y2);
 \end{tikzpicture}
 \end{minipage}
@@ -314,7 +314,7 @@ What about
 \begin{align*}
 \textcolor{red}{3\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 3\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
 \end{align*}
-\centering $\big\downarrow$
+\centering $\Big\downarrow$
 \begin{align*}
 |X_r|=10\text{ and }|X_s|=6
 \end{align*}
