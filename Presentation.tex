@@ -88,7 +88,7 @@ x:A\sqcap B\,\sqcap \geq\, 2\,r.C
 \only<2,3>{
 \node[right = 0.4cm of x] {$A$\hphantom{$, B$}};
 }
-\only<4,5,6>{
+\only<4,5,6,7>{
 \node[right = 0.4cm of x] {$A,B$};
 }
 \pause
@@ -285,13 +285,14 @@ x:\underline{succ(3\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,succ(5\cdot|s|\leq 3\cdot|
 \begin{center}
 \begin{tikzpicture}
 \node[draw=black,ellipse] (s) at (0,0) {1};
-\node[draw=black,ellipse] (r) at (4,0) {1};
+\node[draw=black,ellipse] (r) at (4,0) {2};
 \node[above = 0.3cm of s] {$s$-successors};
 \node[above = 0.3cm of r] {$r$-successors};
 \end{tikzpicture}
 \end{center}
 }
 \end{frame}
+\section{Dealing with successor constraints}
 \begin{frame}\frametitle{QFBAPA formula and solver}
 \begin{align*}
 x:\textcolor{red}{succ(3\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,\textcolor{blue}{succ(5\cdot|s|\leq 3\cdot|r|)}\,\sqcap\,\textcolor{orange}{succ(|r|>1)}
@@ -307,9 +308,7 @@ x:\textcolor{red}{succ(3\cdot |r|\leq 5\cdot|s|)}\,\sqcap\,\textcolor{blue}{succ
 X_r=\{r_1,r_2,\dots,r_5\}\text{ and }X_s=\{s_1,s_2,s_3\}
 \end{align*}
 \end{frame}
-\section{Dealing with successor constraints}
 \begin{frame}\frametitle{QFBAPA formula and solver}
-\only<1>{
 What about
 \begin{align*}
 \textcolor{red}{3\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 3\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
@@ -318,8 +317,8 @@ What about
 \begin{align*}
 |X_r|=10\text{ and }|X_s|=6
 \end{align*}
-}
-\only<2>{
+\end{frame}
+\begin{frame}\frametitle{QFBAPA formula and solver}
 What about
 \begin{align*}
 \textcolor{red}{3\cdot |X_r|\leq 5\cdot |X_s|}\wedge \textcolor{blue}{5\cdot |X_s|\leq 3\cdot |X_r|}\wedge \textcolor{orange}{|X_r|>1}
@@ -328,7 +327,6 @@ What about
 \begin{align*}
 |X_r|=100\text{ and }|X_s|=60
 \end{align*}
-}
 \end{frame}
 \begin{frame}\frametitle{QFBAPA formula and solver}
 \begin{center}
@@ -476,8 +474,8 @@ In short:
 \[
   \kbordermatrix{
     & v_1 & v_2 & v_3 & v_4 & I_1 & I_2 & I_3\\
-    -5\cdot |X_s|+2\cdot |X_r|+I_1 & -5+3 & 3 & -5 & 0 & 1 & 0 & 0\\
-5\cdot |X_s|-2\cdot |X_r|+I_2 & 5-3 & -3 & 5 & 0 & 0 & 1 & 0\\
+    -5\cdot |X_s|+3\cdot |X_r|+I_1 & -5+3 & 3 & -5 & 0 & 1 & 0 & 0\\
+5\cdot |X_s|-3\cdot |X_r|+I_2 & 5-3 & -3 & 5 & 0 & 0 & 1 & 0\\
     |X_r|-I_3 & 1 & 1 & 0 & 0 & 0 & 0 & -1\\
     } \cdot  \left( \begin{array}{c}
 x_1 \\
@@ -582,7 +580,10 @@ Always apply when possible (higher priority)
     a solution
 \end{tabular}};
 \draw[->](f)--(a);
-\node (s) at (2,-4) {add variables and its constraints};
+\node (s) at (2,-4) {\begin{tabular}{c}
+    add individual names\\
+    and its constraints
+\end{tabular}};
 \draw[->](a)--(s);
 \end{tikzpicture}
 \end{frame}
@@ -646,10 +647,10 @@ pancake: succ(|contains\cap Egg|\geq 1)\nonumber
 \renewcommand{\kbrdelim}{)}% Right delimiter
 \[
   \kbordermatrix{
-    & X_{M} & X_{F} & X_{E} & X_{c} & I_1 & I_2 & I_3\\
-    \text{Milk}>\text{Flavour} & 1 & -1 & 0 & 1 & -1 & 0 & 0\\
-	\text{not to much milk} & 1 & -2 & 0 & 1 & 0 & 1 & 0\\
-    \text{Eggs} & 0 & 0 & 1 & 1 & 0 & 0 & -1\\
+    & X_{M}\cup X_{c} & X_{F}\cup X_{c} & X_{E}\cup X_{c} & I_1 & I_2 & I_3\\
+    \text{Milk}>\text{Flavour} & 1 & -1 & 0  & -1 & 0 & 0\\
+	\text{not to much milk} & 1 & -2 & 0  & 0 & 1 & 0\\
+    \text{Eggs} & 0 & 0 & 1  & 0 & 0 & -1\\
     } \cdot  \left( \begin{array}{c}
 x_1 \\
 x_2 \\
